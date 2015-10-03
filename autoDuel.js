@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name        SAOEW : Auto Duel
 // @namespace   saoew
+// @description
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_duel_index=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_duel_detail=1&guid=ON&listType=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [150625]
-// @description
+// @version     [151003]
 // @grant       none
 // ==/UserScript==
+
+// var DEBUGGING = true;
 
 /**
  * Here is the attr of your right-hand weapon.
@@ -17,21 +19,37 @@
  * 2: hit
  * @type {Integer}
  */
-var nYourAttr = 1;
+var Attr = {
+    slash: 0,
+    speed: 1,
+    hit:   2
+};
+var int2Attr = ["slash", "speed", "hit"];
+
+var nYourAttr = Attr.slash;
 var nYourATK  = 14000;
 var nKOsUnder = 700;
 
-var enemy = $("center>.gra_dark_blue");
+var jEnemy = $("center>.gra_dark_blue");
 
 $(document).ready(function() {
+    if ("undefined" === typeof DEBUGGING)
+        DEBUGGING = false;
+
+    if ( true === DEBUGGING )
+        console.log("*** Debugging Mode ***");
+
     var isWinningStreak = (0 !== $(".padding_b>.padding>span").length);
 
     // Check it is on action_home_duel_index.
-    if ( 0 !== enemy.length ) {
+    if ( 0 !== jEnemy.length ) {
         var currentBP = parseInt($("div.gra_dark_blue>div.padding").html().match(/\d\//)[0].replace("/", ""));
 
         // Check if you wins consecutively, or BP is full.
-        if (isWinningStreak || 6 === currentBP) {
+        if (
+            (isWinningStreak || 6 === currentBP) ||
+            DEBUGGING
+        ) {
             action_home_duel_index();
         }
     // Otherwise, it is on action_home_duel_detail.
@@ -40,17 +58,20 @@ $(document).ready(function() {
     }
 
     // Waiting in 1 min.
-    setTimeout(hAfterWaiting, 1*60*1000);
+    if ( false === DEBUGGING ) {
+        setTimeout(hAfterWaiting, 1*60*1000);
+    }
 
     function hAfterWaiting() {
-        // alert("Time Out!");
-        $(".padding2.btn02>a")[0].click();
+        console.log("Time Out!");
+        // $(".padding2.btn02>a")[0].click();
+        location.reload();
     }
 });
 
 function action_home_duel_index() {
-    var enemyAttr = enemy.find(".item_title>span");
-    var enemyData = enemy.find("td>span:first-of-type");
+    var jEnemyAttr = jEnemy.find(".item_title>span");
+    var jEnemyData = jEnemy.find("td>span:first-of-type");
 
     var regexIntData = new RegExp(/&nbsp;\d{1,5}/g);
 
@@ -63,18 +84,18 @@ function action_home_duel_index() {
      * @type {Array}
      */
     var arrData = [];
-    var bestIndex = undefined;
-    for (var i = 0; i < enemyData.length; ++i) {
-        arrData[i] = enemyData.eq(i).html().match(regexIntData);
+    var bestIndex;
+    for (var i = 0; i < jEnemyData.length; ++i) {
+        arrData[i] = jEnemyData.eq(i).html().match(regexIntData);
         for (var j = 0; j < arrData[i].length; ++j)
-            arrData[i][j] = arrData[i][j].replace("&nbsp;", "");
+            arrData[i][j] = parseInt(arrData[i][j].replace("&nbsp;", ""));
 
-        arrData[i].push( iconAttr2Int(enemyAttr.eq(i).find("span").attr("class")) );
+        arrData[i].push( iconAttr2Int(jEnemyAttr.eq(i).find("span").attr("class")) );
 
         var nRevisedATK = revisedATK(arrData[i][1], arrData[i][4]);
         if ( undefined === bestIndex ) {
             if (
-                nRevisedATK <= nYourATK * 0.4 ||
+                (nRevisedATK <= nYourATK * 0.4) ||
                 (nRevisedATK <= nYourATK * 0.5 && arrData[i][2] <= nKOsUnder)
             ) {
                 bestIndex = i;
@@ -87,14 +108,26 @@ function action_home_duel_index() {
 
     if ( undefined !== bestIndex ) {
         // No Link => BP is not enough => Go waiting.
-        if ( 0 === enemy.eq(bestIndex).find("a").length )
+        if ( 0 === jEnemy.eq(bestIndex).find("a").length ) {
             return;
         // Click the best enemy.
-        else
-            enemy.eq(bestIndex).find("a")[0].click();
+        } else {
+            if ( false === DEBUGGING ) {
+                jEnemy.eq(bestIndex).find("a")[0].click();
+            }
+
+            console.log( (bestIndex+1) + "-th is the best." );
+            console.log( "Attribute: " + int2Attr[ arrData[bestIndex][4] ] );
+            console.log( "ATK: " + arrData[bestIndex][1] );
+            console.log( "Your Attribute: " + int2Attr[ nYourAttr ] );
+            console.log( "Revised ATK: " + revisedATK(arrData[bestIndex][1], arrData[bestIndex][4]) );
+            console.log( "Expected ATK: " + nYourATK*0.4 );
+            console.log( "KOs: " + arrData[bestIndex][2] + " (may under " + nKOsUnder + ")" );
+        }
     } else {
         // Find another enemies.
-        $(".padding2.btn02>a")[0].click();
+        // $(".padding2.btn02>a")[0].click();
+        location.reload();
     }
 
     /**
@@ -105,15 +138,15 @@ function action_home_duel_index() {
         var nAttr;
         switch (iconAttr) {
             case "icon_slash":
-            nAttr = 0;
+            nAttr = Attr.slash;
             break;
 
             case "icon_speed":
-            nAttr = 1;
+            nAttr = Attr.speed;
             break;
 
             case "icon_hit":
-            nAttr = 2;
+            nAttr = Attr.hit;
             break;
 
             default:
