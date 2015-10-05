@@ -6,7 +6,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_duel_detail=1&guid=ON&listType=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151003]
+// @version     [151004]
 // @grant       none
 // ==/UserScript==
 
@@ -112,10 +112,6 @@ function action_home_duel_index() {
             return;
         // Click the best enemy.
         } else {
-            if ( false === DEBUGGING ) {
-                jEnemy.eq(bestIndex).find("a")[0].click();
-            }
-
             console.log( (bestIndex+1) + "-th is the best." );
             console.log( "Attribute: " + int2Attr[ arrData[bestIndex][4] ] );
             console.log( "ATK: " + arrData[bestIndex][1] );
@@ -123,11 +119,17 @@ function action_home_duel_index() {
             console.log( "Revised ATK: " + revisedATK(arrData[bestIndex][1], arrData[bestIndex][4]) );
             console.log( "Expected ATK: " + nYourATK*0.4 );
             console.log( "KOs: " + arrData[bestIndex][2] + " (may under " + nKOsUnder + ")" );
+
+            if ( false === DEBUGGING ) {
+                jEnemy.eq(bestIndex).find("a")[0].click();
+            }
         }
     } else {
         // Find another enemies.
-        // $(".padding2.btn02>a")[0].click();
-        location.reload();
+        setTimeout(function() {
+            $(".padding2.btn02>a")[0].click();
+            // location.reload();
+        }, 1*1000);
     }
 
     /**
