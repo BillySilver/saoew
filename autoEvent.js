@@ -26,7 +26,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151004]
+// @version     [151009]
 // @grant       none
 // ==/UserScript==
 
@@ -35,7 +35,7 @@ var opensocial_owner_id = 708131429;
 
 var sHeal       = 2;
 var isSleepMode = true;
-var isLimitHeal = false;
+var isLimitHeal = true;
 var enemyMaxHP  = 1000000;
 
 $(document).ready(function() {
@@ -129,6 +129,9 @@ $(document).ready(function() {
     // 攻略 - 階層選取(攻略).
     else if ( isExisted("a[href^='sp_web.php?action_event_163_map=true&guid=ON&clkBnrCde=100']") )
         action_home_quest_index4();
+    // 攻略 - 階層選取(收集).
+    else if ( isExisted("a[href^='sp_web.php?action_event_167_map=true&guid=ON&clkBnrCde=100']") )
+        action_home_quest_index5();
     // 是否在HealPoison頁面. 依條件決定要掛網或是喝HealPoison.
     // else if ( isExisted("center.footer_padding>p.footer_btn>a") ) {
     else if ( isExisted("div.clear>center>table div.item_title>span:even") ) {
@@ -210,19 +213,19 @@ function action_home_quest_map2() {
             if ( true === isLimitHeal && 1 === nLimitHeal ) {
                 $("input[name=isConfirmedUseItem]").prop("checked", true);
                 $("select[name=itemCdOffset]>option").eq(0).prop("selected", true);
-                $(".attack>a")[0].click();
+                $("td.attack>a")[0].click();
             } else if ( false === isSleepMode ) {
                 var nHeal = sHeal - 1 + nLimitHeal;
 
                 $("input[name=isConfirmedUseItem]").prop("checked", true);
                 $("select[name=itemCdOffset]>option").eq(nHeal).prop("selected", true);
-                $(".attack>a")[0].click();
+                $("td.attack>a")[0].click();
             } else {
                 // retrete.
                 $("p.btn04>a")[0].click();
             }
         } else {
-            $(".attack>a")[0].click();
+            $("td.attack>a")[0].click();
         }
     }, 2*1000);
 }
@@ -365,6 +368,11 @@ function action_home_quest_index3() {
 // 攻略 - 階層選取(攻略).
 function action_home_quest_index4() {
     $("a[href^='sp_web.php?action_event_163_map=true&guid=ON&clkBnrCde=100']")[0].click();
+}
+
+// 攻略 - 階層選取(收集).
+function action_home_quest_index5() {
+    $("a[href^='sp_web.php?action_event_167_map=true&guid=ON&clkBnrCde=100']")[0].click();
 }
 
 /**
