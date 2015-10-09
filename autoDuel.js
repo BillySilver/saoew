@@ -6,7 +6,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_duel_detail=1&guid=ON&listType=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151004]
+// @version     [151006]
 // @grant       none
 // ==/UserScript==
 
@@ -27,7 +27,7 @@ var Attr = {
 var int2Attr = ["slash", "speed", "hit"];
 
 var nYourAttr = Attr.slash;
-var nYourATK  = 14000;
+var nYourATK  = 15000;
 var nKOsUnder = 700;
 
 var jEnemy = $("center>.gra_dark_blue");
@@ -39,7 +39,8 @@ $(document).ready(function() {
     if ( true === DEBUGGING )
         console.log("*** Debugging Mode ***");
 
-    var isWinningStreak = (0 !== $(".padding_b>.padding>span").length);
+    var nLeftSecond = 60;
+    var isWinningStreak = (0 !== $("div.padding_b>div.padding>span").length);
 
     // Check it is on action_home_duel_index.
     if ( 0 !== jEnemy.length ) {
@@ -47,11 +48,15 @@ $(document).ready(function() {
 
         // Check if you wins consecutively, or BP is full.
         if (
-            (isWinningStreak || 6 === currentBP) ||
+            (isWinningStreak && 0 < currentBP) ||
+            (6 === currentBP) ||
             DEBUGGING
         ) {
             action_home_duel_index();
         }
+
+        if ( 0 === currentBP )
+            nLeftSecond = parseInt($("div.gra_dark_blue>div.padding").html().match(/\d{2}:\d{2}:\d{2}/)[0].split(":")[2]);
     // Otherwise, it is on action_home_duel_detail.
     } else {
         action_home_duel_detail();
@@ -59,7 +64,7 @@ $(document).ready(function() {
 
     // Waiting in 1 min.
     if ( false === DEBUGGING ) {
-        setTimeout(hAfterWaiting, 1*60*1000);
+        setTimeout(hAfterWaiting, nLeftSecond*1000);
     }
 
     function hAfterWaiting() {
