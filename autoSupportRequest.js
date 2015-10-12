@@ -10,7 +10,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151011]
+// @version     [151012]
 // @grant       none
 // ==/UserScript==
 
@@ -63,7 +63,7 @@ $(document).ready(function() {
         $("center.padding2.btn01>input")[0].click();
     // さっそく戦う!
     // http://a57528.app.gree-pf.net/sp_web.php
-    } else if ( isExisted("center.padding2.btn01>a") ) {
+    } else if ( chkURL(/^$/) && isExisted("div#gree-app-container>div#gad_wrapper>div>div.clear_black>center.padding2.btn01>a") ) {
         console.log("Go!");
 
         $("center.padding2.btn01>a")[0].click();
@@ -90,7 +90,8 @@ $(document).ready(function() {
         location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=" + opensocial_owner_id;
     }
 
-    setTimeout(hAfterWaiting, 10*1000);
+    if ( !chkURL(/^$/) || isExisted("div#gree-app-container>div#gad_wrapper>div>div.clear_black>center.padding2.btn01>a") )
+       setTimeout(hAfterWaiting, 10*1000);
 
     function hAfterWaiting() {
         console.log("Time Out!");
