@@ -6,20 +6,28 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_index=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_detail=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_index=true&guid=ON&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_attack&tu=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151007]
+// @version     [151011]
 // @grant       none
 // ==/UserScript==
 
+// var DEBUGGING = true;
+var opensocial_owner_id = 708131429;
+
 $(document).ready(function() {
+    if ("undefined" === typeof DEBUGGING)
+        DEBUGGING = false;
+
     console.log("Supprot Request page.");
 
-    if ( 0 !== $("div.ask_btn").length ) {
+    if ( isExisted("div.ask_btn") ) {
         console.log("Index with some requests.");
 
         $("div.ask_btn>a")[0].click();
-    } else if ( 0 !== $("div.gra_dark_blue").length && 0 !== $("div.next").length ) {
+    } else if ( isExisted("div.gra_dark_blue") && isExisted("div.next") ) {
         console.log("Finding requests...");
 
         var nBestRequest = -1;
@@ -49,25 +57,38 @@ $(document).ready(function() {
         }
     // ともに闘う!!
     // http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_detail=1&qid=548026506&opensocial_owner_id=*
-    } else if ( 0 !== $("center.padding2.btn01>input").length ) {
+    } else if ( isExisted("center.padding2.btn01>input") ) {
         console.log("Attend!");
 
         $("center.padding2.btn01>input")[0].click();
     // さっそく戦う!
     // http://a57528.app.gree-pf.net/sp_web.php
-    } else if ( 0 !== $("center.padding2.btn01>a").length ) {
+    } else if ( isExisted("center.padding2.btn01>a") ) {
         console.log("Go!");
 
         $("center.padding2.btn01>a")[0].click();
-    // First Battle.
+    // Fighting.
     // http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_index=true&guid=ON&opensocial_owner_id=*
-    } else if ( 0 !== $("td.attack").length ) {
+    } else if ( chkURL(/action_home_quest_detail_index/) && isExisted("td.attack") ) {
         console.log("Without waiting. Ignore HP of the enemy.");
 
         $("td.attack>a")[0].click();
-    }
-    // After Battle. (in SAOEW : Auto Event)
+    // After Fighting. (in SAOEW : Auto Event)
     // http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_attack&tu=*
+    } else if ( isExisted("td.attack") ) {
+        // do nothing.
+    // Skip Battle Result.
+    } else if ( chkURL(/action=home_quest_detail_attack/) ) {
+        // Form Offical Code.
+
+        connectInterrupt();
+    // Next Fight: Fight Finish or Timeout.
+    } else if ( isExisted("div.next_bt") ) {
+        // $("div.next_bt>a")[0].click();
+
+        // If the fight is Timeout, then it will go to action_home_quest_index and do nothing.
+        location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=" + opensocial_owner_id;
+    }
 
     setTimeout(hAfterWaiting, 10*1000);
 
@@ -76,3 +97,23 @@ $(document).ready(function() {
         location.reload();
     }
 });
+
+/**
+ * For general use.
+ */
+
+function isExisted(strSelector) {
+    if (0 !== $(strSelector).length) {
+        console.log("Selector Found: " + strSelector);
+        return ! DEBUGGING;
+    }
+    else return false;
+}
+
+function chkURL(regexURL) {
+    if (null !== location.search.match(regexURL)) {
+        console.log("Selector Found: " + regexURL);
+        return ! DEBUGGING;
+    }
+    else return false;
+}
