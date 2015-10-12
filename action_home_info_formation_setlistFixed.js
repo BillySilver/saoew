@@ -3,11 +3,13 @@
 // @namespace   saoew
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_info_formation_setlist2=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_formation_setlist2=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151004]
+// @version     [151012]
 // @grant       none
 // ==/UserScript==
 
 $(document).ready(function() {
-    $("div#gad_wrapper>div>center>table").before($("<table>"));
+    if ( 0 !== $("div#gree-app-container>div#gad_wrapper>div>center>table.forward_bg").length )
+        $("div#gree-app-container>div#gad_wrapper>div>center>table.forward_bg").before($("<table>"));
 });
