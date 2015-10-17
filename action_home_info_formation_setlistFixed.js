@@ -3,9 +3,10 @@
 // @namespace   saoew
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_info_formation_setlist2=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_formation_setlist2=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_info_formation_setlist2&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151012]
+// @version     [151015]
 // @grant       none
 // ==/UserScript==
 
