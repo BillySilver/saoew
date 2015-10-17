@@ -10,7 +10,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151012]
+// @version     [151013]
 // @grant       none
 // ==/UserScript==
 
@@ -21,7 +21,7 @@ $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
 
-    console.log("Supprot Request page.");
+    console.log("Support Request page.");
 
     if ( isExisted("div.ask_btn") ) {
         console.log("Index with some requests.");
@@ -77,17 +77,19 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_attack&tu=*
     } else if ( isExisted("td.attack") ) {
         // do nothing.
-    // Skip Battle Result.
-    } else if ( chkURL(/action=home_quest_detail_attack/) ) {
-        // Form Offical Code.
-
-        connectInterrupt();
     // Next Fight: Fight Finish or Timeout.
+    // The Battle may end when Fighting. (action=home_quest_detail_attack)
     } else if ( isExisted("div.next_bt") ) {
         // $("div.next_bt>a")[0].click();
 
         // If the fight is Timeout, then it will go to action_home_quest_index and do nothing.
         location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=" + opensocial_owner_id;
+    // Skip Battle Result.
+    // http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=708131429
+    } else if ( chkURL(/action(_|=)home_quest_detail_attack/) ) {
+        // Form Offical Code.
+
+        connectInterrupt();
     }
 
     if ( !chkURL(/^$/) || isExisted("div#gree-app-container>div#gad_wrapper>div>div.clear_black>center.padding2.btn01>a") )
