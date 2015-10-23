@@ -1,18 +1,19 @@
 // ==UserScript==
 // @name        SAOEW : Auto Event
 // @namespace   saoew
-// @description Explore Subjugate Conquer Collect
+// @description Exploring, Simulation, Crusade, Conquest, Collect
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_do=true&guid=ON&mc=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_do=true&mc=100*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_do&guid=ON&mc=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_encount&qc=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_encount&guid=ON&qc=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_encount=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&guid=ON*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_index=true&guid=ON&opensocial_owner_id=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index_do&guid=ON&btn=1&pt=100*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index_do&guid=ON&btn=1&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&tu=0&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_game=1&tu=0&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_attack&tu=*
@@ -23,10 +24,12 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_delete_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_delete_ok=true&guid=ON&isDailyQuest=
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action=event_*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_info_item_use&guid=ON
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_168_getbox&*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151009]
+// @version     [151017]
 // @grant       none
 // ==/UserScript==
 
@@ -71,8 +74,8 @@ $(document).ready(function() {
     }
 
     console.log("Finding some condition....");
-    // Event Entrance.
-    if ( isExisted(".event_btn01") )
+    // Event Entrance - 探索.
+    if ( isExisted("div.event_btn01") )
         action_home_quest_map();
     // Fighting.
     else if ( isExisted("td.attack") )
@@ -92,8 +95,8 @@ $(document).ready(function() {
     // Event Entrance - 收集(bouns time), 育成.
     else if ( isExisted("div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
-    // [CG] Explore: reload2TrueMob.
-    else if ( chkURL(/action_home_quest_do/) )
+    // [CG] Explore: reload2TrueMob - 探索.
+    else if ( chkURL(/action(_|=)home_quest_do/) )
         action_home_quest_do();
     // [CG] Encount a Monster.
     else if ( chkURL(/action(_|=)home_quest_encount/) )
@@ -102,7 +105,7 @@ $(document).ready(function() {
     else if ( chkURL(/action=home_quest_detail_attack/) )
         action_home_quest_detail_attack();
     // Next Fight: Fight Finish or Timeout.
-    else if ( isExisted(".next_bt") )
+    else if ( isExisted("div.next_bt") )
         action_home_quest_detail_result();
     // Retreat Interface *2.
     // 條件變複雜是因為HealPoison頁面有隱藏的按鈕(和撤退按鈕相同).
@@ -110,28 +113,17 @@ $(document).ready(function() {
         action_home_quest_delete_index();
     else if ( isExisted("div.padding_t2>a") )
         action_home_quest_delete_ok();
-    // 探索到寶箱.
+    // 探索到寶箱 - 探索.
     else if ( isExisted("span.event_btn_next") )
         action_event_160_getbox();
     // Skip Dialogue.
     // else if ( chkURL(/action=event_/) || chkURL(/guid=ON&action_home_quest_map=1&map_code=/) || chkURL(/action_home_quest_do=true/) )
     else if ( "undefined" !== typeof releaseWait && "undefined" !== typeof Loading )
         action_event();
-    // 攻略 - 階層選取(探索).
-    else if ( isExisted("a[href^='sp_web.php?action_event_160_map=true&guid=ON&clkBnrCde=100']") )
+    // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
+    // 攻略 -> 階層選擇(for all event).
+    else if ( isExisted("a[href^='sp_web.php?action_event_1'][href*='_map=true&guid=ON&clkBnrCde=100']") )
         action_home_quest_index();
-    // 攻略 - 階層選取(育成).
-    else if ( isExisted("a[href^='sp_web.php?action_event_161_map=true&guid=ON&clkBnrCde=100']") )
-        action_home_quest_index2();
-    // 攻略 - 階層選取(討伐).
-    else if ( isExisted("a[href^='sp_web.php?action_event_162_map=true&guid=ON&clkBnrCde=100']") )
-        action_home_quest_index3();
-    // 攻略 - 階層選取(攻略).
-    else if ( isExisted("a[href^='sp_web.php?action_event_163_map=true&guid=ON&clkBnrCde=100']") )
-        action_home_quest_index4();
-    // 攻略 - 階層選取(收集).
-    else if ( isExisted("a[href^='sp_web.php?action_event_167_map=true&guid=ON&clkBnrCde=100']") )
-        action_home_quest_index5();
     // 是否在HealPoison頁面. 依條件決定要掛網或是喝HealPoison.
     // else if ( isExisted("center.footer_padding>p.footer_btn>a") ) {
     else if ( isExisted("div.clear>center>table div.item_title>span:even") ) {
@@ -186,9 +178,13 @@ $(document).ready(function() {
     }
 });
 
-// Event Entrance.
+// Event Entrance - 探索.
 function action_home_quest_map() {
-    $(".event_btn01>a")[0].click();
+    // 隠しｴﾘｱ.
+    if ( isExisted("div.event_btn02") )
+        $("div.event_btn02>a")[0].click();
+    else
+        $("div.event_btn01>a")[0].click();
 }
 
 // Fighting.
@@ -270,11 +266,11 @@ function action_home_quest_map7() {
     // 3: Hard.
     // 4: Very Hard.
     // 5: Collect.
-    var difficulty = 2;
+    var difficulty = 3;
     $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + ">a")[0].click();
 }
 
-// [CG] Explore: reload2TrueMob.
+// [CG] Explore: reload2TrueMob - 探索.
 function action_home_quest_do() {
     location.reload();
 }
@@ -298,7 +294,7 @@ function action_home_quest_detail_attack() {
 
 // Next Fight: Fight Finish or Timeout.
 function action_home_quest_detail_result() {
-    $(".next_bt>a")[0].click();
+    $("div.next_bt>a")[0].click();
 }
 
 // checkTrueMob.
@@ -334,7 +330,7 @@ function action_home_quest_delete_ok() {
     $("div.padding_t2>a")[0].click();
 }
 
-// 探索到寶箱.
+// 探索到寶箱 - 探索.
 function action_event_160_getbox() {
     $("span.event_btn_next")[0].click();
 }
@@ -350,29 +346,9 @@ function action_event() {
     timeForm = setTimeout ( "releaseWait()", 10000 ) ;
 }
 
-// 攻略 - 階層選取(探索).
+// 攻略 -> 階層選擇(for all event).
 function action_home_quest_index() {
-    $("a[href^='sp_web.php?action_event_160_map=true&guid=ON&clkBnrCde=100']")[0].click();
-}
-
-// 攻略 - 階層選取(育成).
-function action_home_quest_index2() {
-    $("a[href^='sp_web.php?action_event_161_map=true&guid=ON&clkBnrCde=100']")[0].click();
-}
-
-// 攻略 - 階層選取(討伐).
-function action_home_quest_index3() {
-    $("a[href^='sp_web.php?action_event_162_map=true&guid=ON&clkBnrCde=100']")[0].click();
-}
-
-// 攻略 - 階層選取(攻略).
-function action_home_quest_index4() {
-    $("a[href^='sp_web.php?action_event_163_map=true&guid=ON&clkBnrCde=100']")[0].click();
-}
-
-// 攻略 - 階層選取(收集).
-function action_home_quest_index5() {
-    $("a[href^='sp_web.php?action_event_167_map=true&guid=ON&clkBnrCde=100']")[0].click();
+    $("a[href^='sp_web.php?action_event_1'][href*='_map=true&guid=ON&clkBnrCde=100']")[0].click();
 }
 
 /**
