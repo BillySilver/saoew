@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SAOEW : Auto Event
 // @namespace   saoew
-// @description Exploring, Simulation, Crusade, Conquest, Collect
+// @description Exploring, Simulation, Crusade, Conquest, Collect, Fishing
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_do=true&guid=ON&mc=100*
@@ -28,8 +28,11 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_info_item_use&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_168_getbox&*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_user_index=true&step=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151017]
+// @version     [151023]
 // @grant       none
 // ==/UserScript==
 
@@ -41,11 +44,33 @@ var isSleepMode = true;
 var isLimitHeal = true;
 var enemyMaxHP  = 1000000;
 
+//*
+var isMobWhitelist = true;
+var mobWhitelist = [
+    "ｼｰﾌﾟﾘﾝｾｽ",
+    "ﾌﾗｯｼｭ･ｲｰﾀｰ",
+    "ﾏﾌｫｰｸ",
+    "湖のﾇｼ",
+//     "湖のｵｵﾇｼ",
+
+    "ｸﾗｽﾄ･ﾊｰﾐｯﾄ"
+];
+//*/
+
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
+    if ("undefined" === typeof isMobWhitelist)
+        isMobWhitelist = false;
 
     console.log("It is a SAOEW event page.");
+
+    // ｴﾙｰｶの実を探してきますね！ - 釣魚.
+    if ( isExisted("div#gad_wrapper>div>div>div.navi_area.clear>a") ) {
+        $("div#gad_wrapper>div>div>div.navi_area.clear>a")[0].click();
+        return;
+    }
+
     // 若有顯示AP則確認.
     var strAP = (function() {
         var jSpan = $("table.padding td>span");
@@ -75,7 +100,8 @@ $(document).ready(function() {
 
     console.log("Finding some condition....");
     // Event Entrance - 探索.
-    if ( isExisted("div.event_btn01") )
+    // 和釣魚相衝. 探索活動時修復.
+    if ( false && isExisted("div.event_btn01") )
         action_home_quest_map();
     // Fighting.
     else if ( isExisted("td.attack") )
@@ -95,6 +121,9 @@ $(document).ready(function() {
     // Event Entrance - 收集(bouns time), 育成.
     else if ( isExisted("div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
+    // Event Entrance - 釣魚.
+    else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
+        action_home_quest_map8();
     // [CG] Explore: reload2TrueMob - 探索.
     else if ( chkURL(/action(_|=)home_quest_do/) )
         action_home_quest_do();
@@ -116,6 +145,9 @@ $(document).ready(function() {
     // 探索到寶箱 - 探索.
     else if ( isExisted("span.event_btn_next") )
         action_event_160_getbox();
+    // 釣到普通魚或道具 - 釣魚.
+    else if (isExisted("div#gad_wrapper>div>div>div.btn01.padding2") )
+        action_event_169_user_index();
     // Skip Dialogue.
     // else if ( chkURL(/action=event_/) || chkURL(/guid=ON&action_home_quest_map=1&map_code=/) || chkURL(/action_home_quest_do=true/) )
     else if ( "undefined" !== typeof releaseWait && "undefined" !== typeof Loading )
@@ -167,9 +199,9 @@ $(document).ready(function() {
         }, 0*1000);
     }
 
-    // Waiting in 3 min.
+    // Waiting in 4 min.
     if ( false === DEBUGGING ) {
-        setTimeout(hAfterWaiting, 3*60*1000);
+        setTimeout(hAfterWaiting, 4*60*1000);
     }
 
     function hAfterWaiting() {
@@ -193,11 +225,33 @@ function action_home_quest_map2() {
     console.log("Just waiting for 2 seconds...");
 
     setTimeout(function() {
+        // 因應釣魚而設立白名單功能.
+        var isInMobWhitelist = (function() {
+            if ( true === isMobWhitelist ) {
+                console.log("MobWhitelist is active.");
+
+                console.log("Mob Name: ");
+                var strMobName = $("div.layer_base.quest_wait>div.boss_st>table>tbody>tr>td>span").html().match(/[^\s]+&nbsp;\[Lv/)[0].replace("&nbsp;[Lv", "");
+                console.log("\t" + strMobName);
+
+                if ( -1 === mobWhitelist.indexOf(strMobName) ) {
+                    // retrete.
+                    $("p.btn04>a")[0].click();
+                    return false;
+                } else {
+                    console.log("It is in MobWhitelist.");
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        })();
+
         console.log("HP of the enemy is: ");
         var enemyNowHP = parseInt($("div#hp_text").html().match(/\d*/)[0]);
-        console.log(enemyNowHP);
+        console.log("\t" + enemyNowHP);
 
-        if ( enemyMaxHP < enemyNowHP ) {
+        if ( false === isInMobWhitelist && enemyMaxHP < enemyNowHP ) {
             // retrete.
             $("p.btn04>a")[0].click();
         // Check if AP is enough.
@@ -270,6 +324,29 @@ function action_home_quest_map7() {
     $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + ">a")[0].click();
 }
 
+// Event Entrance - 釣魚.
+function action_home_quest_map8() {
+    // 1: Easy.
+    // 2: Hard.
+    var difficulty = 2;
+
+    // 檢查魚群是否到來.
+    // 若未到來, href="javascript:void(0);".
+    if ( null === $("div.map_back>table.area_select_btn>tbody>tr>td>div>a").eq(4).attr("href").match(/javascript/) ) {
+        $("div.map_back>table.area_select_btn>tbody>tr>td>div>a")[4].click();
+    } else {
+        // ｴﾙｰｶの実.
+        var nErukaFruit = parseInt($("div.map_back>table.area_select_btn>tbody>tr>td>div>span:odd").html().match(/\d*/)[0]);
+
+        // 存果實.
+//         if ( 0 < nErukaFruit )
+        if ( false )
+            $("div.map_back>table.area_select_btn>tbody>tr>td>div>a")[ 2*(difficulty-1) + 1 ].click();
+        else
+            $("div.map_back>table.area_select_btn>tbody>tr>td>div>a")[ 2*(difficulty-1) ].click();
+    }
+}
+
 // [CG] Explore: reload2TrueMob - 探索.
 function action_home_quest_do() {
     location.reload();
@@ -333,6 +410,11 @@ function action_home_quest_delete_ok() {
 // 探索到寶箱 - 探索.
 function action_event_160_getbox() {
     $("span.event_btn_next")[0].click();
+}
+
+// 釣到普通魚或道具 - 釣魚.
+function action_event_169_user_index() {
+    $("div#gad_wrapper>div>div>div.btn01.padding2>a")[0].click();
 }
 
 // Skip Dialogue.
