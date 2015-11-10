@@ -32,7 +32,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151023]
+// @version     [151030]
 // @grant       none
 // ==/UserScript==
 
@@ -42,18 +42,11 @@ var opensocial_owner_id = 708131429;
 var sHeal       = 2;
 var isSleepMode = true;
 var isLimitHeal = true;
-var enemyMaxHP  = 1000000;
+var nEnemyMaxHP = 1000000;
 
-//*
+/*
 var isMobWhitelist = true;
 var mobWhitelist = [
-    "ｼｰﾌﾟﾘﾝｾｽ",
-    "ﾌﾗｯｼｭ･ｲｰﾀｰ",
-    "ﾏﾌｫｰｸ",
-    "湖のﾇｼ",
-//     "湖のｵｵﾇｼ",
-
-    "ｸﾗｽﾄ･ﾊｰﾐｯﾄ"
 ];
 //*/
 
@@ -101,27 +94,31 @@ $(document).ready(function() {
     console.log("Finding some condition....");
     // Event Entrance - 探索.
     // 和釣魚相衝. 探索活動時修復.
+    // 待強化.
     if ( false && isExisted("div.event_btn01") )
         action_home_quest_map();
     // Fighting.
-    else if ( isExisted("td.attack") )
+    else if ( isExisted("div#gad_wrapper>div>table>tbody>tr>td.attack") )
         action_home_quest_map2();
     // Event Entrance - 討伐.
+    // 待強化.
     else if ( isExisted(".btn_sprite_event06") )
         action_home_quest_map3();
     // Event Entrance - 攻略.
-    else if ( isExisted("span.easy_btn") )
+    else if ( isExisted("div#gad_wrapper>div>div.back_step1>center>table>tbody>tr>td>a>span.easy_btn") || isExisted("div#gad_wrapper>div>div.back_step2>center>table>tbody>tr>td>a>span.easy_btn") )
         action_home_quest_map4();
     // Event Entrance - 攻略.
-    else if ( isExisted("table.phase_select01") )
+    else if ( isExisted("div#gad_wrapper>div>div.back_step3>center>table.phase_select01") )
         action_home_quest_map5();
     // Event Entrance - 收集(未bouns time).
+    // 待強化.
     else if ( isExisted("div.btn_sprite_event_map07.btn_img_event_bonus") )
         action_home_quest_map6();
     // Event Entrance - 收集(bouns time), 育成.
-    else if ( isExisted("div.btn_sprite_event_map07.btn_img_event_map04") )
+    else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>center>div>div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
+    // 待強化.
     else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
         action_home_quest_map8();
     // [CG] Explore: reload2TrueMob - 探索.
@@ -134,15 +131,14 @@ $(document).ready(function() {
     else if ( chkURL(/action=home_quest_detail_attack/) )
         action_home_quest_detail_attack();
     // Next Fight: Fight Finish or Timeout.
-    else if ( isExisted("div.next_bt") )
+    else if ( isExisted("div#gad_wrapper>div>div>div>center>div.next_bt") )
         action_home_quest_detail_result();
-    // Retreat Interface *2.
+    // Retreat Interface.
     // 條件變複雜是因為HealPoison頁面有隱藏的按鈕(和撤退按鈕相同).
-    else if ( isExisted("div[style='text-align:center;font-size:14px']>div>table input.icon_06.submit_clear") )
+    else if ( isExisted("div#gad_wrapper>div>div>table>tbody>tr>td>span>form>input.icon_base.icon_06.submit_clear") )
         action_home_quest_delete_index();
-    else if ( isExisted("div.padding_t2>a") )
-        action_home_quest_delete_ok();
     // 探索到寶箱 - 探索.
+    // 待強化.
     else if ( isExisted("span.event_btn_next") )
         action_event_160_getbox();
     // 釣到普通魚或道具 - 釣魚.
@@ -152,13 +148,13 @@ $(document).ready(function() {
     // else if ( chkURL(/action=event_/) || chkURL(/guid=ON&action_home_quest_map=1&map_code=/) || chkURL(/action_home_quest_do=true/) )
     else if ( "undefined" !== typeof releaseWait && "undefined" !== typeof Loading )
         action_event();
-    // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
     // 攻略 -> 階層選擇(for all event).
+    // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
+    // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
     else if ( isExisted("a[href^='sp_web.php?action_event_1'][href*='_map=true&guid=ON&clkBnrCde=100']") )
         action_home_quest_index();
     // 是否在HealPoison頁面. 依條件決定要掛網或是喝HealPoison.
-    // else if ( isExisted("center.footer_padding>p.footer_btn>a") ) {
-    else if ( isExisted("div.clear>center>table div.item_title>span:even") ) {
+    else if ( isExisted("div#gad_wrapper>div>div.clear>center>table>tbody>tr>td>span>div.item_title>span:even") ) {
         console.log("It may be in HealPoison page.");
 
         strAP     = $("div.padding2").html().match(/\d+\/\d+/)[0];
@@ -248,10 +244,10 @@ function action_home_quest_map2() {
         })();
 
         console.log("HP of the enemy is: ");
-        var enemyNowHP = parseInt($("div#hp_text").html().match(/\d*/)[0]);
-        console.log("\t" + enemyNowHP);
+        var nEnemyNowHP = parseInt($("div#hp_text").html().match(/\d*/)[0]);
+        console.log("\t" + nEnemyNowHP);
 
-        if ( false === isInMobWhitelist && enemyMaxHP < enemyNowHP ) {
+        if ( false === isInMobWhitelist && nEnemyMaxHP < nEnemyNowHP ) {
             // retrete.
             $("p.btn04>a")[0].click();
         // Check if AP is enough.
@@ -400,11 +396,6 @@ function action_home_quest_select() {
 // retreat. (and confirm in HealPoison page)
 function action_home_quest_delete_index() {
     $("input.icon_06.submit_clear")[0].click();
-}
-
-// retreat.
-function action_home_quest_delete_ok() {
-    $("div.padding_t2>a")[0].click();
 }
 
 // 探索到寶箱 - 探索.
