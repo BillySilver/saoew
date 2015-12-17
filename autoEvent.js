@@ -31,8 +31,11 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_user_index=true&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151030]
+// @version     [151113]
 // @grant       none
 // ==/UserScript==
 
@@ -42,7 +45,7 @@ var opensocial_owner_id = 708131429;
 var sHeal       = 2;
 var isSleepMode = true;
 var isLimitHeal = true;
-var nEnemyMaxHP = 1000000;
+var nEnemyMaxHP = 1502458;
 
 /*
 var isMobWhitelist = true;
@@ -94,8 +97,7 @@ $(document).ready(function() {
     console.log("Finding some condition....");
     // Event Entrance - 探索.
     // 和釣魚相衝. 探索活動時修復.
-    // 待強化.
-    if ( false && isExisted("div.event_btn01") )
+    if ( isExisted("div#gad_wrapper>div>div.padding_t2>div.event_btn01") )
         action_home_quest_map();
     // Fighting.
     else if ( isExisted("div#gad_wrapper>div>table>tbody>tr>td.attack") )
@@ -114,7 +116,7 @@ $(document).ready(function() {
     // 待強化.
     else if ( isExisted("div.btn_sprite_event_map07.btn_img_event_bonus") )
         action_home_quest_map6();
-    // Event Entrance - 收集(bouns time), 育成.
+    // Event Entrance - 收集(bouns time), 育成*.
     else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>center>div>div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
@@ -148,11 +150,18 @@ $(document).ready(function() {
     // else if ( chkURL(/action=event_/) || chkURL(/guid=ON&action_home_quest_map=1&map_code=/) || chkURL(/action_home_quest_do=true/) )
     else if ( "undefined" !== typeof releaseWait && "undefined" !== typeof Loading )
         action_event();
-    // 攻略 -> 階層選擇(for all event).
+    // 攻略 -> 階層選擇(for all events).
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
     // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
     else if ( isExisted("a[href^='sp_web.php?action_event_1'][href*='_map=true&guid=ON&clkBnrCde=100']") )
         action_home_quest_index();
+    // 攻略 -> 階層選擇(no any event).
+    // 沒Event就攻略.
+    else if ( isExisted("div#gad_wrapper>div>center>div>ul.bt_block>li.qu_list_tra") )
+        action_home_quest_index2();
+    // If there is not event after retreated, then will back to floor selection.
+    else if ( isExisted("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn") )
+        action_home_quest_delete_ok();
     // 是否在HealPoison頁面. 依條件決定要掛網或是喝HealPoison.
     else if ( isExisted("div#gad_wrapper>div>div.clear>center>table>tbody>tr>td>span>div.item_title>span:even") ) {
         console.log("It may be in HealPoison page.");
@@ -257,21 +266,21 @@ function action_home_quest_map2() {
             var nLimitHeal = (null !== $("select[name=itemCdOffset]>option").eq(0).html().match("限定")) ? 1 : 0;
 
             if ( true === isLimitHeal && 1 === nLimitHeal ) {
-                $("input[name=isConfirmedUseItem]").prop("checked", true);
-                $("select[name=itemCdOffset]>option").eq(0).prop("selected", true);
-                $("td.attack>a")[0].click();
+                useHealPoison(0);
             } else if ( false === isSleepMode ) {
-                var nHeal = sHeal - 1 + nLimitHeal;
-
-                $("input[name=isConfirmedUseItem]").prop("checked", true);
-                $("select[name=itemCdOffset]>option").eq(nHeal).prop("selected", true);
-                $("td.attack>a")[0].click();
+                useHealPoison(sHeal - 1 + nLimitHeal);
             } else {
                 // retrete.
                 $("p.btn04>a")[0].click();
             }
         } else {
             $("td.attack>a")[0].click();
+        }
+
+        function useHealPoison(nHeal) {
+            $("input[name=isConfirmedUseItem]").prop("checked", true);
+            $("select[name=itemCdOffset]>option").eq(nHeal).prop("selected", true);
+            $("td.attack>div>form>div.margin_t2>input.quest_heal_btn")[0].click();
         }
     }, 2*1000);
 }
@@ -362,7 +371,8 @@ function action_home_quest_encount() {
 function action_home_quest_detail_attack() {
     // Form Offical Code.
 
-    connectInterrupt();
+    // connectInterrupt();
+    action_event();
 }
 
 // Next Fight: Fight Finish or Timeout.
@@ -419,9 +429,18 @@ function action_event() {
     timeForm = setTimeout ( "releaseWait()", 10000 ) ;
 }
 
-// 攻略 -> 階層選擇(for all event).
+// 攻略 -> 階層選擇(for all events).
 function action_home_quest_index() {
     $("a[href^='sp_web.php?action_event_1'][href*='_map=true&guid=ON&clkBnrCde=100']")[0].click();
+}
+
+// 攻略 -> 階層選擇(no any event).
+function action_home_quest_index2() {
+    $("div#gad_wrapper>div>center>div>ul.bt_block>li.qu_list_tra>a")[0].click();
+}
+
+function action_home_quest_delete_ok() {
+    $("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn>a")[0].click();
 }
 
 /**
