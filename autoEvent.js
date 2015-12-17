@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SAOEW : Auto Event
 // @namespace   saoew
-// @description Exploring, Simulation, Crusade, Conquest, Collect, Fishing
+// @description Exploring, Simulation, Crusade, Conquest, Collect, Fishing, Duel
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_do=true&guid=ON&mc=100*
@@ -15,7 +15,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index_do&guid=ON&btn=1&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&tu=0&guid=ON
-// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_game=1&tu=0&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_game=1&tu=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_attack&tu=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=100*
@@ -31,25 +31,28 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_user_index=true&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_179_user_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151113]
+// @version     [151217]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 var opensocial_owner_id = 708131429;
 
-var sHeal       = 2;
+var sHeal       = 3;
 var isSleepMode = true;
 var isLimitHeal = true;
+var isDuelEvent = true;
 var nEnemyMaxHP = 1502458;
 
-/*
+//*
 var isMobWhitelist = true;
 var mobWhitelist = [
+    "ｴｸﾚｰﾙ"
 ];
 //*/
 
@@ -116,13 +119,19 @@ $(document).ready(function() {
     // 待強化.
     else if ( isExisted("div.btn_sprite_event_map07.btn_img_event_bonus") )
         action_home_quest_map6();
-    // Event Entrance - 收集(bouns time), 育成*.
+    // Event Entrance - 決鬥(一般探索 -> 申請畫面).
+    else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>div.btn06") && true === isDuelEvent )
+        action_home_quest_map9();
+    // Event Entrance - 收集(bouns time), 育成*, 決鬥(一般探索).
     else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>center>div>div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
     // 待強化.
     else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
         action_home_quest_map8();
+    // Event Entrance - 決鬥(已進入申請畫面).
+    else if ( isExisted("div#gad_wrapper>div>div>div.padding_t05>table>tbody>tr>td>div.btn_sprite_event_duel01") )
+        action_home_quest_map10();
     // [CG] Explore: reload2TrueMob - 探索.
     else if ( chkURL(/action(_|=)home_quest_do/) )
         action_home_quest_do();
@@ -350,6 +359,21 @@ function action_home_quest_map8() {
         else
             $("div.map_back>table.area_select_btn>tbody>tr>td>div>a")[ 2*(difficulty-1) ].click();
     }
+}
+
+// Event Entrance - 決鬥(一般探索 -> 申請畫面).
+function action_home_quest_map9() {
+    $("div#gad_wrapper>div>div>div.bg_event_map01>div.btn06>a")[0].click();
+}
+
+// Event Entrance - 決鬥(已進入申請畫面).
+function action_home_quest_map10() {
+    // 1: Easy.
+    // 2: Normal.
+    // 3: Hard.
+    // 4: Very Hard.
+    var difficulty = 2;
+    $("div#gad_wrapper>div>div>div.padding_t05>table>tbody>tr>td>div.btn_sprite_event_duel01.btn_img_event_duel0" + difficulty + ">a")[0].click();
 }
 
 // [CG] Explore: reload2TrueMob - 探索.
