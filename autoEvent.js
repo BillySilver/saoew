@@ -36,7 +36,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151217]
+// @version     [151219]
 // @grant       none
 // ==/UserScript==
 
@@ -46,13 +46,12 @@ var opensocial_owner_id = 708131429;
 var sHeal       = 3;
 var isSleepMode = true;
 var isLimitHeal = true;
-var isDuelEvent = true;
-var nEnemyMaxHP = 1502458;
+var isDuelEvent = false;
+var nEnemyMaxHP = 2000000;
 
-//*
+/*
 var isMobWhitelist = true;
 var mobWhitelist = [
-    "ｴｸﾚｰﾙ"
 ];
 //*/
 
@@ -100,7 +99,8 @@ $(document).ready(function() {
     console.log("Finding some condition....");
     // Event Entrance - 探索.
     // 和釣魚相衝. 探索活動時修復.
-    if ( isExisted("div#gad_wrapper>div>div.padding_t2>div.event_btn01") )
+    // 探索至Endless Area時按鈕會換成兩個.
+    if ( isExisted("div#gad_wrapper>div>div.padding_t2>div.event_btn01") || isExisted("div#gad_wrapper>div>div.padding_t2>table>tbody>tr>td>div.btn_sprite_event03") )
         action_home_quest_map();
     // Fighting.
     else if ( isExisted("div#gad_wrapper>div>table>tbody>tr>td.attack") )
@@ -226,9 +226,15 @@ $(document).ready(function() {
 
 // Event Entrance - 探索.
 function action_home_quest_map() {
+    // 1: Normal.
+    // 2: Hard.
+    var difficulty = 1;
+
     // 隠しｴﾘｱ.
     if ( isExisted("div.event_btn02") )
         $("div.event_btn02>a")[0].click();
+    else if ( isExisted("div.btn_sprite_event03") )
+        $("div.btn_sprite_event03>a")[difficulty - 1].click();
     else
         $("div.event_btn01>a")[0].click();
 }
@@ -302,7 +308,7 @@ function action_home_quest_map3() {
     // 4: Very Hard.
     // 5: Collect.
     var difficulty = 3;
-    $(".btn_img_event0" + difficulty + ">a")[0].click();
+    $("div.btn_img_event0" + difficulty + ">a")[0].click();
 }
 
 // Event Entrance - 攻略.
@@ -318,7 +324,7 @@ function action_home_quest_map5() {
     // 4: Very Hard.
     var difficulty = 3;
     // 攻略時, 劇情之MISSION2要打10場Easy與Normal.
-    // difficulty = rand(1, 3);
+//     difficulty = rand(1, 3);
     $("table.phase_select01 td>a")[difficulty - 1].click();
 }
 
@@ -442,7 +448,7 @@ function action_event_169_user_index() {
     $("div#gad_wrapper>div>div>div.btn01.padding2>a")[0].click();
 }
 
-// Skip Dialogue.
+// Skip Dialogue or Battle Result.
 function action_event() {
     // Form Offical Code.
 
@@ -481,7 +487,7 @@ function isExisted(strSelector) {
 
 function chkURL(regexURL) {
     if (null !== location.search.match(regexURL)) {
-        console.log("Selector Found: " + regexURL);
+        console.log("URL Found: " + regexURL);
         return ! DEBUGGING;
     }
     else return false;
