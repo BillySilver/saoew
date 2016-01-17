@@ -11,7 +11,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151110]
+// @version     [151218]
 // @grant       none
 // ==/UserScript==
 
@@ -23,7 +23,7 @@ var nEnemyMinLv = 500;
 //*
 var isMobWhitelist = true;
 var mobWhitelist = [
-    "ﾌﾗﾜﾘﾝｸﾞ･ﾄﾞﾘｭｱｽ"
+    "ｺｶﾄﾞﾘｰﾕ"
 ];
 //*/
 
@@ -133,11 +133,13 @@ $(document).ready(function() {
         // If the fight is Timeout, then div.next_bt will go to action_home_quest_index and do nothing.
         location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=" + opensocial_owner_id;
     // Skip Battle Result.
+    // 現在、結果集計処理中です。
     // http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=708131429
-    } else if ( chkURL(/action(_|=)home_quest_detail_attack/) || chkURL(/action(_|=)home_quest_detail_index/) ) {
+    } else if ( chkURL(/action(_|=)home_quest_detail_attack/) || chkURL(/action(_|=)home_quest_detail_index/) || chkURL(/action_home_quest_accept_index/) ) {
         // Form Offical Code.
 
-        connectInterrupt();
+        // connectInterrupt();
+        action_event();
     } else {
         console.log("There is no condition.");
         if ( true === DEBUGGING )
@@ -157,6 +159,17 @@ $(document).ready(function() {
         location.reload();
     }
 });
+
+// Skip Dialogue or Battle Result.
+function action_event() {
+    // Form Offical Code.
+
+    Loading.start( 12 ) ;
+    location.href = mahoujin_args.callbackUrl + getSkipFlg() ;
+
+    waitFlg = true ;
+    timeForm = setTimeout ( "releaseWait()", 10000 ) ;
+}
 
 /**
  * For general use.
