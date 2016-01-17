@@ -13,6 +13,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&guid=ON*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_index=true&guid=ON&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index_do&guid=ON&btn=1&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&tu=0&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_game=1&tu=*
@@ -35,8 +36,9 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
+
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151219]
+// @version     [160107]
 // @grant       none
 // ==/UserScript==
 
@@ -54,6 +56,20 @@ var isMobWhitelist = true;
 var mobWhitelist = [
 ];
 //*/
+
+/**
+ * Here is the attr of your right-hand weapon.
+ * 0: slash
+ * 1: speed
+ * 2: hit
+ * @type {Integer}
+ */
+var Attr = {
+    slash: 0,
+    speed: 1,
+    hit:   2
+};
+var int2Attr = ["slash", "speed", "hit"];
 
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
@@ -281,21 +297,131 @@ function action_home_quest_map2() {
             var nLimitHeal = (null !== $("select[name=itemCdOffset]>option").eq(0).html().match("限定")) ? 1 : 0;
 
             if ( true === isLimitHeal && 1 === nLimitHeal ) {
-                useHealPoison(0);
+                if ( chkWeaponAndPartner() )
+                    useHealPoison(0);
             } else if ( false === isSleepMode ) {
-                useHealPoison(sHeal - 1 + nLimitHeal);
+                if ( chkWeaponAndPartner() )
+                    useHealPoison(sHeal - 1 + nLimitHeal);
             } else {
                 // retrete.
                 $("p.btn04>a")[0].click();
             }
         } else {
-            $("td.attack>a")[0].click();
+            if ( chkWeaponAndPartner() )
+                $("td.attack>a")[0].click();
         }
+
+        /**
+         * functions
+         */
 
         function useHealPoison(nHeal) {
             $("input[name=isConfirmedUseItem]").prop("checked", true);
             $("select[name=itemCdOffset]>option").eq(nHeal).prop("selected", true);
             $("td.attack>div>form>div.margin_t2>input.quest_heal_btn")[0].click();
+        }
+
+        /**
+         * Check the weak point of Enemy, and Change Equipment and Partners.
+         * @return {bool} whether need to change.
+         */
+        function chkWeaponAndPartner() {
+            var nAttr     = iconAttr2Int( $("div.weak_point>span").attr("class") );
+            // var nYourAttr = iconAttr2Int( $("div.title_1>span").attr("class") );
+
+            if ( false === isWinner( nAttr, $("select.autoSubmitSelect > option:checked").val() ) ) {
+                $("select.autoSubmitSelect > option").eq( nChangeSetValue(nAttr) - 1 ).prop("selected", true);
+                $("select.autoSubmitSelect + div.btn02 > input")[0].click();
+                return false;
+            } else if ( false === isWinner( nAttr, $("select:eq(1) > option:checked").val() ) ) {
+                $("select:eq(1) > option").eq( nChangeSetValue(nAttr) - 1 ).prop("selected", true);
+                $("select:eq(1) + div.btn02 > input")[0].click();
+                return false;
+            } else {
+                return true;
+            }
+
+            function iconAttr2Int(iconAttr) {
+                var nAttr;
+                switch (iconAttr) {
+                    case "icon_slash":
+                    nAttr = Attr.slash;
+                    break;
+
+                    case "icon_speed":
+                    nAttr = Attr.speed;
+                    break;
+
+                    case "icon_hit":
+                    nAttr = Attr.hit;
+                    break;
+
+                    default:
+                    nAttr = -1;
+                    break;
+
+                }
+                return nAttr;
+            }
+
+            function isWinner(nAttr, nSetValue) {
+                var nYourAttr;
+                switch (nSetValue) {
+                    case "2":
+                    nYourAttr = Attr.slash;
+                    break;
+
+                    case "1":
+                    nYourAttr = Attr.speed;
+                    break;
+
+                    case "3":
+                    nYourAttr = Attr.hit;
+                    break;
+
+                    default:
+                    nYourAttr = nAttr;
+                    break;
+
+                }
+
+                /**
+                 * 0: Same Attrs or the enemy has no weapon
+                 * 1: You Win
+                 * 2: You Lose
+                 * @type {[Integer]}
+                 */
+                var nRelation = (nYourAttr - nAttr + 3) % 3;
+                if ( 0 === nRelation )
+                    return false;
+                if ( 1 === nRelation )
+                    return true;
+                if ( 2 === nRelation )
+                    return false;
+            }
+
+            function nChangeSetValue(nAttr) {
+                var nSetValue;
+                switch (nAttr) {
+                    case Attr.slash:
+                    nSetValue = 1;
+                    break;
+
+                    case Attr.speed:
+                    nSetValue = 3;
+                    break;
+
+                    case Attr.hit:
+                    nSetValue = 2;
+                    break;
+
+                    default:
+                    nSetValue = -1;
+                    break;
+
+                }
+                return nSetValue;
+            }
         }
     }, 2*1000);
 }
