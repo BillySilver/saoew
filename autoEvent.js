@@ -33,12 +33,14 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_179_user_index=true&guid=ON&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_select=1&pt=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160107]
+// @version     [160122]
 // @grant       none
 // ==/UserScript==
 
@@ -146,6 +148,7 @@ $(document).ready(function() {
     else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
         action_home_quest_map8();
     // Event Entrance - 決鬥(已進入申請畫面).
+    // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
     else if ( isExisted("div#gad_wrapper>div>div>div.padding_t05>table>tbody>tr>td>div.btn_sprite_event_duel01") )
         action_home_quest_map10();
     // [CG] Explore: reload2TrueMob - 探索.
@@ -169,7 +172,7 @@ $(document).ready(function() {
     else if ( isExisted("span.event_btn_next") )
         action_event_160_getbox();
     // 釣到普通魚或道具 - 釣魚.
-    else if (isExisted("div#gad_wrapper>div>div>div.btn01.padding2") )
+    else if ( isExisted("div#gad_wrapper>div>div>div.btn01.padding2") )
         action_event_169_user_index();
     // Skip Dialogue.
     // else if ( chkURL(/action=event_/) || chkURL(/guid=ON&action_home_quest_map=1&map_code=/) || chkURL(/action_home_quest_do=true/) )
@@ -229,9 +232,12 @@ $(document).ready(function() {
         }, 0*1000);
     }
 
-    // Waiting in 4 min.
+    // Waiting in 0.5 ~ 6 min.
     if ( false === DEBUGGING ) {
-        setTimeout(hAfterWaiting, 4*60*1000);
+        if ( chkURL(/action(_|=)home_quest_detail_game/) )
+            setTimeout(hAfterWaiting, 6*60*1000);
+        else
+            setTimeout(hAfterWaiting, 0.2*60*1000);
     }
 
     function hAfterWaiting() {
@@ -258,7 +264,8 @@ function action_home_quest_map() {
 // Fighting.
 function action_home_quest_map2() {
     // Since "HP" is loaded slowly.
-    console.log("Just waiting for 2 seconds...");
+    var nDelaySecond = 3;
+    console.log("Just waiting for " + nDelaySecond + " seconds...");
 
     setTimeout(function() {
         // 因應釣魚而設立白名單功能.
@@ -393,9 +400,9 @@ function action_home_quest_map2() {
                  */
                 var nRelation = (nYourAttr - nAttr + 3) % 3;
                 if ( 0 === nRelation )
-                    return false;
-                if ( 1 === nRelation )
                     return true;
+                if ( 1 === nRelation )
+                    return false;
                 if ( 2 === nRelation )
                     return false;
             }
@@ -404,15 +411,15 @@ function action_home_quest_map2() {
                 var nSetValue;
                 switch (nAttr) {
                     case Attr.slash:
-                    nSetValue = 1;
+                    nSetValue = 2;
                     break;
 
                     case Attr.speed:
-                    nSetValue = 3;
+                    nSetValue = 1;
                     break;
 
                     case Attr.hit:
-                    nSetValue = 2;
+                    nSetValue = 3;
                     break;
 
                     default:
@@ -423,7 +430,7 @@ function action_home_quest_map2() {
                 return nSetValue;
             }
         }
-    }, 2*1000);
+    }, nDelaySecond*1000);
 }
 
 // Event Entrance - 討伐.
