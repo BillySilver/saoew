@@ -4,9 +4,12 @@
 // @description
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_duel_index=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_duel_detail=1&guid=ON&listType=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_duel_detail=1&guid=ON&step=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=2*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
+
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151006]
+// @version     [160214]
 // @grant       none
 // ==/UserScript==
 
@@ -27,10 +30,10 @@ var Attr = {
 var int2Attr = ["slash", "speed", "hit"];
 
 var nYourAttr = Attr.slash;
-var nYourATK  = 15000;
+var nYourATK  = 20000;
 var nKOsUnder = 700;
 
-var jEnemy = $("center>.gra_dark_blue");
+var jEnemy = $("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > center > .gra_dark_blue");
 
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
@@ -40,11 +43,11 @@ $(document).ready(function() {
         console.log("*** Debugging Mode ***");
 
     var nLeftSecond = 60;
-    var isWinningStreak = (0 !== $("div.padding_b>div.padding>span").length);
+    var isWinningStreak = (0 !== $("div#gad_wrapper > div > div.padding_b > div.padding > span").length);
 
     // Check it is on action_home_duel_index.
     if ( 0 !== jEnemy.length ) {
-        var currentBP = parseInt($("div.gra_dark_blue>div.padding").html().match(/\d\//)[0].replace("/", ""));
+        var currentBP = parseInt($("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > div.padding").html().match(/\d\//)[0].replace("/", ""));
 
         // Check if you wins consecutively, or BP is full.
         if (
@@ -56,7 +59,10 @@ $(document).ready(function() {
         }
 
         if ( 0 === currentBP )
-            nLeftSecond = parseInt($("div.gra_dark_blue>div.padding").html().match(/\d{2}:\d{2}:\d{2}/)[0].split(":")[2]);
+            nLeftSecond = parseInt($("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > div.padding").html().match(/\d{2}:\d{2}:\d{2}/)[0].split(":")[2]);
+    // For CG skip.
+    } else if ( /*"undefined" !== typeof releaseWait && */"undefined" !== typeof Loading ) {
+        setTimeout(connectInterrupt, 500);
     // Otherwise, it is on action_home_duel_detail.
     } else {
         action_home_duel_detail();
@@ -69,14 +75,14 @@ $(document).ready(function() {
 
     function hAfterWaiting() {
         console.log("Time Out!");
-        // $(".padding2.btn02>a")[0].click();
+        // $("div.padding2.btn02 > a")[0].click();
         location.reload();
     }
 });
 
 function action_home_duel_index() {
-    var jEnemyAttr = jEnemy.find(".item_title>span");
-    var jEnemyData = jEnemy.find("td>span:first-of-type");
+    var jEnemyAttr = jEnemy.find("td > span > div.item_title > span > span");
+    var jEnemyData = jEnemy.find("td > span:first-of-type");
 
     var regexIntData = new RegExp(/&nbsp;\d{1,5}/g);
 
@@ -95,7 +101,7 @@ function action_home_duel_index() {
         for (var j = 0; j < arrData[i].length; ++j)
             arrData[i][j] = parseInt(arrData[i][j].replace("&nbsp;", ""));
 
-        arrData[i].push( iconAttr2Int(jEnemyAttr.eq(i).find("span").attr("class")) );
+        arrData[i].push( iconAttr2Int(jEnemyAttr.eq(i).attr("class")) );
 
         var nRevisedATK = revisedATK(arrData[i][1], arrData[i][4]);
         if ( undefined === bestIndex ) {
@@ -132,7 +138,7 @@ function action_home_duel_index() {
     } else {
         // Find another enemies.
         setTimeout(function() {
-            $(".padding2.btn02>a")[0].click();
+            $("div.padding2.btn02 > a")[0].click();
             // location.reload();
         }, 1*1000);
     }
@@ -193,8 +199,10 @@ function action_home_duel_index() {
 
 function action_home_duel_detail() {
     // Choose one.
-    if ( undefined !== $(".duel_bt1>a")[0] )
-       $(".duel_bt1>a")[0].click();
-    else if ( undefined !== $(".duel_bt2>a")[0] )
-       $(".duel_bt2>a")[0].click();
+    if ( undefined !== $("div#gad_wrapper > div > div.duel_bg.padding2 > center.duel_bt1 > a")[0] )
+        $("center.duel_bt1 > a")[0].click();
+    else if ( undefined !== $("div#gad_wrapper > div > div.duel_bg.padding2 > center.padding2 > div.duel_bt2 > a")[0] )
+        $("div.duel_bt2 > a")[0].click();
+    else if ( undefined !== $("div#gad_wrapper > div > div.duel_bg.padding2 > div > div.padding > center > div.btn04")[0] )
+        $("div.btn04 > a")[0].click();
 }
