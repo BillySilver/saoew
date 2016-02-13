@@ -5,9 +5,11 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=0&skip=070406601_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=0&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=0&skip=070406602_sp
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=1&guid=ON&div=2&gc=*&gacha_hs=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=2&skip=0_sp
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160213]
+// @version     [160214]
 // @grant       none
 // ==/UserScript==
 
@@ -20,9 +22,16 @@ $(document).ready(function() {
     if ( true === DEBUGGING )
         console.log("*** Debugging Mode ***");
 
-    if ( isExisted("div#gad_wrapper > div > center > div.ga_list > div.list2 > center.padding.btn01")) {
-        var nArrOrder = [3, 1, 2, 0];
+    if ( isExisted("div#gad_wrapper > div > center > div.ga_list > div.list2 > center.padding.btn01") ) {
         var jBtnUnlock = $("div.ga_list > div.list2 > center.padding.btn01");
+
+        if (4 === jBtnUnlock.length)
+            // 宝箱.
+            var nArrOrder = [3, 1, 2, 0];
+        else
+            // 金の宝箱.
+            var nArrOrder = [1, 0];
+
         for (var i = 0; i < nArrOrder.length; i++) {
             // if "center.padding.btn01" has the className "on", then the center is unavailable.
             if ( null !== jBtnUnlock.eq( nArrOrder[i] ).attr("class").match(/on/) )
