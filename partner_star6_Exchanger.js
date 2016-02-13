@@ -25,6 +25,9 @@ $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
 
+    if ( true === DEBUGGING )
+        console.log("*** Debugging Mode ***");
+
     // 交換頁面: 選擇欲交換的Partner/Equipment.
     if ( isExisted("div#gad_wrapper > div > div.box_trade01 > center.padding_t2 > form > div#formsort > div.sort_area.clear_white > select") ) {
         // 先確保以「入手順」排序.
