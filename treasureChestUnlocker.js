@@ -17,6 +17,9 @@ $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
 
+    if ( true === DEBUGGING )
+        console.log("*** Debugging Mode ***");
+
     if ( isExisted("div#gad_wrapper > div > center > div.ga_list > div.list2 > center.padding.btn01")) {
         var nArrOrder = [3, 1, 2, 0];
         var jBtnUnlock = $("div.ga_list > div.list2 > center.padding.btn01");
