@@ -30,8 +30,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_168_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_user_index=true&step=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*[!disabled!]
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=*[!disabled!]
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
@@ -42,6 +41,11 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_select=1&pt=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_invite_help=1&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_invite_index=1&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_invite_index=1&sort=3&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_index=1&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
 // @version     [160212]
@@ -51,12 +55,12 @@
 // var DEBUGGING = true;
 var opensocial_owner_id = 708131429;
 
-var sHeal        = 3;
-var isSleepMode  = true;
-var isLimitHeal  = true;
-var isDuelEvent  = false;
-var nEnemyMaxHP  = 2000000;
-var isErukaFruit = false;
+var sHeal         = 3;
+var isSleepMode   = true;
+var isLimitHeal   = true;
+var isDuelEvent   = false;
+var nEnemyHPUnder = 2000000;
+var isErukaFruit  = false;
 
 //*
 var isMobWhitelist = true;
@@ -90,6 +94,16 @@ $(document).ready(function() {
         DEBUGGING = false;
     if ("undefined" === typeof isMobWhitelist)
         isMobWhitelist = false;
+
+    // http://a57528.app.gree-pf.net/sp_web.php
+    if ("" === location.search) {
+        // It will be invalid except that it is in invite page.
+        if ( "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span").html() ) {
+            var isInvitePage = true;
+        } else {
+            return;
+        }
+    }
 
     console.log("It is a SAOEW event page.");
 
@@ -128,7 +142,6 @@ $(document).ready(function() {
 
     console.log("Finding some condition....");
     // Event Entrance - 探索.
-    // 和釣魚相衝. 探索活動時修復.
     // 探索至Endless Area時按鈕會換成兩個.
     if ( isExisted("div#gad_wrapper>div>div.padding_t2>div.event_btn01") || isExisted("div#gad_wrapper>div>div.padding_t2>table>tbody>tr>td>div.btn_sprite_event03") )
         action_home_quest_map();
@@ -231,6 +244,23 @@ $(document).ready(function() {
                 }
             }, 1*1000);
         }
+    // Sought help from someone.
+    } else if ( chkURL(/action_home_quest_invite_help/) ) {
+        // さらに仲間を呼ぶ.
+        $("p.footer_btn > a")[1].click();
+    // Invition page. (for some powerful enemy in Whitelist)
+    } else if ( chkURL(/action_home_quest_invite_index/) || "undefined" !== typeof isInvitePage ) {
+        // If not in "ｵｽｽﾒ", then choose it.
+        if ( null === $("div.inner").eq(1).attr("class").match("on") ) {
+            $("div.inner > a")[1].click();
+        } else {
+            if ( isExisted("form > center.padding2.btn01") ) {
+                $("form > center.padding2.btn01 > input")[0].click();
+            } else {
+                // Invition finished, 戦闘待機に戻る.
+                $("p.block_bt_l > a")[0].click();
+            }
+        }
     } else {
         console.log("There is no condition.");
         if ( true === DEBUGGING )
@@ -304,12 +334,22 @@ function action_home_quest_map2() {
         })();
 
         console.log("HP of the enemy is: ");
-        var nEnemyNowHP = parseInt($("div#hp_text").html().match(/\d*/)[0]);
-        console.log("\t" + nEnemyNowHP);
+        var strArrHP    = $("div#hp_text").html().match(/\d+/g);
+        var nEnemyNowHP = parseInt(strArrHP[0]);
+        var nEnemyMaxHP = parseInt(strArrHP[1]);
+        console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP);
 
-        if ( false === isInMobWhitelist && nEnemyMaxHP < nEnemyNowHP ) {
+        if ( false === isInMobWhitelist && nEnemyHPUnder < nEnemyNowHP ) {
             // retrete.
             $("p.btn04>a")[0].click();
+        // If a powerful enemy is in Whitelist, but you cannot output damage more than 15% of its MaxHP at first attack.
+        // First, you may seek help from someone.
+        } else if ( true === isInMobWhitelist && isExisted("td.help_me") && nEnemyNowHP / nEnemyMaxHP > 0.85 ) {
+            $("td.help_me > a")[0].click();
+        // After seeking help, you just need to wait to it been beated.
+        } else if ( true === isInMobWhitelist && false === isExisted("td.help_me") && isExisted("td.friend") ) {
+            // Do nothing.
+            console.log("After seeking help, just waiting...");
         // Check if AP is enough.
         } else if ( isExisted("input[name=isConfirmedUseItem]") ) {
             console.log("AP is not enough.");
