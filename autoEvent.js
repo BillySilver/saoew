@@ -30,8 +30,12 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_168_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_user_index=true&step=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*[!disabled!]
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=*[!disabled!]
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_autorecoveryitem=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_179_user_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=*
@@ -40,23 +44,31 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_select=1&pt=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160122]
+// @version     [160212]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 var opensocial_owner_id = 708131429;
 
-var sHeal       = 3;
-var isSleepMode = true;
-var isLimitHeal = true;
-var isDuelEvent = false;
-var nEnemyMaxHP = 2000000;
+var sHeal        = 3;
+var isSleepMode  = true;
+var isLimitHeal  = true;
+var isDuelEvent  = false;
+var nEnemyMaxHP  = 2000000;
+var isErukaFruit = false;
 
-/*
+//*
 var isMobWhitelist = true;
-var mobWhitelist = [
+var mobFishing = [
+    "ﾌﾗｯｼｭ･ｲｰﾀｰ",
+    "ｳﾞｧﾝﾄｩｰｸﾗｰｹ",
+    "ﾂｲﾝｼｰﾎｰｽ",
+    "湖のﾇｼ",
+    "湖のｵｵﾇｼ"
 ];
+
+var mobWhitelist = mobFishing;
 //*/
 
 /**
@@ -144,8 +156,9 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>center>div>div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
-    // 待強化.
-    else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
+    // else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
+    // 原本只有ﾗﾗｸの実可選, 後來多了ﾃﾞｺｲｴﾋﾞ, ﾀﾞﾝｺﾞ, ﾍﾞｲﾄｶｹﾞ, 且不再分難度(透過其他方式切換).
+    else if ( isExisted("div#gad_wrapper > div > div > div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04.padding_r02.padding_l02.font_s") )
         action_home_quest_map8();
     // Event Entrance - 決鬥(已進入申請畫面).
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
@@ -333,15 +346,20 @@ function action_home_quest_map2() {
          * @return {bool} whether need to change.
          */
         function chkWeaponAndPartner() {
-            var nAttr     = iconAttr2Int( $("div.weak_point>span").attr("class") );
+            var nArrAttr = [];
+            var jWeakPoint = $("div.weak_point > span");
+            for (var i = 0; i < jWeakPoint.length; i++)
+                nArrAttr.push( iconAttr2Int( $("div.weak_point > span").eq(i).attr("class") ) );
             // var nYourAttr = iconAttr2Int( $("div.title_1>span").attr("class") );
 
-            if ( false === isWinner( nAttr, $("select.autoSubmitSelect > option:checked").val() ) ) {
-                $("select.autoSubmitSelect > option").eq( nChangeSetValue(nAttr) - 1 ).prop("selected", true);
+            var nWeapon = parseInt($("select.autoSubmitSelect > option:checked").val());
+
+            if ( false === isWinner(nArrAttr, nWeapon) ) {
+                $("select.autoSubmitSelect > option").eq( nChangeSetValue(nArrAttr[0]) - 1 ).prop("selected", true);
                 $("select.autoSubmitSelect + div.btn02 > input")[0].click();
                 return false;
-            } else if ( false === isWinner( nAttr, $("select:eq(1) > option:checked").val() ) ) {
-                $("select:eq(1) > option").eq( nChangeSetValue(nAttr) - 1 ).prop("selected", true);
+            } else if ( parseInt($("select:eq(1) > option:checked").val()) !== nWeapon ) {
+                $("select:eq(1) > option").eq(nWeapon - 1).prop("selected", true);
                 $("select:eq(1) + div.btn02 > input")[0].click();
                 return false;
             } else {
@@ -371,18 +389,21 @@ function action_home_quest_map2() {
                 return nAttr;
             }
 
-            function isWinner(nAttr, nSetValue) {
+            function isWinner(nArrAttr, nSetValue) {
                 var nYourAttr;
                 switch (nSetValue) {
                     case "2":
+                    case 2:
                     nYourAttr = Attr.slash;
                     break;
 
                     case "1":
+                    case 1:
                     nYourAttr = Attr.speed;
                     break;
 
                     case "3":
+                    case 3:
                     nYourAttr = Attr.hit;
                     break;
 
@@ -398,13 +419,16 @@ function action_home_quest_map2() {
                  * 2: You Lose
                  * @type {[Integer]}
                  */
-                var nRelation = (nYourAttr - nAttr + 3) % 3;
-                if ( 0 === nRelation )
-                    return true;
-                if ( 1 === nRelation )
-                    return false;
-                if ( 2 === nRelation )
-                    return false;
+                for (var i = 0; i < nArrAttr.length; i++) {
+                    var nRelation = (nYourAttr - nArrAttr[i] + 3) % 3;
+                    if ( 0 === nRelation )
+                        return true;
+                    if ( 1 === nRelation )
+                        continue;
+                    if ( 2 === nRelation )
+                        continue;
+                }
+                return false;
             }
 
             function nChangeSetValue(nAttr) {
@@ -479,24 +503,39 @@ function action_home_quest_map7() {
 
 // Event Entrance - 釣魚.
 function action_home_quest_map8() {
-    // 1: Easy.
-    // 2: Hard.
-    var difficulty = 2;
+    String.prototype.reverse = function () {
+        return this.split('').reverse().join('');
+    };
 
-    // 檢查魚群是否到來.
-    // 若未到來, href="javascript:void(0);".
-    if ( null === $("div.map_back>table.area_select_btn>tbody>tr>td>div>a").eq(4).attr("href").match(/javascript/) ) {
-        $("div.map_back>table.area_select_btn>tbody>tr>td>div>a")[4].click();
+    var isBigNushi = (function () {
+        var jStamp = $("div.next_reward_item > table.box_table_stampSheet01 > tbody > tr > td > div.box_stamp01");
+        // 檢查湖のｵｵﾇｼ.
+        for (var i = 0; i < jStamp.length; i++) {
+            if ( null !== jStamp.eq(i).children("img").attr("src").match(/ic_06\.jpg/) ) {
+                // 若有湖のｵｵﾇｼ, 而未收集到Sheet, 則需要用ｴﾙｰｶの実提高釣到它的機會.
+                if ( 0 === jStamp.eq(i).children("div.deco_msk_clear").length )
+                    return true;
+            }
+        }
+        return false;
+    })();
+
+    // 檢查魚群是否到來(紫色湖のﾇｼ).
+    // 若未到來, a之class為off, 否則無class.
+    if ( false === isExisted("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a.off") ) {
+        $("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a")[1].click();
     } else {
         // ｴﾙｰｶの実.
-        var nErukaFruit = parseInt($("div.map_back>table.area_select_btn>tbody>tr>td>div>span:odd").html().match(/\d*/)[0]);
+        var nErukaFruit = parseInt($("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05").html().reverse().match(/\d+(?=;psbn&)/)[0].reverse());
 
-        // 存果實.
-//         if ( 0 < nErukaFruit )
-        if ( false )
-            $("div.map_back>table.area_select_btn>tbody>tr>td>div>a")[ 2*(difficulty-1) + 1 ].click();
+        if ( (true === isErukaFruit || true === isBigNushi) && 0 < nErukaFruit )
+            $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05 > a")[0].click();
         else
-            $("div.map_back>table.area_select_btn>tbody>tr>td>div>a")[ 2*(difficulty-1) ].click();
+            // 0: ﾗﾗｸの実.
+            // 1: ﾃﾞｺｲｴﾋﾞ.
+            // 2: ﾀﾞﾝｺﾞ.
+            // 3: ﾍﾞｲﾄｶｹﾞ.
+            $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04 > a")[rand(0, 3)].click();
     }
 }
 
