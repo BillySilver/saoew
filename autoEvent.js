@@ -46,23 +46,25 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_invite_index=1&sort=3&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_index=1&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&guid=ON&step=2&battleSkillCheck=true&battleSkill=*&tu=0&skip=0_sp
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160212]
+// @version     [160301]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 var opensocial_owner_id = 708131429;
 
-var sHeal         = 3;
+var sHeal         = 2;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var isDuelEvent   = false;
 var nEnemyHPUnder = 2000000;
 var isErukaFruit  = false;
+var nFavorSets   = [1, 2, 3];
 
-//*
+/*
 var isMobWhitelist = true;
 var mobFishing = [
     "ﾌﾗｯｼｭ･ｲｰﾀｰ",
@@ -100,6 +102,8 @@ $(document).ready(function() {
         // It will be invalid except that it is in invite page.
         if ( "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span").html() ) {
             var isInvitePage = true;
+        } else if ( "undefined" !== typeof mahoujin_args && null !== mahoujin_args.callbackUrl.match(/home_quest_detail_game/) ) {
+            var isBattleSkill = true;
         } else {
             return;
         }
@@ -146,7 +150,7 @@ $(document).ready(function() {
     if ( isExisted("div#gad_wrapper>div>div.padding_t2>div.event_btn01") || isExisted("div#gad_wrapper>div>div.padding_t2>table>tbody>tr>td>div.btn_sprite_event03") )
         action_home_quest_map();
     // Fighting.
-    else if ( isExisted("div#gad_wrapper>div>table>tbody>tr>td.attack") )
+    else if ( isExisted("div#gad_wrapper > div > table > tbody > tr > td.attack") )
         action_home_quest_map2();
     // Event Entrance - 討伐.
     // 待強化.
@@ -317,12 +321,12 @@ function action_home_quest_map2() {
                 console.log("MobWhitelist is active.");
 
                 console.log("Mob Name: ");
-                var strMobName = $("div.layer_base.quest_wait>div.boss_st>table>tbody>tr>td>span").html().match(/[^\s]+&nbsp;\[Lv/)[0].replace("&nbsp;[Lv", "");
+                var strMobName = $("div.layer_base.quest_wait > div.boss_st > table > tbody > tr > td > span").html().match(/[^\s]+&nbsp;\[Lv/)[0].replace("&nbsp;[Lv", "");
                 console.log("\t" + strMobName);
 
                 if ( -1 === mobWhitelist.indexOf(strMobName) ) {
                     // retrete.
-                    $("p.btn04>a")[0].click();
+                    $("p.btn04 > a")[0].click();
                     return false;
                 } else {
                     console.log("It is in MobWhitelist.");
@@ -339,9 +343,20 @@ function action_home_quest_map2() {
         var nEnemyMaxHP = parseInt(strArrHP[1]);
         console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP);
 
+        var nNowBC = (function() {
+            var digit = 0;
+            for (var i = 0; i < $("span.pos_abs.pos_now > img").length; i++)
+                digit = digit * 10 + parseInt($("span.pos_abs.pos_now > img").eq(i).attr("src").match(/\d+(?=.png)/)[0]);
+            return digit;
+        })();
+        if ( 4 <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
+            $("div#flgUseSkill")[0].click();
+            $("select#battleSkill > option:eq(1)").prop("selected", true);
+        }
+
         if ( false === isInMobWhitelist && nEnemyHPUnder < nEnemyNowHP ) {
             // retrete.
-            $("p.btn04>a")[0].click();
+            $("p.btn04 > a")[0].click();
         // If a powerful enemy is in Whitelist, but you cannot output damage more than 15% of its MaxHP at first attack.
         // First, you may seek help from someone.
         } else if ( true === isInMobWhitelist && isExisted("td.help_me") && nEnemyNowHP / nEnemyMaxHP > 0.85 ) {
@@ -354,7 +369,7 @@ function action_home_quest_map2() {
         } else if ( isExisted("input[name=isConfirmedUseItem]") ) {
             console.log("AP is not enough.");
 
-            var nLimitHeal = (null !== $("select[name=itemCdOffset]>option").eq(0).html().match("限定")) ? 1 : 0;
+            var nLimitHeal = (null !== $("select[name=itemCdOffset] > option").eq(0).html().match("限定")) ? 1 : 0;
 
             if ( true === isLimitHeal && 1 === nLimitHeal ) {
                 if ( chkWeaponAndPartner() )
@@ -364,11 +379,11 @@ function action_home_quest_map2() {
                     useHealPoison(sHeal - 1 + nLimitHeal);
             } else {
                 // retrete.
-                $("p.btn04>a")[0].click();
+                $("p.btn04 > a")[0].click();
             }
         } else {
             if ( chkWeaponAndPartner() )
-                $("td.attack>a")[0].click();
+                $("td.attack > div > form > div.margin_t2 > input.quest_heal_btn")[0].click();
         }
 
         /**
@@ -377,8 +392,8 @@ function action_home_quest_map2() {
 
         function useHealPoison(nHeal) {
             $("input[name=isConfirmedUseItem]").prop("checked", true);
-            $("select[name=itemCdOffset]>option").eq(nHeal).prop("selected", true);
-            $("td.attack>div>form>div.margin_t2>input.quest_heal_btn")[0].click();
+            $("select[name=itemCdOffset] > option").eq(nHeal).prop("selected", true);
+            $("td.attack > div > form > div.margin_t2 > input.quest_heal_btn")[0].click();
         }
 
         /**
@@ -386,112 +401,51 @@ function action_home_quest_map2() {
          * @return {bool} whether need to change.
          */
         function chkWeaponAndPartner() {
-            var nArrAttr = [];
-            var jWeakPoint = $("div.weak_point > span");
-            for (var i = 0; i < jWeakPoint.length; i++)
-                nArrAttr.push( iconAttr2Int( $("div.weak_point > span").eq(i).attr("class") ) );
-            // var nYourAttr = iconAttr2Int( $("div.title_1>span").attr("class") );
+            var nFavorSet;
+            for (var i = 0; i < nFavorSets.length; i++) {
+                if ( isExisted("div.weak_point > span[class=" + strSetValue2Icon(nFavorSets[i]) + "]") ) {
+                    nFavorSet = nFavorSets[i];
+                    break;
+                }
+            }
 
             var nWeapon = parseInt($("select.autoSubmitSelect > option:checked").val());
 
-            if ( false === isWinner(nArrAttr, nWeapon) ) {
-                $("select.autoSubmitSelect > option").eq( nChangeSetValue(nArrAttr[0]) - 1 ).prop("selected", true);
+            if ( nFavorSet !== nWeapon ) {
+                $("select.autoSubmitSelect > option").eq(nFavorSet - 1).prop("selected", true);
                 $("select.autoSubmitSelect + div.btn02 > input")[0].click();
                 return false;
-            } else if ( parseInt($("select:eq(1) > option:checked").val()) !== nWeapon ) {
-                $("select:eq(1) > option").eq(nWeapon - 1).prop("selected", true);
-                $("select:eq(1) + div.btn02 > input")[0].click();
+            } else if ( parseInt($("div.padding > form > select > option:checked").val()) !== nWeapon ) {
+                $("div.padding > form > select > option").eq(nWeapon - 1).prop("selected", true);
+                $("div.padding > form > select + div.btn02 > input")[0].click();
                 return false;
             } else {
                 return true;
             }
 
-            function iconAttr2Int(iconAttr) {
-                var nAttr;
-                switch (iconAttr) {
-                    case "icon_slash":
-                    nAttr = Attr.slash;
-                    break;
-
-                    case "icon_speed":
-                    nAttr = Attr.speed;
-                    break;
-
-                    case "icon_hit":
-                    nAttr = Attr.hit;
-                    break;
-
-                    default:
-                    nAttr = -1;
-                    break;
-
-                }
-                return nAttr;
-            }
-
-            function isWinner(nArrAttr, nSetValue) {
-                var nYourAttr;
+            function strSetValue2Icon(nSetValue) {
+                var strIcon;
                 switch (nSetValue) {
                     case "2":
                     case 2:
-                    nYourAttr = Attr.slash;
+                    strIcon = "icon_slash";
                     break;
 
                     case "1":
                     case 1:
-                    nYourAttr = Attr.speed;
+                    strIcon = "icon_speed";
                     break;
 
                     case "3":
                     case 3:
-                    nYourAttr = Attr.hit;
+                    strIcon = "icon_hit";
                     break;
 
                     default:
-                    nYourAttr = nAttr;
+                    strIcon = "";
                     break;
-
                 }
-
-                /**
-                 * 0: Same Attrs or the enemy has no weapon
-                 * 1: You Win
-                 * 2: You Lose
-                 * @type {[Integer]}
-                 */
-                for (var i = 0; i < nArrAttr.length; i++) {
-                    var nRelation = (nYourAttr - nArrAttr[i] + 3) % 3;
-                    if ( 0 === nRelation )
-                        return true;
-                    if ( 1 === nRelation )
-                        continue;
-                    if ( 2 === nRelation )
-                        continue;
-                }
-                return false;
-            }
-
-            function nChangeSetValue(nAttr) {
-                var nSetValue;
-                switch (nAttr) {
-                    case Attr.slash:
-                    nSetValue = 2;
-                    break;
-
-                    case Attr.speed:
-                    nSetValue = 1;
-                    break;
-
-                    case Attr.hit:
-                    nSetValue = 3;
-                    break;
-
-                    default:
-                    nSetValue = -1;
-                    break;
-
-                }
-                return nSetValue;
+                return strIcon;
             }
         }
     }, nDelaySecond*1000);
