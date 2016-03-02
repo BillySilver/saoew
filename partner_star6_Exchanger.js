@@ -13,17 +13,23 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160204]
+// @version     [160301]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
-var isItemGain  = true;
-var isEquipment = false;
+// var isItemGain  = true;
+// var isEquipment = true;
 
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
+
+    if ("undefined" === typeof isItemGain)
+        isItemGain = false;
+
+    if ("undefined" === typeof isEquipment)
+        isEquipment = false;
 
     if ( true === DEBUGGING )
         console.log("*** Debugging Mode ***");
