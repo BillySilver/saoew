@@ -11,7 +11,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [151218]
+// @version     [160302]
 // @grant       none
 // ==/UserScript==
 
@@ -23,7 +23,7 @@ var nEnemyMinLv = 500;
 //*
 var isMobWhitelist = true;
 var mobWhitelist = [
-    "ｺｶﾄﾞﾘｰﾕ"
+    "ﾅﾁｭﾗﾙﾍﾞﾋﾓｽ"
 ];
 //*/
 
@@ -118,9 +118,13 @@ $(document).ready(function() {
     } else if ( chkURL(/action_home_quest_detail_index/) && isExisted("div#gad_wrapper>div>table>tbody>tr>td.attack") ) {
         console.log("Without waiting. Ignore HP of the enemy.");
 
-        // if AP is not enough, "td.attack>a" will be not existed.
-        if ( false === isExisted("td.attack>div>form>div.margin_t2>input.quest_heal_btn") )
-            $("td.attack>a")[0].click();
+        // if AP is not enough, "input[name=isConfirmedUseItem]" will display.
+        // $("td.attack > div > form > div.margin_t2 > input.quest_heal_btn") is always existed since Burst Skill (Battle Skill) System.
+        if ( false === isExisted("input[name=isConfirmedUseItem]") ) {
+            $("td.attack > a")[0].click();
+        } else {
+            console.log("AP is not enough.");
+        }
     // After Fighting. (in SAOEW : Auto Event)
     // http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_attack&tu=*
     } else if ( isExisted("div#gad_wrapper>div>table>tbody>tr>td.attack") ) {
