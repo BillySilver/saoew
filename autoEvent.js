@@ -56,11 +56,12 @@
 // var DEBUGGING = true;
 var opensocial_owner_id = 708131429;
 
-var sHeal         = 2;
+var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
+var sHeal         = sHealPoison.p50;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var isDuelEvent   = false;
-var nEnemyHPUnder = 2000000;
+var nEnemyHPUnder = 3000000;
 var isErukaFruit  = false;
 var nFavorSets   = [1, 2, 3];
 
@@ -204,10 +205,6 @@ $(document).ready(function() {
     // 釣到普通魚或道具 - 釣魚.
     else if ( isExisted("div#gad_wrapper>div>div>div.btn01.padding2") )
         action_event_169_user_index();
-    // Skip Dialogue.
-    // else if ( chkURL(/action=event_/) || chkURL(/guid=ON&action_home_quest_map=1&map_code=/) || chkURL(/action_home_quest_do=true/) )
-    else if ( "undefined" !== typeof releaseWait && "undefined" !== typeof Loading )
-        action_event();
     // 攻略 -> 階層選擇(for all events).
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
     // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
@@ -265,6 +262,13 @@ $(document).ready(function() {
                 $("p.block_bt_l > a")[0].click();
             }
         }
+    // Skip Dialogue.
+    } else if (
+        "undefined" !== typeof Loading &&
+        ("undefined" !== typeof releaseWait || null !== mahoujin_args.callbackUrl.match(/action_home_quest_detail_result=true&guid=ON&th=\w{7}&step=5&qid=\d{9}/) )
+        // 後項的檢查是給階層攻略成功的CG.
+    ) {
+        action_event();
     } else {
         console.log("There is no condition.");
         if ( true === DEBUGGING )

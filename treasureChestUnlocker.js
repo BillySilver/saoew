@@ -41,7 +41,7 @@ $(document).ready(function() {
             break;
         }
     // Skip Dialogue.
-    } else if ( /*"undefined" !== typeof releaseWait && */"undefined" !== typeof Loading ) {
+    } else if ( "undefined" !== typeof Loading ) {
         action_event();
     }
 });

@@ -61,7 +61,7 @@ $(document).ready(function() {
         if ( 0 === currentBP )
             nLeftSecond = parseInt($("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > div.padding").html().match(/\d{2}:\d{2}:\d{2}/)[0].split(":")[2]);
     // For CG skip.
-    } else if ( /*"undefined" !== typeof releaseWait && */"undefined" !== typeof Loading ) {
+    } else if ( "undefined" !== typeof Loading ) {
         setTimeout(connectInterrupt, 500);
     // Otherwise, it is on action_home_duel_detail.
     } else {
