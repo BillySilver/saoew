@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SAOEW : Auto Event
 // @namespace   saoew
-// @description Exploring, Simulation, Crusade, Conquest, Collect, Fishing, Duel
+// @description Exploring, Simulation, Crusade, Conquest, Collect, Fishing, Duel, Guild
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_do=true&guid=ON&mc=100*
@@ -47,9 +47,18 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&guid=ON&step=2&battleSkillCheck=true&battleSkill=*&tu=0&skip=0_sp
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&clkBnrCde=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&step=1&sbp=2&c_key=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_result&guid=ON
+// @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action=event_\d+_ready&guid=ON(&hs=.+)?(&skip=0_sp)?/
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&step=1&sbp=1&c_key=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_lvup&guid=ON&hs=*&skip=0_sp
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_result=true&guid=ON&step=1&skip=*_sp
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_index&guid=ON
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160301]
+// @version     [160311]
 // @grant       none
 // ==/UserScript==
 
@@ -133,8 +142,8 @@ $(document).ready(function() {
     if (null !== strAP) {
         console.log("It may be the Action_Home_Quest_Index page.");
 
-        yourNowAP = parseInt(strAP.match(/\d+/)[0]);
-        yourMaxAP = parseInt(strAP.match(/\/\d+/)[0].match(/\d+/)[0]);
+        yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
+        yourMaxAP = parseInt(strAP.match(/\d+/g)[1]);
         console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
 
         // AP若太少則去HealPoison頁面掛網或喝HealPoison.
@@ -182,6 +191,12 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
     else if ( isExisted("div#gad_wrapper>div>div>div.padding_t05>table>tbody>tr>td>div.btn_sprite_event_duel01") )
         action_home_quest_map10();
+    // Event Entrance - 公會.
+    else if ( chkURL(/action(_|=)event_\d+_ready/) && isExisted("div#gad_wrapper > div > div > table > tbody > tr > td > a > div[class^='attack_btn0']") )
+        action_event_ready();
+    // Event Entrance - 活動首頁(公會活動在日本時間P.M. 6:00會回到這裡，需要重返).
+    else if ( isExisted("div#gad_wrapper > div > div > div.boss_btn > a") )
+        action_event_index();
     // [CG] Explore: reload2TrueMob - 探索.
     else if ( chkURL(/action(_|=)home_quest_do/) )
         action_home_quest_do();
@@ -208,7 +223,8 @@ $(document).ready(function() {
     // 攻略 -> 階層選擇(for all events).
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
     // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
-    else if ( isExisted("a[href^='sp_web.php?action_event_1'][href*='_map=true&guid=ON&clkBnrCde=100']") )
+    // /sp_web.php?action_event_(1\d{2})_ready=true&guid=ON&clkBnrCde=100\d+&opensocial_owner_id=\d+/ for Guild Event.
+    else if ( isExisted("a[href^='sp_web.php?action_event_1'][href*='=true&guid=ON&clkBnrCde=100']") )
         action_home_quest_index();
     // 攻略 -> 階層選擇(no any event).
     // 沒Event就攻略.
@@ -222,8 +238,8 @@ $(document).ready(function() {
         console.log("It may be in HealPoison page.");
 
         strAP     = $("div.padding2").html().match(/\d+\/\d+/)[0];
-        yourNowAP = parseInt(strAP.match(/\d+/)[0]);
-        yourMaxAP = parseInt(strAP.match(/\/\d+/)[0].match(/\d+/)[0]);
+        yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
+        yourMaxAP = parseInt(strAP.match(/\d+/g)[1]);
         console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
 
         // AP已滿則回到攻略頁面.
@@ -264,9 +280,16 @@ $(document).ready(function() {
         }
     // Skip Dialogue.
     } else if (
-        "undefined" !== typeof Loading &&
-        ("undefined" !== typeof releaseWait || null !== mahoujin_args.callbackUrl.match(/action_home_quest_detail_result=true&guid=ON&th=\w{7}&step=5&qid=\d{9}/) )
-        // 後項的檢查是給階層攻略成功的CG.
+        (
+            "undefined" !== typeof Loading &&
+           // 階層攻略成功的CG.
+           ("undefined" !== typeof releaseWait || null !== mahoujin_args.callbackUrl.match(/action_home_quest_detail_result=true&guid=ON&th=\w{7}&step=5&qid=\d{9}/) )
+        ) ||
+        (
+            // Guild Event, Partners LV UP!!
+            "undefined" !== typeof(mahoujin_args) && "undefined" !== typeof(mahoujin_args.partnerLevelBefore1) && "undefined" !== typeof(mahoujin_args.partnerLevelAfter1) &&
+            parseInt(mahoujin_args.partnerLevelBefore1) !== parseInt(mahoujin_args.partnerLevelAfter1) && undefined === console.log("Partners LV UP!!")
+        )
     ) {
         action_event();
     } else {
@@ -345,7 +368,7 @@ function action_home_quest_map2() {
         var strArrHP    = $("div#hp_text").html().match(/\d+/g);
         var nEnemyNowHP = parseInt(strArrHP[0]);
         var nEnemyMaxHP = parseInt(strArrHP[1]);
-        console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP);
+        console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP + " (" + round(nEnemyNowHP / nEnemyMaxHP * 100, 1) + "%).");
 
         var nNowBC = (function() {
             var digit = 0;
@@ -552,6 +575,50 @@ function action_home_quest_map10() {
     $("div#gad_wrapper>div>div>div.padding_t05>table>tbody>tr>td>div.btn_sprite_event_duel01.btn_img_event_duel0" + difficulty + ">a")[0].click();
 }
 
+// Event Entrance - 公會.
+function action_event_ready() {
+    // Since "img#icon_atk" is loaded slowly.
+    var nDelaySecond = 1;
+    console.log("Just waiting for " + nDelaySecond + " seconds...");
+
+    setTimeout(function() {
+        console.log("HP of the enemy is: ");
+        var strArrHP    = $("div#hp_text").html().match(/\d+/g);
+        var nEnemyNowHP = parseInt(strArrHP[0]);
+        var nEnemyMaxHP = parseInt(strArrHP[1]);
+        console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP + " (" + round(nEnemyNowHP / nEnemyMaxHP * 100, 1) + "%).");
+
+        var nCombo   = parseInt($("span#comboCount").html());
+        var nSecTime = parseInt($("span#min").html())*60 + parseInt($("span#sec").html());
+
+        // Switch Chance!! 180 combo is about 8 times damage.
+        if ( null !== $("img#icon_atk").attr("src").match("inline_icon_attack2.png") && 180 <= nCombo ) {
+            // If the enemy has a few HP, then attacks without waiting.
+            if ( nEnemyNowHP / nEnemyMaxHP < 0.3)
+                $("a > div[class^='attack_btn0']:last")[0].click();
+            // Otherwise, waits for AP is 20.
+            else if ( isExisted("a > div.attack_btn02") )
+                $("a > div.attack_btn02")[0].click();
+        } else {
+            var strAP     = $("div#ap_text").html();
+            var yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
+            var yourMaxAP = parseInt(strAP.match(/\d+/g)[1]);
+            console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
+
+            // 1. AP is Full but there is no any guild manber which attacked before or combo is too few.
+            // 2. Time is up soon.
+            if ( yourNowAP === yourMaxAP || 60 >= nSecTime )
+                $("a > div.attack_btn01")[0].click();
+        }
+    }, nDelaySecond*1000);
+}
+
+// Event Entrance - 活動首頁(公會活動在日本時間P.M. 6:00會回到這裡，需要重返).
+function action_event_index() {
+    if ( isExisted("a[href^='sp_web.php?action_home_team_index=true']") )
+        $("div.boss_btn > a")[0].click();
+}
+
 // [CG] Explore: reload2TrueMob - 探索.
 function action_home_quest_do() {
     location.reload();
@@ -631,7 +698,7 @@ function action_event() {
 
 // 攻略 -> 階層選擇(for all events).
 function action_home_quest_index() {
-    $("a[href^='sp_web.php?action_event_1'][href*='_map=true&guid=ON&clkBnrCde=100']")[0].click();
+    $("a[href^='sp_web.php?action_event_1'][href*='=true&guid=ON&clkBnrCde=100']")[0].click();
 }
 
 // 攻略 -> 階層選擇(no any event).
@@ -666,4 +733,10 @@ function chkURL(regexURL) {
 function rand(inf, sup) {
     var interval = sup - inf + 1;
     return Math.floor((Math.random() * interval) + inf);
+}
+
+function round(num, place) {
+    var shift = Math.pow(10, place);
+    var error = Math.pow(10, -place - 3);
+    return Math.round((num + error) * shift) / shift;
 }
