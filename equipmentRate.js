@@ -12,7 +12,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160303]
+// @version     [160304]
 // @grant       none
 // ==/UserScript==
 
@@ -55,6 +55,44 @@ Buff[7] = {
         part: "Accessory",
         Lv: 7,
         Limit: 100
+    }
+};
+Buff[8] = {
+    LvPerLimit: 8,
+    "104": {
+        part: "Right",
+        Lv: 14,
+        Limit: 160
+    },
+    "105": {
+        part: "Left",
+        Lv: 9,
+        Limit: 180
+    },
+    "101": {
+        part: "Hat",
+        Lv: 9,
+        Limit: "180"
+    },
+    "102": {
+        part: "Upper",
+        Lv: 10,
+        Limit: 160
+    },
+    "103": {
+        part: "Lower",
+        Lv: 9,
+        Limit: "180"
+    },
+    "106": {
+        part: "Foot",
+        Lv: 9,
+        Limit: "180"
+    },
+    "107": {
+        part: "Accessory",
+        Lv: 8,
+        Limit: "140"
     }
 };
 
@@ -103,7 +141,7 @@ $(document).ready(function() {
 
             var nEquipDiv = parseInt(jEquipment.eq(i).find("tr:eq(0) > td:eq(0) > span > img").attr("src").match(/\/item\/i10\d/)[0].match(/\d+/)[0]);
             var nStar     = parseInt(jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title > span:last").html().match(/\d/)[0]);
-            if ( 7 !== nStar )
+            if ( 7 > nStar )
                 continue;
             var nATK      = parseInt(jEquipment.eq(i).find("tr:eq(1) > td:eq(0) > span").html().match(/&nbsp;\d+/)[0].replace("&nbsp;", ""));
             var nDEF      = parseInt(jEquipment.eq(i).find("tr:eq(2) > td:eq(0) > span").html().match(/&nbsp;\d+/)[0].replace("&nbsp;", ""));
@@ -125,7 +163,10 @@ $(document).ready(function() {
             })(nPara);
 
             jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title").append(
-                $("<font>").css("font-weight", 900).css(
+                $("<font>").css(
+                    "font-weight",
+                    "string" !== typeof Buff[nStar][nEquipDiv].Limit ? 900 : 500
+                ).css(
                     "color",
                     jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title > span:last").css("color")
                 ).html("Rate: " + nRate + " (" + nPara + ")")
