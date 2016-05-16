@@ -58,7 +58,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160311]
+// @version     [160318]
 // @grant       none
 // ==/UserScript==
 
@@ -66,13 +66,14 @@
 var opensocial_owner_id = 708131429;
 
 var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
-var sHeal         = sHealPoison.p50;
+var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var isDuelEvent   = false;
 var nEnemyHPUnder = 3000000;
 var isErukaFruit  = false;
-var nFavorSets   = [1, 2, 3];
+var nFavorSets   = [3,
+                    1, 2, 3];
 
 /*
 var isMobWhitelist = true;
@@ -154,7 +155,7 @@ $(document).ready(function() {
         }
     }
 
-    console.log("Finding some condition....");
+    console.log("Finding some condition...");
     // Event Entrance - 探索.
     // 探索至Endless Area時按鈕會換成兩個.
     if ( isExisted("div#gad_wrapper>div>div.padding_t2>div.event_btn01") || isExisted("div#gad_wrapper>div>div.padding_t2>table>tbody>tr>td>div.btn_sprite_event03") )
@@ -224,7 +225,7 @@ $(document).ready(function() {
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
     // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
     // /sp_web.php?action_event_(1\d{2})_ready=true&guid=ON&clkBnrCde=100\d+&opensocial_owner_id=\d+/ for Guild Event.
-    else if ( isExisted("a[href^='sp_web.php?action_event_1'][href*='=true&guid=ON&clkBnrCde=100']") )
+    else if ( isExisted("a[href^='sp_web.php?action_event_2'][href*='=true&guid=ON&clkBnrCde=100']") )
         action_home_quest_index();
     // 攻略 -> 階層選擇(no any event).
     // 沒Event就攻略.
@@ -436,14 +437,8 @@ function action_home_quest_map2() {
                 }
             }
 
-            var nWeapon = parseInt($("select.autoSubmitSelect > option:checked").val());
-
-            if ( nFavorSet !== nWeapon ) {
-                $("select.autoSubmitSelect > option").eq(nFavorSet - 1).prop("selected", true);
-                $("select.autoSubmitSelect + div.btn02 > input")[0].click();
-                return false;
-            } else if ( parseInt($("div.padding > form > select > option:checked").val()) !== nWeapon ) {
-                $("div.padding > form > select > option").eq(nWeapon - 1).prop("selected", true);
+            if ( parseInt($("div.padding > form > select > option:checked").val()) !== nFavorSet ) {
+                $("div.padding > form > select > option").eq(nFavorSet - 1).prop("selected", true);
                 $("div.padding > form > select + div.btn02 > input")[0].click();
                 return false;
             } else {
@@ -698,7 +693,7 @@ function action_event() {
 
 // 攻略 -> 階層選擇(for all events).
 function action_home_quest_index() {
-    $("a[href^='sp_web.php?action_event_1'][href*='=true&guid=ON&clkBnrCde=100']")[0].click();
+    $("a[href^='sp_web.php?action_event_2'][href*='=true&guid=ON&clkBnrCde=100']")[0].click();
 }
 
 // 攻略 -> 階層選擇(no any event).
