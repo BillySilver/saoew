@@ -9,7 +9,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=2&skip=0_sp
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160214]
+// @version     [160518]
 // @grant       none
 // ==/UserScript==
 
@@ -32,14 +32,16 @@ $(document).ready(function() {
             // 金の宝箱.
             var nArrOrder = [1, 0];
 
-        for (var i = 0; i < nArrOrder.length; i++) {
-            // if "center.padding.btn01" has the className "on", then the center is unavailable.
-            if ( null !== jBtnUnlock.eq( nArrOrder[i] ).attr("class").match(/on/) )
-                continue;
+        setTimeout(function() {
+            for (var i = 0; i < nArrOrder.length; i++) {
+                // if "center.padding.btn01" has the className "on", then the center is unavailable.
+                if ( null !== jBtnUnlock.eq( nArrOrder[i] ).attr("class").match(/on/) )
+                    continue;
 
-            jBtnUnlock.children("a")[ nArrOrder[i] ].click();
-            break;
-        }
+                jBtnUnlock.children("a")[ nArrOrder[i] ].click();
+                break;
+            }
+        }, 1.5*1000);
     // Skip Dialogue.
     } else if ( "undefined" !== typeof Loading ) {
         action_event();
