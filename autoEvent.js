@@ -58,7 +58,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160516]
+// @version     [160518]
 // @grant       none
 // ==/UserScript==
 
@@ -69,11 +69,13 @@ var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
 var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
-var isDuelEvent   = false;
-var nEnemyHPUnder = 3000000;
-var isErukaFruit  = false;
+var nEnemyHPUnder = 4000000;
 var nFavorSets   = [1,
                     1, 2, 3];
+
+var isDuelEvent  = false;
+var isErukaFruit = false;
+var isHiddenArea = false;
 
 /*
 var isMobWhitelist = true;
@@ -334,7 +336,7 @@ function action_home_quest_map() {
     var difficulty = 1;
 
     // 隠しｴﾘｱを探索する.
-    if ( isExisted("div.event_btn02") )
+    if ( isHiddenArea && isExisted("div.event_btn02") )
         $("div.event_btn02 > a")[0].click();
     // 探索する.
     else if ( isExisted("div.btn_sprite_event03") )
