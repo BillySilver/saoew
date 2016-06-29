@@ -58,7 +58,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160518]
+// @version     [160615]
 // @grant       none
 // ==/UserScript==
 
@@ -160,7 +160,7 @@ $(document).ready(function() {
     console.log("Finding some condition...");
     // Event Entrance - 探索.
     // 探索至Endless Area時按鈕會換成兩個.
-    if ( isExisted("div#gad_wrapper > div > div > div.padding_t2 > table > tbody > tr > td > div.btn_sprite_event03") )
+    if ( isExisted("div#gad_wrapper > div > div > div.padding_t2 > div.event_btn01") || isExisted("div#gad_wrapper > div > div > div.padding_t2 > table > tbody > tr > td > div.btn_sprite_event03") )
         action_home_quest_map();
     // Fighting.
     else if ( isExisted("div#gad_wrapper > div > table > tbody > tr > td.attack") )
@@ -338,9 +338,11 @@ function action_home_quest_map() {
     // 隠しｴﾘｱを探索する.
     if ( isHiddenArea && isExisted("div.event_btn02") )
         $("div.event_btn02 > a")[0].click();
-    // 探索する.
+    // 探索する(in Endless Area).
     else if ( isExisted("div.btn_sprite_event03") )
         $("div.btn_sprite_event03 > a")[difficulty - 1].click();
+    else if ( isExisted("div.event_btn01") )
+        $("div.event_btn01 > a")[0].click();
 }
 
 // Fighting.
