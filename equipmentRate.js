@@ -3,7 +3,7 @@
 // @namespace   saoew
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?(guid=ON&)?action_home_info_item_equipment_setlist=true(&step=updateSetEquip)?(&guid=ON)?(&tab=[12])?(&deckCode=[1-8])?(&itemDivCode=10\d&subDiv=[1-3]&itemCode=\d+&eid=\d+)?&opensocial_owner_id=\d+/
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action_home_info_item_list=true&guid=ON(&rareKey=\d+)?(&sortType=[a-z]+(_des)?)?(&equipDiv=(0|10\d))?(&isLimitStone=[01])?(&skillType=[01])?(&itemCat=1)?(&start=\d+)?&opensocial_owner_id=\d+/
-// @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action_home_info_item_house_storage_list=true&guid=ON(&rareKey=\d+)?(&sortType=[a-z]+(_des)?)?(&equipDiv=(0|10\d))?(&isLimitStone=[01])?&itemCat=1(&p_div=[1-3])?(&div=0)?(&start=\d+)?&opensocial_owner_id=\d+/
+// @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action_home_info_item_house_storage_list=true&guid=ON(&rareKey=\d+)?(&sortType=[a-z]+(_des)?)?(&equipDiv=(0|10\d))?(&isLimitStone=[01])?(&skillType=(0|\d{6}))?&itemCat=1(&p_div=[1-3])?(&div=0)?(&start=\d+)?&opensocial_owner_id=\d+/
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action_home_info_item_equipment_setchange=true&guid=ON(&eid=)?&deckCode=[1-8](&itemDivCode=10\d)?&subDiv=[1-3](&sortKey=[a-z]+(_des)?)?(&rareRank=)?(&rareKey=0)?(&sortKey=[a-z]+(_des)?)?(&skillType=[01])?(&inKey=1)?(&start=\d+)?&opensocial_owner_id=\d+/
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action_home_info_item_equipment_partner_setchange=true&guid=ON&charaID=\d+(&itemDivCode=10\d)?&opensocial_owner_id=\d+/
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?guid=ON&action_home_info_item_equipment_partner_setchange=1&charaID=\d+&div=(10\d)?&itemDivCode=(10\d)?&sort_attr=(&start=\d+)?&opensocial_owner_id=\d+/
@@ -13,7 +13,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160319]
+// @version     [160701]
 // @grant       none
 // ==/UserScript==
 
