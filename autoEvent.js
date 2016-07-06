@@ -58,7 +58,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160615]
+// @version     [160629]
 // @grant       none
 // ==/UserScript==
 
@@ -170,10 +170,10 @@ $(document).ready(function() {
     else if ( isExisted(".btn_sprite_event06") )
         action_home_quest_map3();
     // Event Entrance - 攻略.
-    else if ( isExisted("div#gad_wrapper>div>div.back_step1>center>table>tbody>tr>td>a>span.easy_btn") || isExisted("div#gad_wrapper>div>div.back_step2>center>table>tbody>tr>td>a>span.easy_btn") )
+    else if ( isExisted("div#gad_wrapper > div > div.back_step1 > center > table > tbody > tr > td > a > img[src*='bt_event217_monster_0']") )
         action_home_quest_map4();
     // Event Entrance - 攻略.
-    else if ( isExisted("div#gad_wrapper>div>div.back_step3>center>table.phase_select01") )
+    else if ( isExisted("div#gad_wrapper > div > div.back_step3 > center > table.phase_select01") )
         action_home_quest_map5();
     // Event Entrance - 收集(未bouns time).
     // 待強化.
@@ -501,7 +501,8 @@ function action_home_quest_map3() {
 
 // Event Entrance - 攻略.
 function action_home_quest_map4() {
-    $("span.easy_btn")[0].click();
+    // Kill some ガーゴイル and some ディケスティオ.
+    $("img[src*='bt_event217_monster_0']").parent()[0].click();
 }
 
 // Event Entrance - 攻略.
@@ -511,9 +512,10 @@ function action_home_quest_map5() {
     // 3: Hard.
     // 4: Very Hard.
     var difficulty = 3;
-    // 攻略時, 劇情之MISSION2要打10場Easy與Normal.
-//     difficulty = rand(1, 3);
-    $("table.phase_select01 td>a")[difficulty - 1].click();
+    if ( $("table.phase_select01 td > a").length < difficulty )
+        $("table.phase_select01 td > a:last")[0].click();
+    else
+        $("table.phase_select01 td > a")[difficulty - 1].click();
 }
 
 // Event Entrance - 收集(未bouns time).
