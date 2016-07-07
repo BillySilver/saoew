@@ -11,7 +11,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160302]
+// @version     [160707]
 // @grant       none
 // ==/UserScript==
 
@@ -23,7 +23,7 @@ var nEnemyMinLv = 500;
 //*
 var isMobWhitelist = true;
 var mobWhitelist = [
-    "ﾅﾁｭﾗﾙﾍﾞﾋﾓｽ"
+    "ｻﾞ･ﾄﾞﾚｯﾄﾞ･ｽｶｯﾀｰ"
 ];
 //*/
 
@@ -143,6 +143,14 @@ $(document).ready(function() {
         // Form Offical Code.
 
         // connectInterrupt();
+        action_event();
+    // Skip Dialogue.
+    // 既に誰かに倒されたようだ…
+    } else if (
+        "undefined" !== typeof Loading &&
+        // 階層攻略成功的CG.
+        ("undefined" !== typeof releaseWait || null !== mahoujin_args.callbackUrl.match(/action_home_quest_detail_result=true&guid=ON&th=\w{7}&step=5&qid=\d{9}/) )
+    ) {
         action_event();
     } else {
         console.log("There is no condition.");
