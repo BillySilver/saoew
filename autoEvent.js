@@ -56,9 +56,11 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_result=true&guid=ON&step=1&skip=*_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_useitem=1&guid=ON&step=1&itemCd=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160629]
+// @version     [160707]
 // @grant       none
 // ==/UserScript==
 
@@ -69,13 +71,14 @@ var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
 var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
-var nEnemyHPUnder = 4000000;
-var nFavorSets   = [1,
+var nEnemyHPUnder = 5000000;
+var nFavorSets   = [3,
                     1, 2, 3];
 
 var isDuelEvent  = false;
 var isErukaFruit = false;
 var isHiddenArea = false;
+var isRareConquest = true;
 
 /*
 var isMobWhitelist = true;
@@ -200,6 +203,9 @@ $(document).ready(function() {
     // Event Entrance - 活動首頁(公會活動在日本時間P.M. 6:00會回到這裡，需要重返).
     else if ( isExisted("div#gad_wrapper > div > div > div.boss_btn > a") )
         action_event_index();
+    // 其他活動初次參加入口.
+    else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_join2") )
+        action_event_index2();
     // [CG] Explore: reload2TrueMob - 探索.
     else if ( chkURL(/action(_|=)home_quest_do/) )
         action_home_quest_do();
@@ -223,6 +229,9 @@ $(document).ready(function() {
     // 釣到普通魚或道具 - 釣魚.
     else if ( isExisted("div#gad_wrapper>div>div>div.btn01.padding2") )
         action_event_169_user_index();
+    // 使用道具 - 攻略.
+    else if ( isExisted("div#gad_wrapper > div > div > div.padding > center.padding.btn01") )
+        action_event_useitem();
     // 攻略 -> 階層選擇(for all events).
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
     // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
@@ -270,10 +279,6 @@ $(document).ready(function() {
                 }
             }, 1*1000);
         }
-    // Sought help from someone.
-    } else if ( chkURL(/action_home_quest_invite_help/) ) {
-        // さらに仲間を呼ぶ.
-        $("p.footer_btn > a")[1].click();
     // Invition page. (for some powerful enemy in Whitelist)
     } else if ( chkURL(/action_home_quest_invite_index/) || "undefined" !== typeof isInvitePage ) {
         // If not in "ｵｽｽﾒ", then choose it.
@@ -281,9 +286,23 @@ $(document).ready(function() {
             $("div.inner > a")[1].click();
         } else {
             if ( isExisted("form > center.padding2.btn01") ) {
+                // Selecting Invitions...
+                for (var i = 0; i < $("div.gra_dark_blue").length; i++) {
+                    var nLv = $("div.gra_dark_blue td > span").eq(i).contents().filter(function() {
+                        return this.nodeType == 3 && null !== this.nodeValue.match(/\d+/);
+                    })[0].nodeValue;
+                    nLv = parseInt(nLv);
+
+                    if ( 130 > nLv ) {
+                        $("div.gra_dark_blue > div > input").eq(i).prop("checked", null);
+                    } else {
+                        $("div.gra_dark_blue > div > input").eq(i).prop("checked", true);
+                    }
+                }
+
                 $("form > center.padding2.btn01 > input")[0].click();
             } else {
-                // Invition finished, 戦闘待機に戻る.
+                // Invitng finished, 戦闘待機に戻る.
                 $("p.block_bt_l > a")[0].click();
             }
         }
@@ -395,13 +414,16 @@ function action_home_quest_map2() {
             // retrete.
             $("p.btn04 > a")[0].click();
         // If a powerful enemy is in Whitelist, but you cannot output damage more than 15% of its MaxHP at first attack.
-        // First, you may seek help from someone.
-        } else if ( true === isInMobWhitelist && isExisted("td.help_me") && nEnemyNowHP / nEnemyMaxHP > 0.85 ) {
-            $("td.help_me > a")[0].click();
-        // After seeking help, you just need to wait to it been beated.
-        } else if ( true === isInMobWhitelist && false === isExisted("td.help_me") && isExisted("td.friend") ) {
-            // Do nothing.
-            console.log("After seeking help, just waiting...");
+        } else if ( true === isInMobWhitelist && isExisted("td.help_me") ) {
+            // Joined members are more than 1.
+            // After seeking help, you just need to wait to it been beated.
+            if ( 1 < parseInt($("div#gad_wrapper > div > div.gra_dark_blue.padding_t3 > div.padding").text().match(/\d+/)[0]) ) {
+                // Do nothing.
+                console.log("After seeking help, just waiting...");
+            // Seek help from someone.
+            } else if ( nEnemyNowHP / nEnemyMaxHP > 0.85 ) {
+                $("td.friend > a")[0].click();
+            }
         // Check if AP is enough.
         } else if ( isExisted("input[name=isConfirmedUseItem]") ) {
             console.log("AP is not enough.");
@@ -511,11 +533,27 @@ function action_home_quest_map5() {
     // 2: Normal.
     // 3: Hard.
     // 4: Very Hard.
+    // 5: Expert.
     var difficulty = 3;
-    if ( $("table.phase_select01 td > a").length < difficulty )
+
+    if ( true === isRareConquest ) {
+        if ( isExisted("table.phase_select02") ) {
+            // 1: Extreme.
+            // 2: Chaos.
+            // 3: Deep Chaos.
+            // 4: Unlimited.
+            // 5: Inferno.
+            var difficulty = 3;
+            $("table.phase_select02 td > a")[difficulty - 1].click();
+        } else {
+            // use "瘴気の小瓶" before battling with rare boss.
+            $("div.event_bonus_btn > a")[0].click();
+        }
+    } else if ( $("table.phase_select01 td > a").length < difficulty ) {
         $("table.phase_select01 td > a:last")[0].click();
-    else
+    } else {
         $("table.phase_select01 td > a")[difficulty - 1].click();
+    }
 }
 
 // Event Entrance - 收集(未bouns time).
@@ -631,6 +669,11 @@ function action_event_index() {
         $("div.boss_btn > a")[0].click();
 }
 
+// 其他活動初次參加入口.
+function action_event_index2() {
+    $("div.event_btn_join2 > a")[0].click();
+}
+
 // [CG] Explore: reload2TrueMob - 探索.
 function action_home_quest_do() {
     location.reload();
@@ -695,6 +738,11 @@ function action_event_160_getbox() {
 // 釣到普通魚或道具 - 釣魚.
 function action_event_169_user_index() {
     $("div#gad_wrapper>div>div>div.btn01.padding2>a")[0].click();
+}
+
+// 使用道具 - 攻略.
+function action_event_useitem() {
+    $("center.padding.btn01 > a")[0].click();
 }
 
 // Skip Dialogue or Battle Result.
