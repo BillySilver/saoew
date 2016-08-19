@@ -57,10 +57,11 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_useitem=1&guid=ON&step=1&itemCd=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_useitem=true&guid=ON&step=2&itemCd=*&key=*&itemCat=&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160707]
+// @version     [160804]
 // @grant       none
 // ==/UserScript==
 
@@ -71,14 +72,14 @@ var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
 var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
-var nEnemyHPUnder = 5000000;
-var nFavorSets   = [3,
+var nEnemyHPUnder = 16000000;
+var nFavorSets   = [2,
                     1, 2, 3];
 
 var isDuelEvent  = false;
 var isErukaFruit = false;
 var isHiddenArea = false;
-var isRareConquest = true;
+var isRareConquest = false;
 
 /*
 var isMobWhitelist = true;
@@ -173,7 +174,7 @@ $(document).ready(function() {
     else if ( isExisted(".btn_sprite_event06") )
         action_home_quest_map3();
     // Event Entrance - 攻略.
-    else if ( isExisted("div#gad_wrapper > div > div.back_step1 > center > table > tbody > tr > td > a > img[src*='bt_event217_monster_0']") )
+    else if ( isExisted("div#gad_wrapper > div > div.back_step1 > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
         action_home_quest_map4();
     // Event Entrance - 攻略.
     else if ( isExisted("div#gad_wrapper > div > div.back_step3 > center > table.phase_select01") )
@@ -234,9 +235,9 @@ $(document).ready(function() {
         action_event_useitem();
     // 攻略 -> 階層選擇(for all events).
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
-    // /sp_web.php?action_event_(1\d{2})_map=true&guid=ON&clkBnrCde=100/
-    // /sp_web.php?action_event_(1\d{2})_ready=true&guid=ON&clkBnrCde=100\d+&opensocial_owner_id=\d+/ for Guild Event.
-    else if ( isExisted("a[href^='sp_web.php?action_event_2'][href*='=true&guid=ON&clkBnrCde=100']") )
+    // /sp_web.php?action_event_(\d{3})_map=true&guid=ON&clkBnrCde=10/
+    // /sp_web.php?action_event_(\d{3})_ready=true&guid=ON&clkBnrCde=10\d+&opensocial_owner_id=\d+/ for Guild Event.
+    else if ( isExisted("a[href^='sp_web.php?action_event_'][href*='=true&guid=ON&clkBnrCde=10']") )
         action_home_quest_index();
     // 攻略 -> 階層選擇(no any event).
     // 沒Event就攻略.
@@ -280,9 +281,12 @@ $(document).ready(function() {
             }, 1*1000);
         }
     // Invition page. (for some powerful enemy in Whitelist)
-    } else if ( chkURL(/action_home_quest_invite_index/) || "undefined" !== typeof isInvitePage ) {
+    } else if ( chkURL(/action_home_quest_invite_index/) || true === isInvitePage ) {
+        // Boss may be beaten when inviting.
+        if ( "undefined" !== typeof mahoujin_args && "undefined" !== typeof mahoujin_args.callbackUrl ) {
+            action_event();
         // If not in "ｵｽｽﾒ", then choose it.
-        if ( null === $("div.inner").eq(1).attr("class").match("on") ) {
+        } else if ( null === $("div.inner").eq(1).attr("class").match("on") ) {
             $("div.inner > a")[1].click();
         } else {
             if ( isExisted("form > center.padding2.btn01") ) {
@@ -523,8 +527,13 @@ function action_home_quest_map3() {
 
 // Event Entrance - 攻略.
 function action_home_quest_map4() {
-    // Kill some ガーゴイル and some ディケスティオ.
-    $("img[src*='bt_event217_monster_0']").parent()[0].click();
+    // 確認是否有 Switch Bell (ｽｲｯﾁﾍﾞﾙ) 可使用.
+    // If there are some bells, then use one of them.
+    if ( isExisted("div.back_step1 > center > div > a > img") )
+       $("div.back_step1 > center > div > a > img").parent()[0].click();
+    // Kill some monsters for boss appearance.
+    else
+       $("img[src*='bt_event'][src*='_monster_0']").parent()[0].click();
 }
 
 // Event Entrance - 攻略.
@@ -536,19 +545,22 @@ function action_home_quest_map5() {
     // 5: Expert.
     var difficulty = 3;
 
-    if ( true === isRareConquest ) {
-        if ( isExisted("table.phase_select02") ) {
-            // 1: Extreme.
-            // 2: Chaos.
-            // 3: Deep Chaos.
-            // 4: Unlimited.
-            // 5: Inferno.
-            var difficulty = 3;
-            $("table.phase_select02 td > a")[difficulty - 1].click();
-        } else {
-            // use "瘴気の小瓶" before battling with rare boss.
-            $("div.event_bonus_btn > a")[0].click();
-        }
+    // The amount of "瘴気の小瓶".
+    var nMiasmaVial = parseInt($("div.fever_frame span > span:eq(0)").text().match(/\d+/)[0]);
+
+    // in Rare Boss Area.
+    if ( isExisted("table.phase_select02") ) {
+        // 1: Extreme.
+        // 2: Chaos.
+        // 3: Deep Chaos.
+        // 4: Unlimited.
+        // 5: Inferno.
+        var difficulty = 3;
+        $("table.phase_select02 td > a")[difficulty - 1].click();
+    } else if ( true === isRareConquest && 0 < nMiasmaVial ) {
+        // use "瘴気の小瓶" before battling with rare boss.
+        $("div.event_bonus_btn > a")[0].click();
+    // Beat easier bosses to Unlock the next level.
     } else if ( $("table.phase_select01 td > a").length < difficulty ) {
         $("table.phase_select01 td > a:last")[0].click();
     } else {
@@ -568,7 +580,7 @@ function action_home_quest_map7() {
     // 3: Hard.
     // 4: Very Hard.
     // 5: Collect.
-    var difficulty = 3;
+    var difficulty = 4;
     $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + ">a")[0].click();
 }
 
@@ -621,8 +633,8 @@ function action_home_quest_map10() {
     // 2: Normal.
     // 3: Hard.
     // 4: Very Hard.
-    var difficulty = 2;
-    $("div#gad_wrapper>div>div>div.padding_t05>table>tbody>tr>td>div.btn_sprite_event_duel01.btn_img_event_duel0" + difficulty + ">a")[0].click();
+    var difficulty = 3;
+    $("div#gad_wrapper > div > div > div.padding_t05 > table > tbody > tr > td > div.btn_sprite_event_duel01.btn_img_event_duel0" + difficulty + " > a")[0].click();
 }
 
 // Event Entrance - 公會.
@@ -747,6 +759,8 @@ function action_event_useitem() {
 
 // Skip Dialogue or Battle Result.
 function action_event() {
+    console.log("action_event() is excuting...");
+
     // Form Offical Code.
 
     Loading.start( 12 ) ;
@@ -758,7 +772,7 @@ function action_event() {
 
 // 攻略 -> 階層選擇(for all events).
 function action_home_quest_index() {
-    $("a[href^='sp_web.php?action_event_2'][href*='=true&guid=ON&clkBnrCde=100']")[0].click();
+    $("a[href^='sp_web.php?action_event_'][href*='=true&guid=ON&clkBnrCde=10']")[0].click();
 }
 
 // 攻略 -> 階層選擇(no any event).
