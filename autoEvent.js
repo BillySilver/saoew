@@ -61,7 +61,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160804]
+// @version     [160824]
 // @grant       none
 // ==/UserScript==
 
@@ -72,7 +72,7 @@ var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
 var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
-var nEnemyHPUnder = 16000000;
+var nEnemyHPUnder = 30000000;
 var nFavorSets   = [2,
                     1, 2, 3];
 
@@ -117,10 +117,16 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php
     if ("" === location.search) {
         // It will be invalid except that it is in invite page.
-        if ( "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span").html() ) {
+        if ( isExisted("div#gad_wrapper > div > center.clear_black > div.padding > span") && "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span").html() ) {
             var isInvitePage = true;
         } else if ( "undefined" !== typeof mahoujin_args && null !== mahoujin_args.callbackUrl.match(/home_quest_detail_game/) ) {
             var isBattleSkill = true;
+        // 今、受けている 協力ﾊﾞﾄﾙがありません。
+        } else if ( isExisted("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a") && "階層一覧 へ" === $("p.footer_btn > a").html() ) {
+            var audio = new Audio("http://www.sunnyneo.com/attictimer/ghostly.ogg");
+            audio.play();
+            $("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a")[0].click();
+            return;
         } else {
             return;
         }
@@ -603,13 +609,18 @@ function action_home_quest_map8() {
         return false;
     })();
 
+    // Change to HARD difficulty if it is EASY now.
+    if ( "EASY" === $("div.map_back > div.pos_abs > span").html() ) {
+        $("div.map_back > div.pos_abs > div.btn_sprite_difficultychange01 > a")[0].click();
     // 檢查魚群是否到來(紫色湖のﾇｼ).
     // 若未到來, a之class為off, 否則無class.
-    if ( false === isExisted("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a.off") ) {
+    } else if ( false === isExisted("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a.off") ) {
         $("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a")[1].click();
     } else {
         // ｴﾙｰｶの実.
         var nErukaFruit = parseInt($("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05").html().reverse().match(/\d+(?=;psbn&)/)[0].reverse());
+        // Todo:
+        nErukaFruit -= $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05 > span:eq(2)").length;
 
         if ( (true === isErukaFruit || true === isBigNushi) && 0 < nErukaFruit )
             $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05 > a")[0].click();
