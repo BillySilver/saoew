@@ -49,10 +49,9 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&guid=ON&step=2&battleSkillCheck=true&battleSkill=*&tu=0&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&clkBnrCde=*&opensocial_owner_id=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&step=1&sbp=2&c_key=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&step=1&sbp=*&c_key=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_result&guid=ON
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action=event_\d+_ready&guid=ON(&hs=.+)?(&skip=0_sp)?/
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_ready=true&guid=ON&step=1&sbp=1&c_key=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_lvup&guid=ON&hs=*&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_result=true&guid=ON&step=1&skip=*_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_index&guid=ON
@@ -62,7 +61,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160905]
+// @version     [160916]
 // @grant       none
 // ==/UserScript==
 
@@ -253,7 +252,7 @@ $(document).ready(function() {
     // 沒Event就攻略.
     else if ( isExisted("div#gad_wrapper>div>center>div>ul.bt_block>li.qu_list_tra") )
         action_home_quest_index2();
-    // If there is not event after retreated, then will back to floor selection.
+    // If there are no events after retreated, then will back to floor selection.
     else if ( isExisted("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn") )
         action_home_quest_delete_ok();
     // 是否在HealPoison頁面. 依條件決定要掛網或是喝HealPoison.
@@ -335,7 +334,7 @@ $(document).ready(function() {
     ) {
         action_event();
     } else {
-        console.log("There is no condition.");
+        console.log("There are no conditions.");
         if ( true === DEBUGGING )
             console.log("*** Debugging Mode ***");
 
@@ -678,16 +677,16 @@ function action_event_ready() {
             // If the enemy has a few HP, then attacks without waiting.
             if ( nEnemyNowHP / nEnemyMaxHP < 0.3)
                 $("a > div[class^='attack_btn0']:last")[0].click();
-            // Otherwise, waits for AP is 20.
+            // Otherwise, waits for AP is more than 20. (7 times damage with AP50, or 2.5 times with AP20)
             else if ( isExisted("a > div.attack_btn02") )
-                $("a > div.attack_btn02")[0].click();
+                $("a > div[class^='attack_btn0']:last")[0].click();
         } else {
             var strAP     = $("div#ap_text").html();
             var yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
             var yourMaxAP = parseInt(strAP.match(/\d+/g)[1]);
             console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
 
-            // 1. AP is Full but there is no any guild manber which attacked before or combo is too few.
+            // 1. AP is Full but there are no any guild manbers which attacked before or combo is too few.
             // 2. Time is up soon.
             if ( yourNowAP === yourMaxAP || 60 >= nSecTime )
                 $("a > div.attack_btn01")[0].click();
