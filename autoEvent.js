@@ -61,7 +61,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160916]
+// @version     [161005]
 // @grant       none
 // ==/UserScript==
 
@@ -73,8 +73,8 @@ var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 30000000;
-var nFavorSets   = [2,
-                    1, 2, 3];
+var nFavorSets    = [2,
+                     1, 2, 3];
 
 var isDuelEvent  = false;
 var isErukaFruit = false;
@@ -91,7 +91,7 @@ var mobFishing = [
     "湖のｵｵﾇｼ"
 ];
 
-var mobWhitelist = mobFishing;
+var mobWhitelist = [ "ｻﾞ･ﾙﾅｼｰﾘｰﾊﾟｰ" ];
 //*/
 
 /**
@@ -125,6 +125,10 @@ $(document).ready(function() {
         } else if ( isExisted("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a") && "階層一覧 へ" === $("p.footer_btn > a").html() ) {
             audioAlert();
             $("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a")[0].click();
+            return;
+        // Battle Result after inviting.
+        } else if ("undefined" !== typeof mahoujin_args && null !== mahoujin_args.callbackUrl.match(/home_quest_detail_result/) ) {
+            action_event();
             return;
         } else {
             return;
@@ -246,7 +250,8 @@ $(document).ready(function() {
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
     // /sp_web.php?action_event_(\d{3})_map=true&guid=ON&clkBnrCde=10/
     // /sp_web.php?action_event_(\d{3})_ready=true&guid=ON&clkBnrCde=10\d+&opensocial_owner_id=\d+/ for Guild Event.
-    else if ( isExisted("a[href^='sp_web.php?action_event_'][href*='=true&guid=ON&clkBnrCde=10']") )
+    // "img[src^='bn_eve_233_t_']" represents a Conquest Event will begin soon. However, we are not interested in it.
+    else if ( isExisted("a[href^='sp_web.php?action_event_'][href*='=true&guid=ON&clkBnrCde=10'] > img:not([src*='_t_'])") )
         action_home_quest_index();
     // 攻略 -> 階層選擇(no any event).
     // 沒Event就攻略.
@@ -555,7 +560,7 @@ function action_home_quest_map5() {
     // 3: Hard.
     // 4: Very Hard.
     // 5: Expert.
-    var difficulty = 3;
+    var difficulty = 4;
 
     // in Rare Boss Area.
     if ( true === isRareConquest && isExisted("div.back_step3") ) {
