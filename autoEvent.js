@@ -61,7 +61,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161005]
+// @version     [161011]
 // @grant       none
 // ==/UserScript==
 
@@ -81,7 +81,7 @@ var isErukaFruit = false;
 var isHiddenArea = false;
 var isRareConquest = false;
 
-/*
+//*
 var isMobWhitelist = true;
 var mobFishing = [
     "ﾌﾗｯｼｭ･ｲｰﾀｰ",
@@ -91,7 +91,18 @@ var mobFishing = [
     "湖のｵｵﾇｼ"
 ];
 
-var mobWhitelist = [ "ｻﾞ･ﾙﾅｼｰﾘｰﾊﾟｰ" ];
+var mobWhitelist = [
+    // happy cow
+    "ﾊｯﾋﾟｰ･ｶｳｶｳ",
+    // normal wolf
+    "ｳﾞｫﾙﾌ･ｻﾞ･ｼﾞｪﾈﾗﾙﾋﾞｰｽﾄ",
+    // Lv. 400, can't call help.
+    // "ﾘﾘｴﾗ･ｻﾞ･ｶｵｽﾙﾐﾅｽ",
+    // Lv. 500
+    "ｻﾞ･ﾃﾞｨｹｲﾄﾞ･ｸﾞﾘｰﾌ",
+    // Lv. 999
+    "ｱﾇﾋﾞｽ･ｻﾞ･ｲﾋﾞﾙｻｰｶﾞ"
+];
 //*/
 
 /**
@@ -230,7 +241,7 @@ $(document).ready(function() {
     else if ( chkURL(/action=home_quest_detail_attack/) )
         action_home_quest_detail_attack();
     // Next Fight: Fight Finish or Timeout.
-    else if ( isExisted("div#gad_wrapper>div>div>div>center>div.next_bt") )
+    else if ( isExisted("div#gad_wrapper > div > div > div > center > div.next_bt") )
         action_home_quest_detail_result();
     // Retreat Interface.
     // 條件變複雜是因為HealPoison頁面有隱藏的按鈕(和撤退按鈕相同).
@@ -370,7 +381,7 @@ $(document).ready(function() {
 function action_home_quest_map() {
     // 1: Normal.
     // 2: Hard.
-    var difficulty = 1;
+    var difficulty = 2;
 
     // 隠しｴﾘｱを探索する.
     if ( isHiddenArea && isExisted("div.event_btn02") )
@@ -735,7 +746,8 @@ function action_home_quest_detail_attack() {
 
 // Next Fight: Fight Finish or Timeout.
 function action_home_quest_detail_result() {
-    $("div.next_bt>a")[0].click();
+    $("div.top_area").hide();
+    $("div.next_bt > a")[0].click();
 }
 
 // checkTrueMob.
