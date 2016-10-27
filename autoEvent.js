@@ -69,7 +69,7 @@
 var opensocial_owner_id = 708131429;
 
 var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
-var sHeal         = sHealPoison.p30;
+var sHeal         = sHealPoison.p50;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 30000000;
@@ -442,8 +442,8 @@ function action_home_quest_map2() {
         if ( false === isInMobWhitelist && nEnemyHPUnder < nEnemyNowHP ) {
             // retrete.
             $("p.btn04 > a")[0].click();
-        // If a powerful enemy is in Whitelist, but you cannot output damage more than 15% of its MaxHP at first attack.
-        } else if ( true === isInMobWhitelist && isExisted("td.help_me") ) {
+        // If a "powerful" enemy is in Whitelist, but you cannot output damage more than 15% of its MaxHP at first attack.
+        } else if ( true === isInMobWhitelist && isExisted("td.help_me") && nEnemyHPUnder < nEnemyMaxHP ) {
             // Joined members are more than 1.
             // After seeking help, you just need to wait to it been beated.
             if ( 1 < parseInt($("div#gad_wrapper > div > div.gra_dark_blue.padding_t3 > div.padding").text().match(/\d+/)[0]) ) {
