@@ -13,6 +13,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&guid=ON*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_index=true&guid=ON&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_index=true&guid=ON&isAc=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index_do&guid=ON&btn=1&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&tu=0&guid=ON*
@@ -23,7 +24,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_select&guid=ON&pt=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_select=1&pt=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_delete_index=1&opensocial_owner_id=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_delete_ok=true&guid=ON&isDailyQuest=
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_delete_ok=true&guid=ON&isDailyQuest=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action=event_*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_info_item_use&guid=ON
@@ -59,20 +60,25 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_useitem=1&guid=ON&step=1&itemCd=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_useitem=true&guid=ON&step=2&itemCd=*&key=*&itemCat=&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_extra_index=true&guid=ON&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_extra_map=true&guid=ON
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_map=1&map_code=*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161104]
+// @version     [161108]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
-var opensocial_owner_id = 708131429;
 
 var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
 var sHeal         = sHealPoison.p50;
 var isSleepMode   = true;
 var isLimitHeal   = true;
-var nEnemyHPUnder = 30000000;
-var nFavorSets    = [2,
+var nEnemyHPUnder = 50000000;
+var nFavorSets    = [2
+                     ,
                      1, 2, 3];
 
 var isDuelEvent  = false;
@@ -80,7 +86,7 @@ var isErukaFruit = false;
 var isHiddenArea = false;
 var isRareConquest = false;
 
-//*
+/*
 var isMobWhitelist = true;
 var mobFishing = [
     "ﾌﾗｯｼｭ･ｲｰﾀｰ",
@@ -167,7 +173,7 @@ $(document).ready(function() {
         // AP若太少則去HealPoison頁面掛網或喝HealPoison.
         if ( 10 > yourNowAP ) {
            // $("div.btn02.padding2>a")[0].click();
-           location.href = "sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=" + opensocial_owner_id;
+           location.href = "sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=0";
            return;
         }
     }
@@ -252,17 +258,25 @@ $(document).ready(function() {
     // 使用道具 - 攻略.
     else if ( isExisted("div#gad_wrapper > div > div > div.padding > center.padding.btn01") )
         action_event_useitem();
-    // 攻略 -> 階層選擇(for all events).
+    // 攻略 -> 攻略MAP選擇(for events).
     // 現與 action_home_quest_delete_ok() 整合, 保留原樣不須強化.
     // /sp_web.php?action_event_(\d{3})_map=true&guid=ON&clkBnrCde=10/
     // /sp_web.php?action_event_(\d{3})_ready=true&guid=ON&clkBnrCde=10\d+&opensocial_owner_id=\d+/ for Guild Event.
     // "img[src^='bn_eve_233_t_']" represents a Conquest Event will begin soon. However, we are not interested in it.
     else if ( isExisted("a[href^='sp_web.php?action_event_'][href*='=true&guid=ON&clkBnrCde=10'] > img:not([src*='_t_'])") )
         action_home_quest_index();
-    // 攻略 -> 階層選擇(no any event).
-    // 沒Event就攻略.
-    else if ( isExisted("div#gad_wrapper>div>center>div>ul.bt_block>li.qu_list_tra") )
+    // 攻略 -> 攻略MAP選擇(no any events).
+    // 沒Event就攻略"練武の楼閣.
+    // 原本是一般階層攻略, 已不再需要.
+//     else if ( isExisted("div#gad_wrapper>div>center>div>ul.bt_block>li.qu_list_tra") )
+    else if ( isExisted("div#gad_wrapper > div > div.bg_img_quest_portal01 > div > a.margin_t12.sys_display02") )
         action_home_quest_index2();
+    // The entrance of Dungeon "練武の楼閣".
+    else if ( isExisted("div#gad_wrapper > div > div.bg_img_quest_portal01 > center > div.box_daily_dungeon_info01") )
+        action_event_extra_index(yourNowAP);
+    // Dungeon Area.
+    else if ( isExisted("div#gad_wrapper > div > center > a.margin_b03") )
+        action_event_extra_map();
     // If there are no events after retreated, then will back to floor selection.
     else if ( isExisted("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn") )
         action_home_quest_delete_ok();
@@ -806,14 +820,36 @@ function action_event() {
     timeForm = setTimeout ( "releaseWait()", 10000 ) ;
 }
 
-// 攻略 -> 階層選擇(for all events).
+// 攻略 -> 攻略MAP選擇(for events).
 function action_home_quest_index() {
     $("a[href^='sp_web.php?action_event_'][href*='=true&guid=ON&clkBnrCde=10']")[0].click();
 }
 
-// 攻略 -> 階層選擇(no any event).
+// 攻略 -> 攻略MAP選擇(no any events).
 function action_home_quest_index2() {
-    $("div#gad_wrapper>div>center>div>ul.bt_block>li.qu_list_tra>a")[0].click();
+    $("div#gad_wrapper > div > div.bg_img_quest_portal01 > div > a.margin_t12.sys_display02")[0].click();
+}
+
+// The entrance of Dungeon "練武の楼閣".
+function action_event_extra_index(yourNowAP) {
+    // 1: Easy.
+    // 2: Normal.
+    // 3: Hard.
+    // 4: Very Hard.
+    var difficulty = 3;
+
+    if ( 100 > yourNowAP ) {
+        console.log("Your current AP is not enough to clear entire Dungeon!");
+        return;
+    }
+
+    var strHref = $("div.btn_sprite_difficulty01").eq(difficulty - 1).attr("data-href");
+    $("a#dungeonUrl").attr("href", strHref)[0].click();
+}
+
+// Dungeon Area.
+function action_event_extra_map() {
+    $("a.margin_b03")[0].click();
 }
 
 function action_home_quest_delete_ok() {
