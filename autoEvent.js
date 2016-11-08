@@ -15,7 +15,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_index_do&guid=ON&btn=1&pt=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&tu=0&guid=ON
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_game&tu=0&guid=ON*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_detail_game=1&tu=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_detail_attack&tu=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
@@ -59,9 +59,8 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_useitem=1&guid=ON&step=1&itemCd=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_useitem=true&guid=ON&step=2&itemCd=*&key=*&itemCat=&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_index=true&guid=ON
-
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161011]
+// @version     [161104]
 // @grant       none
 // ==/UserScript==
 
@@ -92,16 +91,8 @@ var mobFishing = [
 ];
 
 var mobWhitelist = [
-    // happy cow
-    "ﾊｯﾋﾟｰ･ｶｳｶｳ",
-    // normal wolf
-    "ｳﾞｫﾙﾌ･ｻﾞ･ｼﾞｪﾈﾗﾙﾋﾞｰｽﾄ",
-    // Lv. 400, can't call help.
-    // "ﾘﾘｴﾗ･ｻﾞ･ｶｵｽﾙﾐﾅｽ",
-    // Lv. 500
-    "ｻﾞ･ﾃﾞｨｹｲﾄﾞ･ｸﾞﾘｰﾌ",
-    // Lv. 999
-    "ｱﾇﾋﾞｽ･ｻﾞ･ｲﾋﾞﾙｻｰｶﾞ"
+    // the boss of the 100th floor conquest.
+    "《聖騎士》ﾋｰｽｸﾘﾌ"
 ];
 //*/
 
@@ -194,14 +185,17 @@ $(document).ready(function() {
     else if ( isExisted(".btn_sprite_event06") )
         action_home_quest_map3();
     // Event Entrance - 攻略.
-    else if ( isExisted("div#gad_wrapper > div > div.back_step1 > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
+//     else if ( isExisted("div#gad_wrapper > div > div.back_step1 > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
+    else if ( isExisted("div#gad_wrapper > div > div.back_step0 > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
         action_home_quest_map4();
     // Event Entrance - 攻略.
-    else if ( isExisted("div#gad_wrapper > div > div.back_step3 > center > table.phase_select01") )
+//     else if ( isExisted("div#gad_wrapper > div > div.back_step3 > center > table.phase_select01") )
+    else if ( isExisted("div#gad_wrapper > div > div.back_step0 > center > table.phase_select01") )
         action_home_quest_map5();
     // Event Entrance - 攻略(已進入稀有Boss畫面).
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
-    else if ( isExisted("div#gad_wrapper > div > div div.back_step3 > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
+//     else if ( isExisted("div#gad_wrapper > div > div div.back_step3 > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
+    else if ( isExisted("div#gad_wrapper > div > div div.back_step0 > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
         action_home_quest_map5();
     // Event Entrance - 收集(未bouns time).
     // 待強化.
@@ -229,7 +223,8 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div > div.boss_btn > a") )
         action_event_index();
     // 其他活動初次參加入口.
-    else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_join2") )
+//     else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_join2") )
+    else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_tomap2") )
         action_event_index2();
     // [CG] Explore: reload2TrueMob - 探索.
     else if ( chkURL(/action(_|=)home_quest_do/) )
@@ -554,7 +549,9 @@ function action_home_quest_map3() {
 function action_home_quest_map4() {
     // "ﾚｱﾌﾛｱﾎﾞｽと戦う". You can decide whether to do it.
     if ( true === isRareConquest )
-        $("div.back_step1 > center > div > div.footer_btn02:eq(0) > a")[0].click();
+//         $("div.back_step1 > center > div > div.footer_btn02:eq(0) > a")[0].click();
+        // the first is "ﾋｰｽｸﾘﾌ" (at the 100th floor).
+        $("div.back_step0 > center > div > div.footer_btn02 > a:last")[0].click();
     // 確認是否有 Switch Bell (ｽｲｯﾁﾍﾞﾙ) 可使用.
     // If there are some bells, then use one of them.
     else if ( isExisted("div.back_step1 > center > div > a > img") )
@@ -574,7 +571,8 @@ function action_home_quest_map5() {
     var difficulty = 4;
 
     // in Rare Boss Area.
-    if ( true === isRareConquest && isExisted("div.back_step3") ) {
+//     if ( true === isRareConquest && isExisted("div.back_step3") ) {
+    if ( true === isRareConquest && isExisted("div.back_step0") ) {
         // The amount of "瘴気の小瓶".
         var nMiasmaVial = parseInt($("div.font_s.padding_t03.padding_b03").text().match(/\d+/g)[1]);
 
@@ -718,7 +716,9 @@ function action_event_index() {
 
 // 其他活動初次參加入口.
 function action_event_index2() {
-    $("div.event_btn_join2 > a")[0].click();
+//     $("div.event_btn_join2 > a")[0].click();
+    // 第 100 層階層攻略戰.
+    $("div.event_btn_tomap2 > a")[0].click();
 }
 
 // [CG] Explore: reload2TrueMob - 探索.
