@@ -66,7 +66,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161108]
+// @version     [161122]
 // @grant       none
 // ==/UserScript==
 
@@ -77,9 +77,8 @@ var sHeal         = sHealPoison.p50;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 50000000;
-var nFavorSets    = [2
-                     ,
-                     1, 2, 3];
+var nFavorSets    = [2,
+                     1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
 var isErukaFruit = false;
@@ -104,17 +103,20 @@ var mobWhitelist = [
 
 /**
  * Here is the attr of your right-hand weapon.
- * 0: slash
  * 1: speed
- * 2: hit
+ * 2: slash
+ * 3: hit
+ * 4: power
+ * 5: trick
  * @type {Integer}
  */
 var Attr = {
-    slash: 0,
     speed: 1,
-    hit:   2
+    slash: 2,
+    hit:   3,
+    power: 4,
+    trick: 5
 };
-var int2Attr = ["slash", "speed", "hit"];
 
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
@@ -188,6 +190,7 @@ $(document).ready(function() {
         action_home_quest_map2();
     // Event Entrance - 討伐.
     // 待強化.
+    // 貌似已無用 (161110).
     else if ( isExisted(".btn_sprite_event06") )
         action_home_quest_map3();
     // Event Entrance - 攻略.
@@ -210,7 +213,7 @@ $(document).ready(function() {
     // Event Entrance - 決鬥(一般探索 -> 申請畫面).
     else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>div.btn06") && true === isDuelEvent )
         action_home_quest_map9();
-    // Event Entrance - 收集(bouns time), 育成*, 決鬥(一般探索).
+    // Event Entrance - 收集(bouns time), 育成*, 決鬥(一般探索), 討伐.
     else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>center>div>div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
@@ -229,8 +232,9 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div > div.boss_btn > a") )
         action_event_index();
     // 其他活動初次參加入口.
-//     else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_join2") )
-    else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_tomap2") )
+    else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_join2") )
+    // 第 100 層階層攻略戰.
+//     else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_tomap2") )
         action_event_index2();
     // [CG] Explore: reload2TrueMob - 探索.
     else if ( chkURL(/action(_|=)home_quest_do/) )
@@ -392,9 +396,16 @@ function action_home_quest_map() {
     // 2: Hard.
     var difficulty = 2;
 
+    // 0: Dress up.
+    // 1: Weapon evolution.
+    var nExArea = 1;
+
     // 隠しｴﾘｱを探索する.
     if ( isHiddenArea && isExisted("div.event_btn02") )
         $("div.event_btn02 > a")[0].click();
+    // ドレスアップ/武器進化アイテムを集める(in Endless Area).
+    else if ( isExisted("div.btn_sprite_event04") )
+        $("div.btn_sprite_event04 > a")[nExArea].click();
     // 探索する(in Endless Area).
     else if ( isExisted("div.btn_sprite_event03") )
         $("div.btn_sprite_event03 > a")[difficulty - 1].click();
@@ -523,19 +534,29 @@ function action_home_quest_map2() {
             function strSetValue2Icon(nSetValue) {
                 var strIcon;
                 switch (nSetValue) {
-                    case "2":
-                    case 2:
-                    strIcon = "icon_slash";
-                    break;
-
                     case "1":
                     case 1:
                     strIcon = "icon_speed";
                     break;
 
+                    case "2":
+                    case 2:
+                    strIcon = "icon_slash";
+                    break;
+
                     case "3":
                     case 3:
                     strIcon = "icon_hit";
+                    break;
+
+                    case "4":
+                    case 4:
+                    strIcon = "icon_power";
+                    break;
+
+                    case "5":
+                    case 5:
+                    strIcon = "icon_trick";
                     break;
 
                     default:
@@ -615,15 +636,15 @@ function action_home_quest_map6() {
     $("div.btn_img_event_bonus>a")[0].click();
 }
 
-// Event Entrance - 收集(bouns time), 育成.
+// Event Entrance - 收集(bouns time), 育成*, 決鬥(一般探索), 討伐.
 function action_home_quest_map7() {
     // 1: Easy.
     // 2: Normal.
     // 3: Hard.
     // 4: Very Hard.
     // 5: Collect.
-    var difficulty = 4;
-    $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + ">a")[0].click();
+    var difficulty = 3;
+    $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + " > a")[0].click();
 }
 
 // Event Entrance - 釣魚.
@@ -730,9 +751,9 @@ function action_event_index() {
 
 // 其他活動初次參加入口.
 function action_event_index2() {
-//     $("div.event_btn_join2 > a")[0].click();
+    $("div.event_btn_join2 > a")[0].click();
     // 第 100 層階層攻略戰.
-    $("div.event_btn_tomap2 > a")[0].click();
+//     $("div.event_btn_tomap2 > a")[0].click();
 }
 
 // [CG] Explore: reload2TrueMob - 探索.
