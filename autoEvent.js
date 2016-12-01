@@ -66,7 +66,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161122]
+// @version     [161201]
 // @grant       none
 // ==/UserScript==
 
@@ -194,17 +194,14 @@ $(document).ready(function() {
     else if ( isExisted(".btn_sprite_event06") )
         action_home_quest_map3();
     // Event Entrance - 攻略.
-//     else if ( isExisted("div#gad_wrapper > div > div.back_step1 > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
-    else if ( isExisted("div#gad_wrapper > div > div.back_step0 > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
+    else if ( isExisted("div#gad_wrapper > div > div[class^='back_step'] > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
         action_home_quest_map4();
     // Event Entrance - 攻略.
-//     else if ( isExisted("div#gad_wrapper > div > div.back_step3 > center > table.phase_select01") )
-    else if ( isExisted("div#gad_wrapper > div > div.back_step0 > center > table.phase_select01") )
+    else if ( isExisted("div#gad_wrapper > div > div[class^='back_step'] > center > table.phase_select01") )
         action_home_quest_map5();
     // Event Entrance - 攻略(已進入稀有Boss畫面).
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
-//     else if ( isExisted("div#gad_wrapper > div > div div.back_step3 > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
-    else if ( isExisted("div#gad_wrapper > div > div div.back_step0 > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
+    else if ( isExisted("div#gad_wrapper > div > div div[class^='back_step'] > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
         action_home_quest_map5();
     // Event Entrance - 收集(未bouns time).
     // 待強化.
@@ -231,10 +228,8 @@ $(document).ready(function() {
     // Event Entrance - 活動首頁(公會活動在日本時間P.M. 6:00會回到這裡，需要重返).
     else if ( isExisted("div#gad_wrapper > div > div > div.boss_btn > a") )
         action_event_index();
-    // 其他活動初次參加入口.
-    else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_join2") )
-    // 第 100 層階層攻略戰.
-//     else if ( isExisted("div#gad_wrapper > div > div > div > div > div.event_btn_tomap2") )
+    // 其他活動(join2)/攻略Event(tomap2) 初次參加入口.
+    else if ( isExisted("div#gad_wrapper > div > div > div > div > div[class^=event_btn_]") )
         action_event_index2();
     // [CG] Explore: reload2TrueMob - 探索.
     else if ( chkURL(/action(_|=)home_quest_do/) )
@@ -304,7 +299,7 @@ $(document).ready(function() {
             $("center.footer_padding > p.footer_btn > a")[0].click();
         } else {
             setTimeout(function() {
-                var nLimitHeal = (null !== $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).html().match("限定")) ? 1 : 0;
+                var nLimitHeal = (null !== $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).text().match(/限定|守護者戦ep\d+/)) ? 1 : 0;
 
                 if ( true === isLimitHeal && 1 === nLimitHeal ) {
                     $("div.clear > center > center.block_bt_r > a.heal")[nHealOffset].click();
@@ -349,18 +344,35 @@ $(document).ready(function() {
             }
         }
     // Skip Dialogue.
-    } else if (
+    } else if ( "undefined" !== typeof mahoujin_args && (
+        /* 161201 test for the last condition.
         (
             "undefined" !== typeof Loading &&
-           // 階層攻略成功的CG.
-           ("undefined" !== typeof releaseWait || null !== mahoujin_args.callbackUrl.match(/action_home_quest_detail_result=true&guid=ON&th=\w{7}&step=5&qid=\d{9}/) )
+            // 後者為階層攻略成功的CG.
+            ("undefined" !== typeof releaseWait || null !== mahoujin_args.callbackUrl.match(/action_home_quest_detail_result=true&guid=ON&th=\w{7}&step=5&qid=\d{9}/) )
         ) ||
         (
             // Guild Event, Partners LV UP!!
-            "undefined" !== typeof(mahoujin_args) && "undefined" !== typeof(mahoujin_args.partnerLevelBefore1) && "undefined" !== typeof(mahoujin_args.partnerLevelAfter1) &&
+            "undefined" !== typeof mahoujin_args.partnerLevelBefore1 && "undefined" !== typeof mahoujin_args.partnerLevelAfter1 &&
             parseInt(mahoujin_args.partnerLevelBefore1) !== parseInt(mahoujin_args.partnerLevelAfter1) && undefined === console.log("Partners LV UP!!")
+        ) ||
+        */
+
+        (
+            // Conquest Event: Story Dialogue.
+            // URL: action=event_242_preview&step=4
+            // talkCode, talkTitle, talkConfirm, talkData.
+            "undefined" !== typeof mahoujin_args.talkCode
+        ) ||
+        (
+            // Conquest Event: Useitem.
+            // URL: action_event_242_useitem=true&guid=ON&step=2
+            "undefined" !== typeof Loading && "undefined" !== mahoujin_args.callbackUrl &&
+            // Except checkTrueMob. (releaseWait is undefined.)
+            // URL: action_home_quest_select=1
+            "undefined" !== typeof releaseWait
         )
-    ) {
+    ) ) {
         action_event();
     } else {
         console.log("There are no conditions.");
@@ -376,7 +388,7 @@ $(document).ready(function() {
         }, 0*1000);
     }
 
-    // Waiting in 0.5 ~ 6 min.
+    // Waiting in 0.2 ~ 6 min.
     if ( false === DEBUGGING ) {
         if ( chkURL(/action(_|=)home_quest_detail_game/) )
             setTimeout(hAfterWaiting, 6*60*1000);
@@ -398,13 +410,13 @@ function action_home_quest_map() {
 
     // 0: Dress up.
     // 1: Weapon evolution.
-    var nExArea = 1;
+    var nExArea = 0;
 
     // 隠しｴﾘｱを探索する.
     if ( isHiddenArea && isExisted("div.event_btn02") )
         $("div.event_btn02 > a")[0].click();
     // ドレスアップ/武器進化アイテムを集める(in Endless Area).
-    else if ( isExisted("div.btn_sprite_event04") )
+    else if ( isExisted("div.btn_sprite_event04:not([class~='off'])") )
         $("div.btn_sprite_event04 > a")[nExArea].click();
     // 探索する(in Endless Area).
     else if ( isExisted("div.btn_sprite_event03") )
@@ -483,7 +495,7 @@ function action_home_quest_map2() {
             }
             console.log(nHealOffset);
 
-            var nLimitHeal = (null !== $("select[name=itemCdOffset] > option").eq(nHealOffset).html().match("限定")) ? 1 : 0;
+            var nLimitHeal = (null !== $("select[name=itemCdOffset] > option").eq(nHealOffset).html().match(/限定|守護者戦ep\d+/)) ? 1 : 0;
 
             if ( true === isLimitHeal && 1 === nLimitHeal ) {
                 if ( chkWeaponAndPartner() )
@@ -584,13 +596,12 @@ function action_home_quest_map3() {
 function action_home_quest_map4() {
     // "ﾚｱﾌﾛｱﾎﾞｽと戦う". You can decide whether to do it.
     if ( true === isRareConquest )
-//         $("div.back_step1 > center > div > div.footer_btn02:eq(0) > a")[0].click();
         // the first is "ﾋｰｽｸﾘﾌ" (at the 100th floor).
-        $("div.back_step0 > center > div > div.footer_btn02 > a:last")[0].click();
+        $("div[class^='back_step'] > center > div > div.footer_btn02 > a:last")[0].click();
     // 確認是否有 Switch Bell (ｽｲｯﾁﾍﾞﾙ) 可使用.
     // If there are some bells, then use one of them.
-    else if ( isExisted("div.back_step1 > center > div > a > img") )
-        $("div.back_step1 > center > div > a > img").parent()[0].click();
+    else if ( isExisted("div[class^='back_step'] > center > div > a > img") )
+        $("div[class^='back_step'] > center > div > a > img").parent()[0].click();
     // Kill some monsters for boss appearance.
     else
         $("img[src*='bt_event'][src*='_monster_0']").parent()[0].click();
@@ -603,11 +614,10 @@ function action_home_quest_map5() {
     // 3: Hard.
     // 4: Very Hard.
     // 5: Expert.
-    var difficulty = 4;
+    var difficulty = 3;
 
     // in Rare Boss Area.
-//     if ( true === isRareConquest && isExisted("div.back_step3") ) {
-    if ( true === isRareConquest && isExisted("div.back_step0") ) {
+    if ( true === isRareConquest && isExisted("div[class^='back_step']") ) {
         // The amount of "瘴気の小瓶".
         var nMiasmaVial = parseInt($("div.font_s.padding_t03.padding_b03").text().match(/\d+/g)[1]);
 
@@ -644,7 +654,7 @@ function action_home_quest_map7() {
     // 4: Very Hard.
     // 5: Collect.
     var difficulty = 3;
-    $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + " > a")[0].click();
+    $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + ">a")[0].click();
 }
 
 // Event Entrance - 釣魚.
@@ -749,11 +759,9 @@ function action_event_index() {
         $("div.boss_btn > a")[0].click();
 }
 
-// 其他活動初次參加入口.
+// 其他活動(join2)/攻略Event(tomap2) 初次參加入口.
 function action_event_index2() {
-    $("div.event_btn_join2 > a")[0].click();
-    // 第 100 層階層攻略戰.
-//     $("div.event_btn_tomap2 > a")[0].click();
+    $("div[class^=event_btn_] > a")[0].click();
 }
 
 // [CG] Explore: reload2TrueMob - 探索.
@@ -832,7 +840,10 @@ function action_event_useitem() {
 function action_event() {
     console.log("action_event() is excuting...");
 
-    // Form Offical Code.
+    if ( undefined == getSkipFlg )
+        var getSkipFlg = function() { return ""; };
+
+    // Form Official Code.
 
     Loading.start( 12 ) ;
     location.href = mahoujin_args.callbackUrl + getSkipFlg() ;
