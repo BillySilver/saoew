@@ -7,13 +7,14 @@
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action_home_info_item_equipment_setchange=true&guid=ON(&eid=)?&deckCode=[1-8](&itemDivCode=10\d)?&subDiv=[1-3](&sortKey=[a-z]+(_des)?)?(&rareRank=)?(&rareKey=0)?(&sortKey=[a-z]+(_des)?)?(&skillType=[01])?(&inKey=1)?(&start=\d+)?&opensocial_owner_id=\d+/
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action_home_info_item_equipment_partner_setchange=true&guid=ON&charaID=\d+(&itemDivCode=10\d)?&opensocial_owner_id=\d+/
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?guid=ON&action_home_info_item_equipment_partner_setchange=1&charaID=\d+&div=(10\d)?&itemDivCode=(10\d)?&sort_attr=(&start=\d+)?&opensocial_owner_id=\d+/
-// @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?(guid=ON&)?action_home_enhance_index=(1|true)(&beid=\d+)?(&guid=ON)?(&step=chg)?(&div=)?(&beid=&p_div=3)?(&rareKey=\d+)?(&sortType=[a-z]+(_des)?)?(&equipDiv=(0|10\d))?(&start=\d+)?&opensocial_owner_id=\d+/
+// @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?(guid=ON&)?action_home_enhance_index=(1|true)(&p_div=2)?(&beid=\d+)?(&guid=ON)?(&step=chg)?(&div=)?(&beid=)?(&p_div=3)?(&rareKey=\d+)?(&sortType=[a-z]+(_des)?)?(&equipDiv=(0|10\d))?(&skillType=\d+)?(&start=\d+)?&opensocial_owner_id=\d+/
 // @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?action=home_enhance_index&p_div=&guid=ON&beid=\d+&exp=1&uplevel=1&skip=070100001%20_sp/
+// @include     /http:\/\/a57528\.app\.gree-pf\.net\/sp_web\.php\?(guid=ON&)?action_home_enhance_equiplimit_index=(1|true)(&guid=ON)?&step=chg(&isLimitStone=)?(&sortType=[a-z]+(_des)?)?(&beid=)?(&isLimitItem=)?(&start=\d+)?&opensocial_owner_id=\d+/
 
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160701]
+// @version     [161201]
 // @grant       none
 // ==/UserScript==
 
@@ -25,37 +26,44 @@ Buff[7] = {
     "104": {
         part: "Right",
         Lv: 13,
-        Limit: 120
+        Limit: 120,
+        Opt: 3882
     },
     "105": {
         part: "Left",
         Lv: 8,
-        Limit: 130
+        Limit: 130,
+        Opt: 3398
     },
     "101": {
         part: "Hat",
         Lv: 8,
-        Limit: 130
+        Limit: 130,
+        Opt: 2615
     },
     "102": {
         part: "Upper",
         Lv: 9,
-        Limit: 120
+        Limit: 120,
+        Opt: 3019
     },
     "103": {
         part: "Lower",
         Lv: 8,
-        Limit: 130
+        Limit: 130,
+        Opt: 2664
     },
     "106": {
         part: "Foot",
         Lv: 8,
-        Limit: 130
+        Limit: 130,
+        Opt: 2755
     },
     "107": {
         part: "Accessory",
         Lv: 7,
-        Limit: 100
+        Limit: 100,
+        Opt: 2108
     }
 };
 Buff[8] = {
@@ -63,32 +71,38 @@ Buff[8] = {
     "104": {
         part: "Right",
         Lv: 14,
-        Limit: 160
+        Limit: 160,
+        Opt: 5722
     },
     "105": {
         part: "Left",
         Lv: 9,
-        Limit: 180
+        Limit: 180,
+        Opt: 5193
     },
     "101": {
         part: "Hat",
         Lv: 9,
-        Limit: "180"
+        Limit: "180",
+        Opt: 4393
     },
     "102": {
         part: "Upper",
         Lv: 10,
-        Limit: 160
+        Limit: 160,
+        Opt: 4891
     },
     "103": {
         part: "Lower",
         Lv: 9,
-        Limit: "180"
+        Limit: "180",
+        Opt: 4518
     },
     "106": {
         part: "Foot",
         Lv: 9,
-        Limit: "180"
+        Limit: "180",
+        Opt: 5313
     },
     "107": {
         part: "Accessory",
@@ -162,6 +176,12 @@ $(document).ready(function() {
 
                 return nPara + ((6 - nLimit) * Buff[nStar][nEquipDiv].Limit) + ((nFinalLv - nNowLv) * Buff[nStar][nEquipDiv].Lv);
             })(nPara);
+            var fOpt  = (function() {
+                if (undefined !== Buff[nStar][nEquipDiv].Opt)
+                    return parseInt((nRate / Buff[nStar][nEquipDiv].Opt) * 1000) / 1000;
+                else
+                    return "";
+            })();
 
             jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title").append(
                 $("<font>").css(
@@ -170,7 +190,7 @@ $(document).ready(function() {
                 ).css(
                     "color",
                     jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title > span:last").css("color")
-                ).html("Rate: " + nRate + " (" + nPara + ")")
+                ).html("Rate: " + nRate + " [" + fOpt + "] (" + nPara + ")")
             );
         }
     }
