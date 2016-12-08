@@ -30,15 +30,12 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_info_item_use&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_168_getbox&*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_user_index=true&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_169_user_index&step=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&skip=0_sp
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_169_autorecoveryitem=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_autorecoveryitem=true&guid=ON&*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_179_user_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=5&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
@@ -66,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161201]
+// @version     [161208]
 // @grant       none
 // ==/UserScript==
 
@@ -83,6 +80,13 @@ var nFavorSets    = [2,
 var isDuelEvent  = false;
 var isErukaFruit = false;
 var isHiddenArea = false;
+/**
+ * Choose one of rare bosses you want to beat.
+ * 0: Guardian
+ * 1: Rare Area Boss
+ * others: disable (normal attack)
+ * @type {Integer}
+ */
 var isRareConquest = false;
 
 /*
@@ -96,8 +100,8 @@ var mobFishing = [
 ];
 
 var mobWhitelist = [
-    // the boss of the 100th floor conquest.
-    "《聖騎士》ﾋｰｽｸﾘﾌ"
+    "ｺﾎﾞﾙﾄﾞ･ｻﾞ･ｸﾞﾚｲﾄｿﾙｼﾞｬｰ",
+    "ｻﾞ･ｳﾞｧｰﾀﾞﾝﾄ･ｶﾞｰﾃﾞｨｱﾝ"
 ];
 //*/
 
@@ -123,6 +127,8 @@ $(document).ready(function() {
         DEBUGGING = false;
     if ("undefined" === typeof isMobWhitelist)
         isMobWhitelist = false;
+    if (0 !== isRareConquest && 1 !== isRareConquest)
+        isRareConquest = false;
 
     // http://a57528.app.gree-pf.net/sp_web.php
     if ("" === location.search) {
@@ -194,14 +200,14 @@ $(document).ready(function() {
     else if ( isExisted(".btn_sprite_event06") )
         action_home_quest_map3();
     // Event Entrance - 攻略.
-    else if ( isExisted("div#gad_wrapper > div > div[class^='back_step'] > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
+    else if ( isExisted("div#gad_wrapper > div > div[class*='back_step'] > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
         action_home_quest_map4();
     // Event Entrance - 攻略.
-    else if ( isExisted("div#gad_wrapper > div > div[class^='back_step'] > center > table.phase_select01") )
+    else if ( isExisted("div#gad_wrapper > div > div[class*='back_step'] > center > table.phase_select01") )
         action_home_quest_map5();
     // Event Entrance - 攻略(已進入稀有Boss畫面).
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
-    else if ( isExisted("div#gad_wrapper > div > div div[class^='back_step'] > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
+    else if ( isExisted("div#gad_wrapper > div > div > div[class*='back_step'] > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
         action_home_quest_map5();
     // Event Entrance - 收集(未bouns time).
     // 待強化.
@@ -594,14 +600,16 @@ function action_home_quest_map3() {
 
 // Event Entrance - 攻略.
 function action_home_quest_map4() {
-    // "ﾚｱﾌﾛｱﾎﾞｽと戦う". You can decide whether to do it.
-    if ( true === isRareConquest )
-        // the first is "ﾋｰｽｸﾘﾌ" (at the 100th floor).
-        $("div[class^='back_step'] > center > div > div.footer_btn02 > a:last")[0].click();
-    // 確認是否有 Switch Bell (ｽｲｯﾁﾍﾞﾙ) 可使用.
-    // If there are some bells, then use one of them.
-    else if ( isExisted("div[class^='back_step'] > center > div > a > img") )
-        $("div[class^='back_step'] > center > div > a > img").parent()[0].click();
+    // "ﾚｱｴﾘｱﾎﾞｽと戦う". You can decide whether to do it.
+    if ( false !== isRareConquest )
+        // the first is "ﾋｰｽｸﾘﾌ" at the 100th floor.
+        // the first is "ｶﾞｰﾃﾞｨｱﾝと戦う" at 守護者討伐戦.
+        // the second is "ﾚｱｴﾘｱﾎﾞｽと戦う".
+        $("div[class*='back_step'] > center > div > div.footer_btn02 > a")[isRareConquest].click();
+    // 確認是否有 Sproβ Eid (ｼｭﾌﾟﾛｽｱｲﾄ) 可使用.
+    // If there are some ones, then use one of them.
+    else if ( isExisted("div[class*='back_step'] > center > div > a > img") )
+        $("div[class*='back_step'] > center > div > a > img").parent()[0].click();
     // Kill some monsters for boss appearance.
     else
         $("img[src*='bt_event'][src*='_monster_0']").parent()[0].click();
@@ -616,17 +624,26 @@ function action_home_quest_map5() {
     // 5: Expert.
     var difficulty = 3;
 
-    // in Rare Boss Area.
-    if ( true === isRareConquest && isExisted("div[class^='back_step']") ) {
-        // The amount of "瘴気の小瓶".
+    // in Guardian / Rare Boss Area.
+    if ( false !== isRareConquest && isExisted("div[class*='back_step']") ) {
+        // The amount of "ﾃﾞｨｳﾞﾝｼｭの女神" in Rare Boss Area.
+        // The amount of "瘴気の小瓶" in Rare Boss Area.
         var nMiasmaVial = parseInt($("div.font_s.padding_t03.padding_b03").text().match(/\d+/g)[1]);
 
+        // in Guardian Area.
+        // 1: EX.Hard.
+        // 2: EX.VeryHard.
+        if ( 0 === isRareConquest )
+            difficulty = 1;
+
+        // in Rare Boss Area.
         // 1: Extreme.
         // 2: Chaos.
         // 3: Deep Chaos.
         // 4: Unlimited.
         // 5: Inferno.
-        var difficulty = 2;
+        if ( 1 === isRareConquest )
+            difficulty = 2;
 
         var nMiasmaVialNeeded = parseInt($("table td > div.padding_b02 > span").eq(difficulty - 1).text().match(/\d+/)[0]);
         if ( nMiasmaVial >= nMiasmaVialNeeded )
