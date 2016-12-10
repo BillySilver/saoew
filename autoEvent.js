@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161208]
+// @version     [161209]
 // @grant       none
 // ==/UserScript==
 
@@ -209,15 +209,14 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
     else if ( isExisted("div#gad_wrapper > div > div > div[class*='back_step'] > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
         action_home_quest_map5();
-    // Event Entrance - 收集(未bouns time).
-    // 待強化.
-    else if ( isExisted("div.btn_sprite_event_map07.btn_img_event_bonus") )
+    // Event Entrance - 收集.
+    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map08") )
         action_home_quest_map6();
     // Event Entrance - 決鬥(一般探索 -> 申請畫面).
     else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>div.btn06") && true === isDuelEvent )
         action_home_quest_map9();
-    // Event Entrance - 收集(bouns time), 育成*, 決鬥(一般探索), 討伐.
-    else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>center>div>div.btn_sprite_event_map07.btn_img_event_map04") )
+    // Event Entrance - 育成*, 決鬥(一般探索), 討伐.
+    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
     // else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
@@ -282,6 +281,9 @@ $(document).ready(function() {
     // Dungeon Area.
     else if ( isExisted("div#gad_wrapper > div > center > a.margin_b03") )
         action_event_extra_map();
+    // Timeout in Dungeon Area.
+    else if ( isExisted("div#gad_wrapper > div > div > div.error_padding") )
+        action_home_quest_detail_result2();
     // If there are no events after retreated, then will back to floor selection.
     else if ( isExisted("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn") )
         action_home_quest_delete_ok();
@@ -658,12 +660,19 @@ function action_home_quest_map5() {
     }
 }
 
-// Event Entrance - 收集(未bouns time).
+// Event Entrance - 收集.
 function action_home_quest_map6() {
-    $("div.btn_img_event_bonus>a")[0].click();
+    // 1: Easy.
+    // 2: Normal.
+    // 3: Hard.
+    // 4: Very Hard.
+    // 5: Expert.
+    // 6: Collect.
+    var difficulty = 3;
+    $("div.btn_sprite_event_map08.btn_img_event_map0" + difficulty + " > a")[0].click();
 }
 
-// Event Entrance - 收集(bouns time), 育成*, 決鬥(一般探索), 討伐.
+// Event Entrance - 育成*, 決鬥(一般探索), 討伐.
 function action_home_quest_map7() {
     // 1: Easy.
     // 2: Normal.
@@ -671,7 +680,7 @@ function action_home_quest_map7() {
     // 4: Very Hard.
     // 5: Collect.
     var difficulty = 3;
-    $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + ">a")[0].click();
+    $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + " > a")[0].click();
 }
 
 // Event Entrance - 釣魚.
@@ -899,6 +908,16 @@ function action_event_extra_index(yourNowAP) {
 // Dungeon Area.
 function action_event_extra_map() {
     $("a.margin_b03")[0].click();
+}
+
+// Timeout in Dungeon Area.
+function action_home_quest_detail_result2() {
+    // この練武の楼閣は時間切れの為 終了しました
+    // 練武の楼閣一覧へ
+    // $("div#gad_wrapper > div > center.footer_padding > p.footer_btn > a")[0].click();
+
+    // Click the "攻略" button.
+    $("div#gad_wrapper > div#header nav.navi.header_bar li.search.btn > a")[0].click();
 }
 
 function action_home_quest_delete_ok() {
