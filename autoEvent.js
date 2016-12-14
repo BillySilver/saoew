@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161209]
+// @version     [161211]
 // @grant       none
 // ==/UserScript==
 
@@ -292,7 +292,7 @@ $(document).ready(function() {
         console.log("It may be in HealPoison page.");
 
         for (var nHealOffset = 0; ; nHealOffset++) {
-            if ( null === $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).html().match(/\(\d+月\)/) )
+            if ( null === $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).text().match(/\(\d+月\)/) )
                 break;
         }
         console.log("There are " + nHealOffset + " Month HealPoisons.");
@@ -307,14 +307,14 @@ $(document).ready(function() {
             $("center.footer_padding > p.footer_btn > a")[0].click();
         } else {
             setTimeout(function() {
-                var nLimitHeal = (null !== $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).text().match(/限定|守護者戦ep\d+/)) ? 1 : 0;
+                var nLimitHeal = (null === $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).text().match(/^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?$/)) ? 1 : 0;
 
                 if ( true === isLimitHeal && 1 === nLimitHeal ) {
                     $("div.clear > center > center.block_bt_r > a.heal")[nHealOffset].click();
                     action_home_quest_delete_index();
                 } else if ( false === isSleepMode ) {
                     var nHeal = nHealOffset + sHeal - 1 + nLimitHeal;
-                    console.log( "Using: " + $("div.clear > center > table div.item_title > span:even").eq(nHeal).html() );
+                    console.log( "Using: " + $("div.clear > center > table div.item_title > span:even").eq(nHeal).text() );
 
                     $("div.clear > center > center.block_bt_r > a.heal")[nHeal].click();
                     action_home_quest_delete_index();
@@ -498,12 +498,12 @@ function action_home_quest_map2() {
             console.log("AP is not enough.");
 
             for (var nHealOffset = 0; ; nHealOffset++) {
-                if ( null === $("select[name=itemCdOffset] > option").eq(nHealOffset).html().match(/\(\d+月\)/) )
+                if ( null === $("select[name=itemCdOffset] > option").eq(nHealOffset).text().match(/\(\d+月\)/) )
                     break;
             }
-            console.log(nHealOffset);
+            console.log("There are " + nHealOffset + " Month HealPoisons.");
 
-            var nLimitHeal = (null !== $("select[name=itemCdOffset] > option").eq(nHealOffset).html().match(/限定|守護者戦ep\d+/)) ? 1 : 0;
+            var nLimitHeal = (null === $("select[name=itemCdOffset] > option").eq(nHealOffset).text().match(/^^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?$/)) ? 1 : 0;
 
             if ( true === isLimitHeal && 1 === nLimitHeal ) {
                 if ( chkWeaponAndPartner() )
