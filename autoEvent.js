@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161211]
+// @version     [161220]
 // @grant       none
 // ==/UserScript==
 
@@ -88,6 +88,7 @@ var isHiddenArea = false;
  * @type {Integer}
  */
 var isRareConquest = false;
+var isUsingItem    = true;
 
 /*
 var isMobWhitelist = true;
@@ -100,8 +101,8 @@ var mobFishing = [
 ];
 
 var mobWhitelist = [
-    "ｺﾎﾞﾙﾄﾞ･ｻﾞ･ｸﾞﾚｲﾄｿﾙｼﾞｬｰ",
-    "ｻﾞ･ｳﾞｧｰﾀﾞﾝﾄ･ｶﾞｰﾃﾞｨｱﾝ"
+    "ﾌｪｲｸ･ﾊﾞﾘｱﾝﾄ",
+    "ｼﾉﾝ",
 ];
 //*/
 
@@ -209,13 +210,13 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
     else if ( isExisted("div#gad_wrapper > div > div > div[class*='back_step'] > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
         action_home_quest_map5();
-    // Event Entrance - 收集.
+    // Event Entrance - 決鬥(一般探索 -> 申請畫面).
+    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > div.btn06") && true === isDuelEvent )
+        action_home_quest_map9();
+    // Event Entrance - 收集, 決鬥(一般探索).
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map08") )
         action_home_quest_map6();
-    // Event Entrance - 決鬥(一般探索 -> 申請畫面).
-    else if ( isExisted("div#gad_wrapper>div>div>div.bg_event_map01>div.btn06") && true === isDuelEvent )
-        action_home_quest_map9();
-    // Event Entrance - 育成*, 決鬥(一般探索), 討伐.
+    // Event Entrance - 育成*, 討伐.
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
@@ -225,7 +226,7 @@ $(document).ready(function() {
         action_home_quest_map8();
     // Event Entrance - 決鬥(已進入申請畫面).
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
-    else if ( isExisted("div#gad_wrapper>div>div>div.padding_t05>table>tbody>tr>td>div.btn_sprite_event_duel01") )
+    else if ( isExisted("div#gad_wrapper > div > div > div.padding_t05 > table > tbody > tr > td > div.btn_sprite_event_duel01") )
         action_home_quest_map10();
     // Event Entrance - 公會.
     else if ( chkURL(/action(_|=)event_\d+_ready/) && isExisted("div#gad_wrapper > div > div > table > tbody > tr > td > a > div[class^='attack_btn0']") )
@@ -660,7 +661,7 @@ function action_home_quest_map5() {
     }
 }
 
-// Event Entrance - 收集.
+// Event Entrance - 收集, 決鬥(一般探索).
 function action_home_quest_map6() {
     // 1: Easy.
     // 2: Normal.
@@ -669,10 +670,18 @@ function action_home_quest_map6() {
     // 5: Expert.
     // 6: Collect.
     var difficulty = 3;
-    $("div.btn_sprite_event_map08.btn_img_event_map0" + difficulty + " > a")[0].click();
+
+    if ( false !== isUsingItem ) {
+        if ( isExisted("div.event_bonus_btn:not([class~=off])") )
+            $("div.event_bonus_btn:not([class~=off]) > a")[0].click();
+        else
+            audioAlert();
+    } else {
+        $("div.btn_sprite_event_map08 > a")[difficulty - 1].click();
+    }
 }
 
-// Event Entrance - 育成*, 決鬥(一般探索), 討伐.
+// Event Entrance - 育成*, 討伐.
 function action_home_quest_map7() {
     // 1: Easy.
     // 2: Normal.
@@ -728,7 +737,7 @@ function action_home_quest_map8() {
 
 // Event Entrance - 決鬥(一般探索 -> 申請畫面).
 function action_home_quest_map9() {
-    $("div#gad_wrapper>div>div>div.bg_event_map01>div.btn06>a")[0].click();
+    $("div#gad_wrapper > div > div > div.bg_event_map01 > div.btn06 > a")[0].click();
 }
 
 // Event Entrance - 決鬥(已進入申請畫面).
@@ -895,6 +904,9 @@ function action_event_extra_index(yourNowAP) {
     // 3: Hard.
     // 4: Very Hard.
     var difficulty = 3;
+    // Black / White Shrine on Thursday or Friday: Power / Trick.
+    if ( null !== $("div.box_daily_dungeon_info01 > img").attr("src").match(/bn_daily_[45].png/) )
+        difficulty = 2;
 
     if ( 100 > yourNowAP ) {
         console.log("Your current AP is not enough to clear entire Dungeon!");
