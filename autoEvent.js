@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161220]
+// @version     [161223]
 // @grant       none
 // ==/UserScript==
 
@@ -74,7 +74,7 @@ var sHeal         = sHealPoison.p50;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 50000000;
-var nFavorSets    = [2,
+var nFavorSets    = [2, 5,
                      1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
@@ -90,7 +90,7 @@ var isHiddenArea = false;
 var isRareConquest = false;
 var isUsingItem    = true;
 
-/*
+//*
 var isMobWhitelist = true;
 var mobFishing = [
     "ﾌﾗｯｼｭ･ｲｰﾀｰ",
@@ -101,8 +101,10 @@ var mobFishing = [
 ];
 
 var mobWhitelist = [
-    "ﾌｪｲｸ･ﾊﾞﾘｱﾝﾄ",
-    "ｼﾉﾝ",
+    "ﾏｲﾃｨ･ｲｴﾃｨ",
+    "背教者ﾆｺﾗｽ",
+    "ﾌﾛｽﾄ･ﾚｻﾞｰﾙ",
+    "ｴﾝｾﾞﾙﾌﾞﾙ"
 ];
 //*/
 
@@ -190,7 +192,8 @@ $(document).ready(function() {
     console.log("Finding some condition...");
     // Event Entrance - 探索.
     // 探索至Endless Area時按鈕會換成兩個.
-    if ( isExisted("div#gad_wrapper > div > div > div.padding_t2 > div.event_btn01") || isExisted("div#gad_wrapper > div > div > div.padding_t2 > table > tbody > tr > td > div.btn_sprite_event03") )
+    // 聖誕節探索(角色陪同): event_btn01 -> chara_btn01~04.
+    if ( isExisted("div#gad_wrapper > div > div > div.padding_t2 > div[class*=chara_btn0]") || isExisted("div#gad_wrapper > div > div > div.padding_t2 > table > tbody > tr > td > div.btn_sprite_event03") )
         action_home_quest_map();
     // Fighting.
     else if ( isExisted("div#gad_wrapper > div > table > tbody > tr > td.attack") )
@@ -289,14 +292,8 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn") )
         action_home_quest_delete_ok();
     // 是否在HealPoison頁面. 依條件決定要掛網或是喝HealPoison.
-    else if ( isExisted("div#gad_wrapper>div>div.clear>center>table>tbody>tr>td>span>div.item_title>span:even") ) {
+    else if ( isExisted("div#gad_wrapper > div > div.clear > center > table > tbody > tr > td > span > div.item_title > span:even") ) {
         console.log("It may be in HealPoison page.");
-
-        for (var nHealOffset = 0; ; nHealOffset++) {
-            if ( null === $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).text().match(/\(\d+月\)/) )
-                break;
-        }
-        console.log("There are " + nHealOffset + " Month HealPoisons.");
 
         strAP     = $("div.padding2").html().match(/\d+\/\d+/)[0];
         yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
@@ -308,13 +305,12 @@ $(document).ready(function() {
             $("center.footer_padding > p.footer_btn > a")[0].click();
         } else {
             setTimeout(function() {
-                var nLimitHeal = (null === $("div.clear > center > table div.item_title > span:even").eq(nHealOffset).text().match(/^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?$/)) ? 1 : 0;
+                var [nHealOffset, nLimitHeal, nHeal] = chkHealPoison("div.clear > center > table div.item_title > span:even");
 
                 if ( true === isLimitHeal && 1 === nLimitHeal ) {
                     $("div.clear > center > center.block_bt_r > a.heal")[nHealOffset].click();
                     action_home_quest_delete_index();
                 } else if ( false === isSleepMode ) {
-                    var nHeal = nHealOffset + sHeal - 1 + nLimitHeal;
                     console.log( "Using: " + $("div.clear > center > table div.item_title > span:even").eq(nHeal).text() );
 
                     $("div.clear > center > center.block_bt_r > a.heal")[nHeal].click();
@@ -430,8 +426,8 @@ function action_home_quest_map() {
     // 探索する(in Endless Area).
     else if ( isExisted("div.btn_sprite_event03") )
         $("div.btn_sprite_event03 > a")[difficulty - 1].click();
-    else if ( isExisted("div.event_btn01") )
-        $("div.event_btn01 > a")[0].click();
+    else if ( isExisted("div[class*=chara_btn0]") )
+        $("div[class*=chara_btn0] > a")[0].click();
 }
 
 // Fighting.
@@ -498,20 +494,14 @@ function action_home_quest_map2() {
         } else if ( isExisted("input[name=isConfirmedUseItem]") ) {
             console.log("AP is not enough.");
 
-            for (var nHealOffset = 0; ; nHealOffset++) {
-                if ( null === $("select[name=itemCdOffset] > option").eq(nHealOffset).text().match(/\(\d+月\)/) )
-                    break;
-            }
-            console.log("There are " + nHealOffset + " Month HealPoisons.");
-
-            var nLimitHeal = (null === $("select[name=itemCdOffset] > option").eq(nHealOffset).text().match(/^^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?$/)) ? 1 : 0;
+            var [nHealOffset, nLimitHeal, nHeal] = chkHealPoison("select[name=itemCdOffset] > option");
 
             if ( true === isLimitHeal && 1 === nLimitHeal ) {
                 if ( chkWeaponAndPartner() )
                     useHealPoison(nHealOffset);
             } else if ( false === isSleepMode ) {
                 if ( chkWeaponAndPartner() )
-                    useHealPoison(nHealOffset + sHeal - 1 + nLimitHeal);
+                    useHealPoison(nHeal);
             } else {
                 // retrete.
                 $("p.btn04 > a")[0].click();
@@ -970,4 +960,17 @@ function round(num, place) {
 function audioAlert() {
     var audio = new Audio("http://www.sunnyneo.com/attictimer/ghostly.ogg");
     audio.play();
+}
+
+function chkHealPoison(strSelector) {
+    for (var nHealOffset = 0; ; nHealOffset++) {
+        if ( null === $(strSelector).eq(nHealOffset).text().match(/\[ｱﾆﾒ再放送記念\]期間限定/) )
+            break;
+    }
+    console.log("There are " + nHealOffset + " Special HealPoisons.");
+
+    var nLimitHeal = (null === $(strSelector).eq(nHealOffset).text().match(/^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?( \(残：\d+\))?$/)) ? 1 : 0
+    var nHeal      = nHealOffset + nLimitHeal + (sHeal - 1);
+
+    return [nHealOffset, nLimitHeal, nHeal];
 }
