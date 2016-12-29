@@ -14,7 +14,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161201]
+// @version     [161229]
 // @grant       none
 // ==/UserScript==
 
@@ -27,7 +27,7 @@ Buff[7] = {
         part: "Right",
         Lv: 13,
         Limit: 120,
-        Opt: 3882
+        Opt: 3988
     },
     "105": {
         part: "Left",
@@ -39,7 +39,7 @@ Buff[7] = {
         part: "Hat",
         Lv: 8,
         Limit: 130,
-        Opt: 2615
+        Opt: 2640
     },
     "102": {
         part: "Upper",
@@ -51,7 +51,7 @@ Buff[7] = {
         part: "Lower",
         Lv: 8,
         Limit: 130,
-        Opt: 2664
+        Opt: 2691
     },
     "106": {
         part: "Foot",
@@ -72,36 +72,36 @@ Buff[8] = {
         part: "Right",
         Lv: 14,
         Limit: 160,
-        Opt: 5722
+        Opt: 6614
     },
     "105": {
         part: "Left",
         Lv: 9,
         Limit: 180,
-        Opt: 5193
+        Opt: 5585
     },
     "101": {
         part: "Hat",
         Lv: 9,
-        Limit: "180",
-        Opt: 4393
+        Limit: 180,
+        Opt: 5099
     },
     "102": {
         part: "Upper",
         Lv: 10,
         Limit: 160,
-        Opt: 4891
+        Opt: 5696
     },
     "103": {
         part: "Lower",
         Lv: 9,
         Limit: "180",
-        Opt: 4518
+        Opt: 5228
     },
     "106": {
         part: "Foot",
         Lv: 9,
-        Limit: "180",
+        Limit: 180,
         Opt: 5313
     },
     "107": {
@@ -186,7 +186,7 @@ $(document).ready(function() {
             jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title").append(
                 $("<font>").css(
                     "font-weight",
-                    "string" !== typeof Buff[nStar][nEquipDiv].Limit ? 900 : 500
+                    ("string" !== typeof Buff[nStar][nEquipDiv].Limit && fOpt <= 1) ? 900 : 500
                 ).css(
                     "color",
                     jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title > span:last").css("color")
