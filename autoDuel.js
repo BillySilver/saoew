@@ -9,7 +9,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160214]
+// @version     [170101]
 // @grant       none
 // ==/UserScript==
 
@@ -47,7 +47,7 @@ $(document).ready(function() {
 
     // Check it is on action_home_duel_index.
     if ( 0 !== jEnemy.length ) {
-        var currentBP = parseInt($("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > div.padding").html().match(/\d\//)[0].replace("/", ""));
+        var currentBP = $("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > div.padding").text().match(/\d\//)[0].replace("/", "").toInt();
 
         // Check if you wins consecutively, or BP is full.
         if (
@@ -59,7 +59,7 @@ $(document).ready(function() {
         }
 
         if ( 0 === currentBP )
-            nLeftSecond = parseInt($("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > div.padding").html().match(/\d{2}:\d{2}:\d{2}/)[0].split(":")[2]);
+            nLeftSecond = $("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > div.padding").text().match(/\d{2}:\d{2}:\d{2}/)[0].split(":")[2].toInt();
     // For CG skip.
     } else if ( "undefined" !== typeof Loading ) {
         setTimeout(connectInterrupt, 500);
@@ -84,8 +84,6 @@ function action_home_duel_index() {
     var jEnemyAttr = jEnemy.find("td > span > div.item_title > span > span");
     var jEnemyData = jEnemy.find("td > span:first-of-type");
 
-    var regexIntData = new RegExp(/&nbsp;\d{1,5}/g);
-
     /**
      * 0: Lv (ignored)
      * 1: ATK
@@ -97,13 +95,12 @@ function action_home_duel_index() {
     var arrData = [];
     var bestIndex;
     for (var i = 0; i < jEnemyData.length; ++i) {
-        arrData[i] = jEnemyData.eq(i).html().match(regexIntData);
+        arrData[i] = jEnemyData.eq(i).text().match(/\d{1,5}/g);
         for (var j = 0; j < arrData[i].length; ++j)
-            arrData[i][j] = parseInt(arrData[i][j].replace("&nbsp;", ""));
-
+            arrData[i][j] = arrData[i][j].toInt();
         arrData[i].push( iconAttr2Int(jEnemyAttr.eq(i).attr("class")) );
 
-        var nRevisedATK = revisedATK(arrData[i][1], arrData[i][4]);
+        var nRevisedATK = revisedATK(arrData[i][1], arrData[i][5]);
         if ( undefined === bestIndex ) {
             if (
                 (nRevisedATK <= nYourATK * 0.4) ||
@@ -124,10 +121,10 @@ function action_home_duel_index() {
         // Click the best enemy.
         } else {
             console.log( (bestIndex+1) + "-th is the best." );
-            console.log( "Attribute: " + int2Attr[ arrData[bestIndex][4] ] );
+            console.log( "Attribute: " + int2Attr[ arrData[bestIndex][5] ] );
             console.log( "ATK: " + arrData[bestIndex][1] );
             console.log( "Your Attribute: " + int2Attr[ nYourAttr ] );
-            console.log( "Revised ATK: " + revisedATK(arrData[bestIndex][1], arrData[bestIndex][4]) );
+            console.log( "Revised ATK: " + revisedATK(arrData[bestIndex][1], arrData[bestIndex][5]) );
             console.log( "Expected ATK: " + nYourATK*0.4 );
             console.log( "KOs: " + arrData[bestIndex][2] + " (may under " + nKOsUnder + ")" );
 
@@ -187,8 +184,8 @@ function action_home_duel_index() {
     }
 
     function isRightEnemyBest(enemyDataA, enemyDataB) {
-        var nRevisedATKA = revisedATK(enemyDataA[1], enemyDataA[4]);
-        var nRevisedATKB = revisedATK(enemyDataB[1], enemyDataB[4]);
+        var nRevisedATKA = revisedATK(enemyDataA[1], enemyDataA[5]);
+        var nRevisedATKB = revisedATK(enemyDataB[1], enemyDataB[5]);
 
         if ( nRevisedATKA <= nYourATK * 0.4 || nRevisedATKB <= nYourATK * 0.4 )
             return nRevisedATKA > nRevisedATKB;
@@ -206,3 +203,7 @@ function action_home_duel_detail() {
     else if ( undefined !== $("div#gad_wrapper > div > div.duel_bg.padding2 > div > div.padding > center > div.btn04")[0] )
         $("div.btn04 > a")[0].click();
 }
+
+String.prototype.toInt = function() {
+    return parseInt(this);
+};

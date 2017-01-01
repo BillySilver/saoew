@@ -11,7 +11,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161207]
+// @version     [170101]
 // @grant       none
 // ==/UserScript==
 
@@ -22,7 +22,7 @@ var nEnemyMinLv = 500;
 //*
 var isMobWhitelist = true;
 var mobWhitelist = [
-    "ｺﾎﾞﾙﾄﾞ･ｻﾞ･ｸﾞﾚｲﾄｿﾙｼﾞｬｰ"
+    "ｸﾞﾚｲｼｬｰｽﾋﾟﾘｯﾄ"
 ];
 //*/
 
@@ -53,11 +53,11 @@ $(document).ready(function() {
         var nBestRequest = 0;
         var arrEnemyData = [[0, 0]];
         for (var i = 0; i < $("div.gra_dark_blue td > span > span:first-child").length; i++) {
-            var nEnemyLv  = parseInt($("div.gra_dark_blue td > span > span:first-child").eq(i).html().match(/Lv\d{1,3}/)[0].replace("Lv", ""));
+            var nEnemyLv  = $("div.gra_dark_blue td > span > span:first-child").eq(i).text().match(/Lv\d+/)[0].replace("Lv", "").toInt();
             var nLeftTime = (function() {
-                if ( null !== $("div.gra_dark_blue td > span").eq(i).html().match(/\d:\d\d:\d\d/) ) {
-                    var arrLeftTime = $("div.gra_dark_blue td > span").eq(i).html().match(/\d:\d\d:\d\d/)[0].split(":");
-                    return parseInt(arrLeftTime[0])*3600 + parseInt(arrLeftTime[1])*60 + parseInt(arrLeftTime[2]);
+                if ( null !== $("div.gra_dark_blue td > span").eq(i).text().match(/\d:\d\d:\d\d/) ) {
+                    var arrLeftTime = $("div.gra_dark_blue td > span").eq(i).text().match(/\d:\d\d:\d\d/)[0].split(":");
+                    return arrLeftTime[0].toInt()*3600 + arrLeftTime[1].toInt()*60 + arrLeftTime[2].toInt();
                 } else {
                     return 0;
                 }
@@ -66,7 +66,7 @@ $(document).ready(function() {
             var isInMobWhitelist = (function() {
                 if ( true === isMobWhitelist ) {
                     console.log("Mob Name: ");
-                    var strMobName = $("div.gra_dark_blue td > span").eq(i).html().match(/[^>]+\[Lv/)[0].replace("[Lv", "");
+                    var strMobName = $("div.gra_dark_blue td > span > span:first-child").eq(i).text().replace(/\[Lv\d+\]/, "");
                     console.log("\t" + strMobName);
 
                     if ( -1 === mobWhitelist.indexOf(strMobName) ) {
@@ -217,4 +217,8 @@ $.fn.addEventListener = function(type, listener, useCapture) {
         document.getElementById( this.selector ).addEventListener(type, listener, useCapture);
     }, 100);
     */
+};
+
+String.prototype.toInt = function() {
+    return parseInt(this);
 };

@@ -14,7 +14,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161229]
+// @version     [170101]
 // @grant       none
 // ==/UserScript==
 
@@ -78,7 +78,7 @@ Buff[8] = {
         part: "Left",
         Lv: 9,
         Limit: 180,
-        Opt: 5585
+        Opt: 5624
     },
     "101": {
         part: "Hat",
@@ -154,19 +154,19 @@ $(document).ready(function() {
             if ( 0 === jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title").length )
                 continue;
 
-            var nEquipDiv = parseInt(jEquipment.eq(i).find("tr:eq(0) > td:eq(0) > span > img").attr("src").match(/\/item\/i10\d/)[0].match(/\d+/)[0]);
-            var nStar     = parseInt(jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title > span:last").html().match(/\d/)[0]);
+            var nEquipDiv = jEquipment.eq(i).find("tr:eq(0) > td:eq(0) > span > img").attr("src").match(/\/item\/i10\d/)[0].match(/\d+/)[0].toInt();
+            var nStar     = jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title > span:last").text().match(/\d/)[0].toInt();
             if ( 7 > nStar )
                 continue;
-            var nATK      = parseInt(jEquipment.eq(i).find("tr:eq(1) > td:eq(0) > span").html().match(/&nbsp;\d+/)[0].replace("&nbsp;", ""));
-            var nDEF      = parseInt(jEquipment.eq(i).find("tr:eq(2) > td:eq(0) > span").html().match(/&nbsp;\d+/)[0].replace("&nbsp;", ""));
-            var nSPD      = parseInt(jEquipment.eq(i).find("tr:eq(3) > td:eq(0) > span").html().match(/&nbsp;\d+/)[0].replace("&nbsp;", ""));
-            var nNowLv    = parseInt(jEquipment.eq(i).find("tr:eq(1) > td:eq(1) > span").html().match(/\d+(?=\/\d+)/)[0]);
-            var nMaxLv    = parseInt(jEquipment.eq(i).find("tr:eq(1) > td:eq(1) > span").html().match(/\d+(?=<br>)/)[0]);
+            var nATK      = jEquipment.eq(i).find("tr:eq(1) > td:eq(0) > span").text().match(/\d+/)[0].toInt();
+            var nDEF      = jEquipment.eq(i).find("tr:eq(2) > td:eq(0) > span").text().match(/\d+/)[0].toInt();
+            var nSPD      = jEquipment.eq(i).find("tr:eq(3) > td:eq(0) > span").text().match(/\d+/)[0].toInt();
+            var nNowLv    = jEquipment.eq(i).find("tr:eq(1) > td:eq(1) > span").text().match(/\d+/g)[0].toInt();
+            var nMaxLv    = jEquipment.eq(i).find("tr:eq(1) > td:eq(1) > span").text().match(/\d+/g)[1].toInt();
             var nLimit    = (function() {
                 if ( 0 === jEquipment.eq(i).find("tr:eq(0) > td:eq(0) > div").length )
                     return 0;
-                return parseInt(jEquipment.eq(i).find("tr:eq(0) > td:eq(0) > div > img").attr("src").match(/\d{2}(?=\.gif)/)[0]);
+                return jEquipment.eq(i).find("tr:eq(0) > td:eq(0) > div > img").attr("src").match(/\d{2}(?=\.gif)/)[0].toInt();
             })();
 
             var nPara = nATK + nDEF + nSPD;
@@ -190,7 +190,7 @@ $(document).ready(function() {
                 ).css(
                     "color",
                     jEquipment.eq(i).find("tr:eq(0) > td:eq(1) > div.item_title > span:last").css("color")
-                ).html("Rate: " + nRate + " [" + fOpt + "] (" + nPara + ")")
+                ).text("Rate: " + nRate + " [" + fOpt + "] (" + nPara + ")")
             );
         }
     }
@@ -215,3 +215,7 @@ function chkURL(regexURL) {
     }
     else return false;
 }
+
+String.prototype.toInt = function() {
+    return parseInt(this);
+};

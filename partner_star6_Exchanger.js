@@ -13,7 +13,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [160301]
+// @version     [170101]
 // @grant       none
 // ==/UserScript==
 
@@ -37,7 +37,7 @@ $(document).ready(function() {
     // 交換頁面: 選擇欲交換的Partner/Equipment.
     if ( isExisted("div#gad_wrapper > div > div.box_trade01 > center.padding_t2 > form > div#formsort > div.sort_area.clear_white > select") ) {
         // 先確保以「入手順」排序.
-        if ( "入手順" !== $("div#formsort > div.sort_area.clear_white > select > option:checked").html() ) {
+        if ( "入手順" !== $("div#formsort > div.sort_area.clear_white > select > option:checked").text() ) {
             $("div#formsort > div.sort_area.clear_white > select > option[value=getdate_des]").prop("selected", true);
             $("div#formsort > div.sort_area.clear_white > div.btn02 > input")[0].click();
         } else {
@@ -45,7 +45,7 @@ $(document).ready(function() {
             var nCount    = 0;
 
             if ( isExisted("div#gad_wrapper > div > center.padding2") ) {
-                nCount = nSelected = parseInt($("center.padding2 > div").html().match(/\d(?=&nbsp;\/&nbsp;\d)/)[0]);
+                nCount = nSelected = $("center.padding2 > div").text().match(/\d+/g)[0].toInt();
 
                 if ( 5 === nCount )
                     $("center.padding2 > div.btn01.margin_t2 > a")[0].click();
@@ -56,7 +56,7 @@ $(document).ready(function() {
             var jStatus12  = jPartner12.find("div > span > div.partnerStatus1");
 
             for (var i = 0; i < jPartner12.length; i++) {
-                var nNowLv = parseInt(jStatus12.eq(i).html().match(/\d{1,3}(?=\/\d{1,3})/));
+                var nNowLv = jStatus12.eq(i).text().match(/\d{1,3}(?=\/\d{1,3})/).toInt();
                 // 只選擇1等未練的Partner/Equipment.
                 if ( 1 !== nNowLv )
                     continue;
@@ -84,14 +84,14 @@ $(document).ready(function() {
     // 禮物盒: 大量領取★6 Partner/Equipment或是Item.
     } else if ( isExisted("div#gad_wrapper > div > form[name=default] > div#formsort > div.sort_area.clear_white > label.sort_box01") ) {
         // 先確保是在領取頁面, 而非一併販售頁面.
-        if ( "受け取り" !== $("div.tab2.column2 > div.inner.on > a").html() ) {
+        if ( "受け取り" !== $("div.tab2.column2 > div.inner.on > a").text() ) {
             $("div.tab2.column2 > div.inner > a")[0].click();
         // 領取★6 Partner/Equipment模式.
         } else if ( false === isItemGain ) {
             var isChanged = false;
             if ( false === isEquipment) {
                 // 先確保是Partner, 不含Ellis, Algo, Premium.
-                if ( "ﾊﾟｰﾄﾅｰ" !== $("div.sort_area.clear_white > select:eq(0) > option:checked").html() ) {
+                if ( "ﾊﾟｰﾄﾅｰ" !== $("div.sort_area.clear_white > select:eq(0) > option:checked").text() ) {
                     $("div.sort_area.clear_white > select:eq(0) > option[label=ﾊﾟｰﾄﾅｰ]").prop("selected", true);
                     isChanged = true;
                 }
@@ -105,7 +105,7 @@ $(document).ready(function() {
                 }
             } else {
                 // 先確保是Equipment, 不含LimitStone.
-                if ( "装備品" !== $("div.sort_area.clear_white > select:eq(0) > option:checked").html() ) {
+                if ( "装備品" !== $("div.sort_area.clear_white > select:eq(0) > option:checked").text() ) {
                     $("div.sort_area.clear_white > select:eq(0) > option[label=装備品]").prop("selected", true);
                     isChanged = true;
                 }
@@ -116,7 +116,7 @@ $(document).ready(function() {
                 }
             }
             // 先確保是★6.
-            if ( "★6以上" !== $("div.sort_area.clear_white > select:eq(1) > option:checked").html() ) {
+            if ( "★6以上" !== $("div.sort_area.clear_white > select:eq(1) > option:checked").text() ) {
                 $("div.sort_area.clear_white > select:eq(1) > option[label=★6以上]").prop("selected", true);
                 isChanged = true;
             }
@@ -131,7 +131,7 @@ $(document).ready(function() {
             var jInput5   = jPartner5.find("input.checkbox");
             var nCount    = 0;
             for (var i = 0; i < jPartner5.length; i++) {
-                if ( "★6" === jStar5.eq(i).html() ) {
+                if ( "★6" === jStar5.eq(i).text() ) {
                     jInput5.eq(i).prop("checked", true);
                     nCount++;
                 } else {
@@ -150,12 +150,12 @@ $(document).ready(function() {
         } else {
             // 先確保是全Rare度 Item.
             var isChanged = false;
-            if ( "ｱｲﾃﾑ" !== $("div.sort_area.clear_white > select:eq(0) > option:checked").html() ) {
+            if ( "ｱｲﾃﾑ" !== $("div.sort_area.clear_white > select:eq(0) > option:checked").text() ) {
                 $("div.sort_area.clear_white > select:eq(0) > option[label=ｱｲﾃﾑ]").prop("selected", true);
                 isChanged = true;
             }
 
-            if ( "全レア度" !== $("div.sort_area.clear_white > select:eq(1) > option:checked").html() ) {
+            if ( "全レア度" !== $("div.sort_area.clear_white > select:eq(1) > option:checked").text() ) {
                 $("div.sort_area.clear_white > select:eq(1) > option[label=全レア度]").prop("selected", true);
                 isChanged = true;
             }
@@ -190,3 +190,7 @@ function chkURL(regexURL) {
     }
     else return false;
 }
+
+String.prototype.toInt = function() {
+    return parseInt(this);
+};

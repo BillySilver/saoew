@@ -63,18 +63,18 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161229]
+// @version     [170101]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 
 var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
-var sHeal         = sHealPoison.p50;
+var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 50000000;
-var nFavorSets    = [2, 5,
+var nFavorSets    = [5, 2,
                      1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
@@ -90,7 +90,7 @@ var isHiddenArea = false;
 var isRareConquest = false;
 var isUsingItem    = true;
 
-//*
+/*
 var isMobWhitelist = true;
 var mobFishing = [
     "ﾌﾗｯｼｭ･ｲｰﾀｰ",
@@ -101,10 +101,8 @@ var mobFishing = [
 ];
 
 var mobWhitelist = [
-    "ﾏｲﾃｨ･ｲｴﾃｨ",
-    "背教者ﾆｺﾗｽ",
-    "ﾌﾛｽﾄ･ﾚｻﾞｰﾙ",
-    "ｴﾝｾﾞﾙﾌﾞﾙ"
+    "ｻﾞ･ｷﾞﾙﾃｨﾘﾍﾞﾘｵﾝ",
+    "ｻﾞ･ﾐｭｰﾃｨﾚｲﾄ･ｶﾞｰﾃﾞｨｱﾝ"
 ];
 //*/
 
@@ -136,12 +134,12 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php
     if ("" === location.search) {
         // It will be invalid except that it is in invite page.
-        if ( isExisted("div#gad_wrapper > div > center.clear_black > div.padding > span") && "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span").html() ) {
+        if ( isExisted("div#gad_wrapper > div > center.clear_black > div.padding > span") && "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span").text() ) {
             var isInvitePage = true;
         } else if ( "undefined" !== typeof mahoujin_args && null !== mahoujin_args.callbackUrl.match(/home_quest_detail_game/) ) {
             var isBattleSkill = true;
         // 今、受けている 協力ﾊﾞﾄﾙがありません。
-        } else if ( isExisted("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a") && "階層一覧 へ" === $("p.footer_btn > a").html() ) {
+        } else if ( isExisted("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a") && "階層一覧 へ" === $("p.footer_btn > a").text() ) {
             audioAlert();
             $("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a")[0].click();
             return;
@@ -167,8 +165,8 @@ $(document).ready(function() {
         var jSpan = $("table.padding td>span");
 
         for (var i = 0; i < jSpan.length; i++) {
-            if (null !== jSpan.eq(i).html().match(/AP\d+\/\d+/))
-                return jSpan.eq(i).html().match(/AP\d+\/\d+/)[0];
+            if (null !== jSpan.eq(i).text().match(/AP\d+\/\d+/))
+                return jSpan.eq(i).text().match(/AP\d+\/\d+/)[0];
         }
         return null;
     })();
@@ -177,8 +175,8 @@ $(document).ready(function() {
     if (null !== strAP) {
         console.log("It may be the Action_Home_Quest_Index page.");
 
-        yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
-        yourMaxAP = parseInt(strAP.match(/\d+/g)[1]);
+        yourNowAP = strAP.match(/\d+/g)[0].toInt();
+        yourMaxAP = strAP.match(/\d+/g)[1].toInt();
         console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
 
         // AP若太少則去HealPoison頁面掛網或喝HealPoison.
@@ -295,9 +293,9 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div.clear > center > table > tbody > tr > td > span > div.item_title > span:even") ) {
         console.log("It may be in HealPoison page.");
 
-        strAP     = $("div.padding2").html().match(/\d+\/\d+/)[0];
-        yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
-        yourMaxAP = parseInt(strAP.match(/\d+/g)[1]);
+        strAP     = $("div.padding2").text().match(/\d+\/\d+/)[0];
+        yourNowAP = strAP.match(/\d+/g)[0].toInt();
+        yourMaxAP = strAP.match(/\d+/g)[1].toInt();
         console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
 
         // AP已滿則回到攻略頁面.
@@ -331,9 +329,8 @@ $(document).ready(function() {
                 // Selecting Invitions...
                 for (var i = 0; i < $("div.gra_dark_blue").length; i++) {
                     var nLv = $("div.gra_dark_blue td > span").eq(i).contents().filter(function() {
-                        return this.nodeType == 3 && null !== this.nodeValue.match(/\d+/);
-                    })[0].nodeValue;
-                    nLv = parseInt(nLv);
+                        return this.nodeType === 3 && null !== this.nodeValue.match(/\d+/);
+                    })[0].nodeValue.toInt();
 
                     if ( 130 > nLv ) {
                         $("div.gra_dark_blue > div > input").eq(i).prop("checked", null);
@@ -443,7 +440,7 @@ function action_home_quest_map2() {
                 console.log("MobWhitelist is active.");
 
                 console.log("Mob Name: ");
-                var strMobName = $("div.layer_base.quest_wait > div.boss_st > table > tbody > tr > td > span").html().match(/[^\s(&nbsp;)]+/)[0];
+                var strMobName = $("div.layer_base.quest_wait > div.boss_st > table > tbody > tr > td > span").text().match(/[^\s][^\[]+/)[0].replace(/\s+$/, "");
                 console.log("\t" + strMobName);
 
                 if ( -1 === mobWhitelist.indexOf(strMobName) ) {
@@ -460,18 +457,19 @@ function action_home_quest_map2() {
         })();
 
         console.log("HP of the enemy is: ");
-        var strArrHP    = $("div#hp_text").html().match(/\d+/g);
-        var nEnemyNowHP = parseInt(strArrHP[0]);
-        var nEnemyMaxHP = parseInt(strArrHP[1]);
+        var strArrHP    = $("div#hp_text").text().match(/\d+/g);
+        var nEnemyNowHP = strArrHP[0].toInt();
+        var nEnemyMaxHP = strArrHP[1].toInt();
         console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP + " (" + round(nEnemyNowHP / nEnemyMaxHP * 100, 1) + "%).");
 
         var nNowBC = (function() {
             var digit = 0;
             for (var i = 0; i < $("span.pos_abs.pos_now > img").length; i++)
-                digit = digit * 10 + parseInt($("span.pos_abs.pos_now > img").eq(i).attr("src").match(/\d+(?=.png)/)[0]);
+                digit = digit * 10 + $("span.pos_abs.pos_now > img").eq(i).attr("src").match(/\d+(?=.png)/)[0].toInt();
             return digit;
         })();
-        if ( 4 <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
+        var nBurstSkillBC = $("select#battleSkill > option:eq(1)").text().match(/\d+/)[0].toInt();
+        if ( nBurstSkillBC <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
             $("div#flgUseSkill")[0].click();
             $("select#battleSkill > option:eq(1)").prop("selected", true);
         }
@@ -483,7 +481,7 @@ function action_home_quest_map2() {
         } else if ( true === isInMobWhitelist && isExisted("td.help_me") && nEnemyHPUnder < nEnemyMaxHP ) {
             // Joined members are more than 1.
             // After seeking help, you just need to wait to it been beated.
-            if ( 1 < parseInt($("div#gad_wrapper > div > div.gra_dark_blue.padding_t3 > div.padding").text().match(/\d+/)[0]) ) {
+            if ( 1 < $("div#gad_wrapper > div > div.gra_dark_blue.padding_t3 > div.padding").text().match(/\d+/)[0].toInt() ) {
                 // Do nothing.
                 console.log("After seeking help, just waiting...");
             // Seek help from someone.
@@ -534,7 +532,7 @@ function action_home_quest_map2() {
                 }
             }
 
-            if ( parseInt($("div.padding > form > select > option:checked").val()) !== nFavorSet ) {
+            if ( $("div.padding > form > select > option:checked").val().toInt() !== nFavorSet ) {
                 $("div.padding > form > select > option").eq(nFavorSet - 1).prop("selected", true);
                 $("div.padding > form > select + div.btn02 > input")[0].click();
                 return false;
@@ -621,7 +619,7 @@ function action_home_quest_map5() {
     if ( false !== isRareConquest && isExisted("div[class*='back_step']") ) {
         // The amount of "ﾃﾞｨｳﾞﾝｼｭの女神" in Rare Boss Area.
         // The amount of "瘴気の小瓶" in Rare Boss Area.
-        var nMiasmaVial = parseInt($("div.font_s.padding_t03.padding_b03").text().match(/\d+/g)[1]);
+        var nMiasmaVial = $("div.font_s.padding_t03.padding_b03").text().match(/\d+/g)[1].toInt();
 
         // in Guardian Area.
         // 1: EX.Hard.
@@ -638,7 +636,7 @@ function action_home_quest_map5() {
         if ( 1 === isRareConquest )
             difficulty = 2;
 
-        var nMiasmaVialNeeded = parseInt($("table td > div.padding_b02 > span").eq(difficulty - 1).text().match(/\d+/)[0]);
+        var nMiasmaVialNeeded = $("table td > div.padding_b02 > span").eq(difficulty - 1).text().match(/\d+/)[0].toInt();
         if ( nMiasmaVial >= nMiasmaVialNeeded )
             $("table td > a")[difficulty - 1].click();
         else
@@ -684,10 +682,6 @@ function action_home_quest_map7() {
 
 // Event Entrance - 釣魚.
 function action_home_quest_map8() {
-    String.prototype.reverse = function () {
-        return this.split('').reverse().join('');
-    };
-
     var isBigNushi = (function () {
         var jStamp = $("div.next_reward_item > table.box_table_stampSheet01 > tbody > tr > td > div.box_stamp01");
         // 檢查湖のｵｵﾇｼ.
@@ -702,7 +696,7 @@ function action_home_quest_map8() {
     })();
 
     // Change to HARD difficulty if it is EASY now.
-    if ( "EASY" === $("div.map_back > div.pos_abs > span").html() ) {
+    if ( "EASY" === $("div.map_back > div.pos_abs > span").text() ) {
         $("div.map_back > div.pos_abs > div.btn_sprite_difficultychange01 > a")[0].click();
     // 檢查魚群是否到來(紫色湖のﾇｼ).
     // 若未到來, a之class為off, 否則無class.
@@ -710,7 +704,11 @@ function action_home_quest_map8() {
         $("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a")[1].click();
     } else {
         // ｴﾙｰｶの実.
-        var nErukaFruit = parseInt($("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05").html().reverse().match(/\d+(?=;psbn&)/)[0].reverse());
+        // .reverse().match(/\d+(?=;psbn&)/)[0].reverse() = .match(/(?<=&nbsp;)\d+/)[0]
+        String.prototype.reverse = function () {
+            return this.split('').reverse().join('');
+        };
+        var nErukaFruit = $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05").text().reverse().match(/\d+(?=;psbn&)/)[0].reverse().toInt();
         // Todo:
         nErukaFruit -= $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05 > span:eq(2)").length;
 
@@ -748,13 +746,13 @@ function action_event_ready() {
 
     setTimeout(function() {
         console.log("HP of the enemy is: ");
-        var strArrHP    = $("div#hp_text").html().match(/\d+/g);
-        var nEnemyNowHP = parseInt(strArrHP[0]);
-        var nEnemyMaxHP = parseInt(strArrHP[1]);
+        var strArrHP    = $("div#hp_text").text().match(/\d+/g);
+        var nEnemyNowHP = strArrHP[0].toInt();
+        var nEnemyMaxHP = strArrHP[1].toInt();
         console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP + " (" + round(nEnemyNowHP / nEnemyMaxHP * 100, 1) + "%).");
 
-        var nCombo   = parseInt($("span#comboCount").html());
-        var nSecTime = parseInt($("span#min").html())*60 + parseInt($("span#sec").html());
+        var nCombo   = $("span#comboCount").text().toInt();
+        var nSecTime = $("span#min").text().toInt()*60 + $("span#sec").text().toInt();
 
         // Switch Chance!! 180 combo is about 8 times damage.
         if ( null !== $("img#icon_atk").attr("src").match("inline_icon_attack2.png") && 180 <= nCombo ) {
@@ -765,9 +763,9 @@ function action_event_ready() {
             else if ( isExisted("a > div.attack_btn02") )
                 $("a > div[class^='attack_btn0']:last")[0].click();
         } else {
-            var strAP     = $("div#ap_text").html();
-            var yourNowAP = parseInt(strAP.match(/\d+/g)[0]);
-            var yourMaxAP = parseInt(strAP.match(/\d+/g)[1]);
+            var strAP     = $("div#ap_text").text();
+            var yourNowAP = strAP.match(/\d+/g)[0].toInt();
+            var yourMaxAP = strAP.match(/\d+/g)[1].toInt();
             console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
 
             // 1. AP is Full but there are no any guild manbers which attacked before or combo is too few.
@@ -869,7 +867,7 @@ function action_event_useitem() {
 function action_event() {
     console.log("action_event() is excuting...");
 
-    if ( undefined == getSkipFlg )
+    if ( undefined === getSkipFlg )
         var getSkipFlg = function() { return ""; };
 
     // Form Official Code.
@@ -973,8 +971,12 @@ function chkHealPoison(strSelector) {
     }
     console.log("There are " + nHealOffset + " Special HealPoisons.");
 
-    var nLimitHeal = (null === $(strSelector).eq(nHealOffset).text().match(/^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?( \(残：\d+\))?$/)) ? 1 : 0
+    var nLimitHeal = (null === $(strSelector).eq(nHealOffset).text().match(/^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?( \(残：\d+\))?$/)) ? 1 : 0;
     var nHeal      = nHealOffset + nLimitHeal + (sHeal - 1);
 
     return [nHealOffset, nLimitHeal, nHeal];
 }
+
+String.prototype.toInt = function() {
+    return parseInt(this);
+};
