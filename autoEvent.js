@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161223]
+// @version     [161229]
 // @grant       none
 // ==/UserScript==
 
@@ -815,7 +815,11 @@ function action_home_quest_detail_attack() {
 // Next Fight: Fight Finish or Timeout.
 function action_home_quest_detail_result() {
     $("div.top_area").hide();
-    $("div.next_bt > a")[0].click();
+    if ( "練武の楼閣一覧へ" === $("div.next_bt > a").text() )
+        // Click the "攻略" button to check if there exists an open event.
+        $("div#gad_wrapper > div#header nav.navi.header_bar li.search.btn > a")[0].click();
+    else
+        $("div.next_bt > a")[0].click();
 }
 
 // checkTrueMob.
@@ -918,7 +922,7 @@ function action_home_quest_detail_result2() {
     // 練武の楼閣一覧へ
     // $("div#gad_wrapper > div > center.footer_padding > p.footer_btn > a")[0].click();
 
-    // Click the "攻略" button.
+    // Click the "攻略" button to check if there exists an open event.
     $("div#gad_wrapper > div#header nav.navi.header_bar li.search.btn > a")[0].click();
 }
 
