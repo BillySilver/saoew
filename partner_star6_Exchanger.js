@@ -13,7 +13,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170101]
+// @version     [170102]
 // @grant       none
 // ==/UserScript==
 
@@ -177,20 +177,27 @@ $(document).ready(function() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found: " + strSelector);
-        return ! DEBUGGING;
+        console.log("Selector Found:", strSelector);
+        return true;
     }
     else return false;
 }
 
 function chkURL(regexURL) {
     if (null !== location.search.match(regexURL)) {
-        console.log("URL Found: " + regexURL);
-        return ! DEBUGGING;
+        console.log("URL Found:", regexURL);
+        return true;
     }
     else return false;
 }
 
 String.prototype.toInt = function() {
     return parseInt(this);
+};
+
+HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
+HTMLElement.prototype.click = function() {
+    console.log("Click:", this);
+    if ( false === DEBUGGING )
+        this.CLICK();
 };

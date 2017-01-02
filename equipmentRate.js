@@ -14,11 +14,9 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170101]
+// @version     [170102]
 // @grant       none
 // ==/UserScript==
-
-// var DEBUGGING = true;
 
 var Buff = [];
 Buff[7] = {
@@ -112,12 +110,6 @@ Buff[8] = {
 };
 
 $(document).ready(function() {
-    if ("undefined" === typeof DEBUGGING)
-        DEBUGGING = false;
-
-    if ( true === DEBUGGING )
-        console.log("*** Debugging Mode ***");
-
     // http://a57528.app.gree-pf.net/sp_web.php
     var isEquipmentPage = false;
     if ("" === location.search) {
@@ -202,16 +194,16 @@ $(document).ready(function() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found: " + strSelector);
-        return ! DEBUGGING;
+        console.log("Selector Found:", strSelector);
+        return true;
     }
     else return false;
 }
 
 function chkURL(regexURL) {
     if (null !== location.search.match(regexURL)) {
-        console.log("URL Found: " + regexURL);
-        return ! DEBUGGING;
+        console.log("URL Found:", regexURL);
+        return true;
     }
     else return false;
 }

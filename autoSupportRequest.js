@@ -11,7 +11,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170101]
+// @version     [170102]
 // @grant       none
 // ==/UserScript==
 
@@ -33,6 +33,8 @@ $(document).ready(function() {
         isMobWhitelist = false;
 
     console.log("Support Request page.");
+    if ( true === DEBUGGING )
+        console.log("*** Debugging Mode ***");
 
     var isInIndexPage = isExisted("div#gad_wrapper > div > div > a > div.event_rank");
     var isFighting    = chkURL(/action_home_quest_detail_game/);
@@ -65,9 +67,8 @@ $(document).ready(function() {
             // 因應釣魚而設立白名單功能.
             var isInMobWhitelist = (function() {
                 if ( true === isMobWhitelist ) {
-                    console.log("Mob Name: ");
                     var strMobName = $("div.gra_dark_blue td > span > span:first-child").eq(i).text().replace(/\[Lv\d+\]/, "");
-                    console.log("\t" + strMobName);
+                    console.log("Mob Name:", "\n\t", strMobName);
 
                     if ( -1 === mobWhitelist.indexOf(strMobName) ) {
                         return false;
@@ -153,9 +154,7 @@ $(document).ready(function() {
     ) {
         action_event();
     } else {
-        console.log("There is no condition.");
-        if ( true === DEBUGGING )
-            console.log("*** Debugging Mode ***");
+        console.log("There are no conditions.");
     }
 
     if ( false === DEBUGGING &&
@@ -176,7 +175,12 @@ $(document).ready(function() {
 
 // Skip Dialogue or Battle Result.
 function action_event() {
-    // Form Offical Code.
+    console.log(action_event, "is excuting...");
+
+    if ( undefined === getSkipFlg )
+        var getSkipFlg = function() { return ""; };
+
+    // Form Official Code.
 
     Loading.start( 12 ) ;
     location.href = mahoujin_args.callbackUrl + getSkipFlg() ;
@@ -191,16 +195,16 @@ function action_event() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found: " + strSelector);
-        return ! DEBUGGING;
+        console.log("Selector Found:", strSelector);
+        return true;
     }
     else return false;
 }
 
 function chkURL(regexURL) {
     if (null !== location.search.match(regexURL)) {
-        console.log("Selector Found: " + regexURL);
-        return ! DEBUGGING;
+        console.log("URL Found:", regexURL);
+        return true;
     }
     else return false;
 }

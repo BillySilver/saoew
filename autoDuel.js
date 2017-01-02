@@ -9,7 +9,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170101]
+// @version     [170102]
 // @grant       none
 // ==/UserScript==
 
@@ -52,8 +52,7 @@ $(document).ready(function() {
         // Check if you wins consecutively, or BP is full.
         if (
             (isWinningStreak && 0 < currentBP) ||
-            (6 === currentBP) ||
-            DEBUGGING
+            (6 === currentBP)
         ) {
             action_home_duel_index();
         }
@@ -120,17 +119,15 @@ function action_home_duel_index() {
             return;
         // Click the best enemy.
         } else {
-            console.log( (bestIndex+1) + "-th is the best." );
-            console.log( "Attribute: " + int2Attr[ arrData[bestIndex][5] ] );
-            console.log( "ATK: " + arrData[bestIndex][1] );
-            console.log( "Your Attribute: " + int2Attr[ nYourAttr ] );
-            console.log( "Revised ATK: " + revisedATK(arrData[bestIndex][1], arrData[bestIndex][5]) );
-            console.log( "Expected ATK: " + nYourATK*0.4 );
-            console.log( "KOs: " + arrData[bestIndex][2] + " (may under " + nKOsUnder + ")" );
+            console.log( "No.", (bestIndex+1), "is the best." );
+            console.log( "Attribute:", int2Attr[ arrData[bestIndex][5] ] );
+            console.log( "ATK:", arrData[bestIndex][1] );
+            console.log( "Your Attribute:", int2Attr[ nYourAttr ] );
+            console.log( "Revised ATK:", revisedATK(arrData[bestIndex][1], arrData[bestIndex][5]) );
+            console.log( "Expected ATK:", nYourATK*0.4 );
+            console.log( "KOs:", arrData[bestIndex][2], "-- may under", nKOsUnder );
 
-            if ( false === DEBUGGING ) {
-                jEnemy.eq(bestIndex).find("a")[0].click();
-            }
+            jEnemy.eq(bestIndex).find("a")[0].click();
         }
     } else {
         // Find another enemies.
@@ -204,6 +201,17 @@ function action_home_duel_detail() {
         $("div.btn04 > a")[0].click();
 }
 
+/**
+ * For general use.
+ */
+
 String.prototype.toInt = function() {
     return parseInt(this);
+};
+
+HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
+HTMLElement.prototype.click = function() {
+    console.log("Click:", this);
+    if ( false === DEBUGGING )
+        this.CLICK();
 };

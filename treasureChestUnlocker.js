@@ -10,7 +10,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=0
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [161227]
+// @version     [170102]
 // @grant       none
 // ==/UserScript==
 
@@ -51,7 +51,12 @@ $(document).ready(function() {
 
 // Skip Dialogue or Battle Result.
 function action_event() {
-    // Form Offical Code.
+    console.log(action_event, "is excuting...");
+
+    if ( undefined === getSkipFlg )
+        var getSkipFlg = function() { return ""; };
+
+    // Form Official Code.
 
     Loading.start( 12 ) ;
     location.href = mahoujin_args.callbackUrl + getSkipFlg() ;
@@ -66,16 +71,16 @@ function action_event() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found: " + strSelector);
-        return ! DEBUGGING;
+        console.log("Selector Found:", strSelector);
+        return true;
     }
     else return false;
 }
 
 function chkURL(regexURL) {
     if (null !== location.search.match(regexURL)) {
-        console.log("URL Found: " + regexURL);
-        return ! DEBUGGING;
+        console.log("URL Found:", regexURL);
+        return true;
     }
     else return false;
 }
@@ -84,3 +89,10 @@ function rand(inf, sup) {
     var interval = sup - inf + 1;
     return Math.floor((Math.random() * interval) + inf);
 }
+
+HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
+HTMLElement.prototype.click = function() {
+    console.log("Click:", this);
+    if ( false === DEBUGGING )
+        this.CLICK();
+};

@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170101]
+// @version     [170102]
 // @grant       none
 // ==/UserScript==
 
@@ -153,6 +153,8 @@ $(document).ready(function() {
     }
 
     console.log("It is a SAOEW event page.");
+    if ( true === DEBUGGING )
+        console.log("*** Debugging Mode ***");
 
     // ｴﾙｰｶの実を探してきますね！ - 釣魚.
     if ( isExisted("div#gad_wrapper>div>div>div.navi_area.clear>a") ) {
@@ -177,7 +179,8 @@ $(document).ready(function() {
 
         yourNowAP = strAP.match(/\d+/g)[0].toInt();
         yourMaxAP = strAP.match(/\d+/g)[1].toInt();
-        console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
+        console.log("Your Current AP is:", yourNowAP, "/", yourMaxAP);
+
 
         // AP若太少則去HealPoison頁面掛網或喝HealPoison.
         if ( 10 > yourNowAP ) {
@@ -208,8 +211,9 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div[class*='back_step'] > center > table.phase_select01") )
         action_home_quest_map5();
     // Event Entrance - 攻略(已進入稀有Boss畫面).
-    // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
-    else if ( isExisted("div#gad_wrapper > div > div > div[class*='back_step'] > table > tbody > tr > td > a > img[src*='bt_event'][src*='_boss_0']") )
+    // Rare Boss - http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
+    // Guardian  - http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=5&opensocial_owner_id=*
+    else if ( isExisted("div#gad_wrapper > div > div > div[class*='back_step'] > table > tbody > tr > td > a > img[src*='_event_boss_0']") )
         action_home_quest_map5();
     // Event Entrance - 決鬥(一般探索 -> 申請畫面).
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > div.btn06") && true === isDuelEvent )
@@ -296,7 +300,7 @@ $(document).ready(function() {
         strAP     = $("div.padding2").text().match(/\d+\/\d+/)[0];
         yourNowAP = strAP.match(/\d+/g)[0].toInt();
         yourMaxAP = strAP.match(/\d+/g)[1].toInt();
-        console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
+        console.log("Your Current AP is:", yourNowAP, "/", yourMaxAP);
 
         // AP已滿則回到攻略頁面.
         if ( yourNowAP === yourMaxAP ) {
@@ -309,7 +313,7 @@ $(document).ready(function() {
                     $("div.clear > center > center.block_bt_r > a.heal")[nHealOffset].click();
                     action_home_quest_delete_index();
                 } else if ( false === isSleepMode ) {
-                    console.log( "Using: " + $("div.clear > center > table div.item_title > span:even").eq(nHeal).text() );
+                    console.log( "Using:", $("div.clear > center > table div.item_title > span:even").eq(nHeal).text() );
 
                     $("div.clear > center > center.block_bt_r > a.heal")[nHeal].click();
                     action_home_quest_delete_index();
@@ -378,8 +382,6 @@ $(document).ready(function() {
         action_event();
     } else {
         console.log("There are no conditions.");
-        if ( true === DEBUGGING )
-            console.log("*** Debugging Mode ***");
 
         // May be in Battle Interface.
         // checkTrueMob.
@@ -431,7 +433,7 @@ function action_home_quest_map() {
 function action_home_quest_map2() {
     // Since "HP" is loaded slowly.
     var nDelaySecond = 3;
-    console.log("Just waiting for " + nDelaySecond + " seconds...");
+    console.log("Just waiting for", nDelaySecond, "seconds...");
 
     setTimeout(function() {
         // 因應釣魚而設立白名單功能.
@@ -439,9 +441,8 @@ function action_home_quest_map2() {
             if ( true === isMobWhitelist ) {
                 console.log("MobWhitelist is active.");
 
-                console.log("Mob Name: ");
                 var strMobName = $("div.layer_base.quest_wait > div.boss_st > table > tbody > tr > td > span").text().match(/[^\s][^\[]+/)[0].replace(/\s+$/, "");
-                console.log("\t" + strMobName);
+                console.log("Mob Name:", "\n\t", strMobName);
 
                 if ( -1 === mobWhitelist.indexOf(strMobName) ) {
                     // retrete.
@@ -456,11 +457,10 @@ function action_home_quest_map2() {
             }
         })();
 
-        console.log("HP of the enemy is: ");
         var strArrHP    = $("div#hp_text").text().match(/\d+/g);
         var nEnemyNowHP = strArrHP[0].toInt();
         var nEnemyMaxHP = strArrHP[1].toInt();
-        console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP + " (" + round(nEnemyNowHP / nEnemyMaxHP * 100, 1) + "%).");
+        console.log("HP of the enemy is:", nEnemyNowHP, "/", nEnemyMaxHP, "->", round(nEnemyNowHP / nEnemyMaxHP * 100, 1), "%.");
 
         var nNowBC = (function() {
             var digit = 0;
@@ -615,17 +615,11 @@ function action_home_quest_map5() {
     // 5: Expert.
     var difficulty = 3;
 
-    // in Guardian / Rare Boss Area.
+    // in Rare Boss / Guardian Area.
     if ( false !== isRareConquest && isExisted("div[class*='back_step']") ) {
-        // The amount of "ﾃﾞｨｳﾞﾝｼｭの女神" in Rare Boss Area.
         // The amount of "瘴気の小瓶" in Rare Boss Area.
-        var nMiasmaVial = $("div.font_s.padding_t03.padding_b03").text().match(/\d+/g)[1].toInt();
-
-        // in Guardian Area.
-        // 1: EX.Hard.
-        // 2: EX.VeryHard.
-        if ( 0 === isRareConquest )
-            difficulty = 1;
+        // The amount of "ﾃﾞｨｳﾞﾝｼｭの女神" in Guardian Area.
+        var nMiasmaVial = $("div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g)[0].toInt();
 
         // in Rare Boss Area.
         // 1: Extreme.
@@ -635,6 +629,12 @@ function action_home_quest_map5() {
         // 5: Inferno.
         if ( 1 === isRareConquest )
             difficulty = 2;
+
+        // in Guardian Area.
+        // 1: EX.Hard.
+        // 2: EX.VeryHard.
+        if ( 0 === isRareConquest )
+            difficulty = 1;
 
         var nMiasmaVialNeeded = $("table td > div.padding_b02 > span").eq(difficulty - 1).text().match(/\d+/)[0].toInt();
         if ( nMiasmaVial >= nMiasmaVialNeeded )
@@ -742,14 +742,13 @@ function action_home_quest_map10() {
 function action_event_ready() {
     // Since "img#icon_atk" is loaded slowly.
     var nDelaySecond = 1;
-    console.log("Just waiting for " + nDelaySecond + " seconds...");
+    console.log("Just waiting for", nDelaySecond, "seconds...");
 
     setTimeout(function() {
-        console.log("HP of the enemy is: ");
         var strArrHP    = $("div#hp_text").text().match(/\d+/g);
         var nEnemyNowHP = strArrHP[0].toInt();
         var nEnemyMaxHP = strArrHP[1].toInt();
-        console.log("\t" + nEnemyNowHP + " / " + nEnemyMaxHP + " (" + round(nEnemyNowHP / nEnemyMaxHP * 100, 1) + "%).");
+        console.log("HP of the enemy is:", nEnemyNowHP, "/", nEnemyMaxHP, "->", round(nEnemyNowHP / nEnemyMaxHP * 100, 1), "%.");
 
         var nCombo   = $("span#comboCount").text().toInt();
         var nSecTime = $("span#min").text().toInt()*60 + $("span#sec").text().toInt();
@@ -766,7 +765,7 @@ function action_event_ready() {
             var strAP     = $("div#ap_text").text();
             var yourNowAP = strAP.match(/\d+/g)[0].toInt();
             var yourMaxAP = strAP.match(/\d+/g)[1].toInt();
-            console.log("Your Current AP is: " + yourNowAP + " / " + yourMaxAP);
+            console.log("Your Current AP is:", yourNowAP, "/", yourMaxAP);
 
             // 1. AP is Full but there are no any guild manbers which attacked before or combo is too few.
             // 2. Time is up soon.
@@ -865,7 +864,7 @@ function action_event_useitem() {
 
 // Skip Dialogue or Battle Result.
 function action_event() {
-    console.log("action_event() is excuting...");
+    console.log(action_event, "is excuting...");
 
     if ( undefined === getSkipFlg )
         var getSkipFlg = function() { return ""; };
@@ -934,16 +933,16 @@ function action_home_quest_delete_ok() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found: " + strSelector);
-        return ! DEBUGGING;
+        console.log("Selector Found:", strSelector);
+        return true;
     }
     else return false;
 }
 
 function chkURL(regexURL) {
     if (null !== location.search.match(regexURL)) {
-        console.log("URL Found: " + regexURL);
-        return ! DEBUGGING;
+        console.log("URL Found:", regexURL);
+        return true;
     }
     else return false;
 }
@@ -969,7 +968,7 @@ function chkHealPoison(strSelector) {
         if ( null === $(strSelector).eq(nHealOffset).text().match(/\[ｱﾆﾒ再放送記念\]期間限定/) )
             break;
     }
-    console.log("There are " + nHealOffset + " Special HealPoisons.");
+    console.log("There are", nHealOffset, "Special HealPoisons.");
 
     var nLimitHeal = (null === $(strSelector).eq(nHealOffset).text().match(/^ﾋｰﾙﾎﾟｰｼｮﾝ(\d0%)?( \(残：\d+\))?$/)) ? 1 : 0;
     var nHeal      = nHealOffset + nLimitHeal + (sHeal - 1);
@@ -979,4 +978,11 @@ function chkHealPoison(strSelector) {
 
 String.prototype.toInt = function() {
     return parseInt(this);
+};
+
+HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
+HTMLElement.prototype.click = function() {
+    console.log("Click:", this);
+    if ( false === DEBUGGING )
+        this.CLICK();
 };
