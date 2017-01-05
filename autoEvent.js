@@ -156,6 +156,18 @@ $(document).ready(function() {
     if ( true === DEBUGGING )
         console.log("*** Debugging Mode ***");
 
+    var opensocial_owner_id = (function() {
+        var foo = document.body.innerHTML.match(/opensocial_owner_id=\d+/);
+        if ( null !== foo )
+            return foo[0].replace("opensocial_owner_id=", "").toInt();
+
+        if ( "undefined" !== typeof mahoujin_args && undefined !== mahoujin_args.uid )
+            return mahoujin_args.uid.toInt();
+
+        return 0;
+    })();
+    console.log("opensocial_owner_id:", opensocial_owner_id);
+
     // ｴﾙｰｶの実を探してきますね！ - 釣魚.
     if ( isExisted("div#gad_wrapper>div>div>div.navi_area.clear>a") ) {
         $("div#gad_wrapper>div>div>div.navi_area.clear>a")[0].click();
@@ -185,7 +197,7 @@ $(document).ready(function() {
         // AP若太少則去HealPoison頁面掛網或喝HealPoison.
         if ( 10 > yourNowAP ) {
            // $("div.btn02.padding2>a")[0].click();
-           location.href = "sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=0";
+           location.href = "sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=" + opensocial_owner_id;
            return;
         }
     }
@@ -248,12 +260,12 @@ $(document).ready(function() {
     // [CG] Encount a Monster.
     else if ( chkURL(/action(_|=)home_quest_encount/) )
         action_home_quest_encount();
-    // Skip Battle Result.
-    else if ( chkURL(/action=home_quest_detail_attack/) )
-        action_home_quest_detail_attack();
     // Next Fight: Fight Finish or Timeout.
     else if ( isExisted("div#gad_wrapper > div > div > div > center > div.next_bt") )
         action_home_quest_detail_result();
+    // Skip Battle Result.
+    else if ( chkURL(/action=home_quest_detail_attack/) )
+        action_home_quest_detail_attack();
     // Retreat Interface.
     // 條件變複雜是因為HealPoison頁面有隱藏的按鈕(和撤退按鈕相同).
     else if ( isExisted("div#gad_wrapper>div>div>table>tbody>tr>td>span>form>input.icon_base.icon_06.submit_clear") )
@@ -276,9 +288,8 @@ $(document).ready(function() {
     else if ( isExisted("a[href^='sp_web.php?action_event_'][href*='=true&guid=ON&clkBnrCde=10'] > img:not([src*='_t_'])") )
         action_home_quest_index();
     // 攻略 -> 攻略MAP選擇(no any events).
-    // 沒Event就攻略"練武の楼閣.
+    // 沒Event就攻略"練武の楼閣".
     // 原本是一般階層攻略, 已不再需要.
-//     else if ( isExisted("div#gad_wrapper>div>center>div>ul.bt_block>li.qu_list_tra") )
     else if ( isExisted("div#gad_wrapper > div > div.bg_img_quest_portal01 > div > a.margin_t12.sys_display02") )
         action_home_quest_index2();
     // The entrance of Dungeon "練武の楼閣".
@@ -394,8 +405,12 @@ $(document).ready(function() {
 
     // Waiting in 0.2 ~ 6 min.
     if ( false === DEBUGGING ) {
+        // Fighting.
         if ( chkURL(/action(_|=)home_quest_detail_game/) )
             setTimeout(hAfterWaiting, 6*60*1000);
+        // in HealPoison Page.
+        else if ( isExisted("div#gad_wrapper > div > div.clear > center > table > tbody > tr > td > span > div.item_title > span:even") )
+            setTimeout(hAfterWaiting, 1*60*1000);
         else
             setTimeout(hAfterWaiting, 0.2*60*1000);
     }

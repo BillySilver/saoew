@@ -36,6 +36,18 @@ $(document).ready(function() {
     if ( true === DEBUGGING )
         console.log("*** Debugging Mode ***");
 
+    var opensocial_owner_id = (function() {
+        var foo = document.body.innerHTML.match(/opensocial_owner_id=\d+/);
+        if ( null !== foo )
+            return foo[0].replace("opensocial_owner_id=", "").toInt();
+
+        if ( "undefined" !== typeof mahoujin_args && undefined !== mahoujin_args.uid )
+            return mahoujin_args.uid.toInt();
+
+        return 0;
+    })();
+    console.log("opensocial_owner_id:", opensocial_owner_id);
+
     var isInIndexPage = isExisted("div#gad_wrapper > div > div > a > div.event_rank");
     var isFighting    = chkURL(/action_home_quest_detail_game/);
 
@@ -47,7 +59,7 @@ $(document).ready(function() {
         console.log("Index without request.");
 
         if ( confirm("Go to Invitation Page?") )
-            location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=0";
+            location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=" + opensocial_owner_id;
     // BUG: If there is only one page in Invitation Page, then it will do nothing!
     } else if ( isExisted("div#gad_wrapper > div > div > center > div.gra_dark_blue") && isExisted("div#gad_wrapper > div > div > section.pager4 > div.next") ) {
         console.log("Finding requests...");
@@ -136,7 +148,7 @@ $(document).ready(function() {
         // $("div.next_bt > a")[0].click();
 
         // If the fight is Timeout, then div.next_bt will go to action_home_quest_index and do nothing.
-        location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=0";
+        location.href = "sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=" + opensocial_owner_id;
     // Skip Battle Result.
     // 現在、結果集計処理中です。
     // http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=*
