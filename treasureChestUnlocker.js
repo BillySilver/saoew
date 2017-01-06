@@ -8,9 +8,11 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=1&guid=ON&div=2&gc=*&gacha_hs=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=2&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=0
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&div=2&guid=ON&gc=*&gacha_hs=*&p_div=248
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&div=2&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170105]
+// @version     [170106]
 // @grant       none
 // ==/UserScript==
 
