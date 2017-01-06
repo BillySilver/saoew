@@ -9,7 +9,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170102]
+// @version     [170105]
 // @grant       none
 // ==/UserScript==
 
@@ -33,6 +33,12 @@ var nYourAttr = Attr.slash;
 var nYourATK  = 20000;
 var nKOsUnder = 700;
 
+var CSS = {
+    mode: "color: crimson; font-weight: bold;",
+    info: "color: blueviolet; font-weight: bold;",
+    err:  "color: red; font-weight: bold;",
+};
+
 var jEnemy = $("div#gad_wrapper > div > div.padding_b > div.gra_dark_blue > center > .gra_dark_blue");
 
 $(document).ready(function() {
@@ -40,7 +46,7 @@ $(document).ready(function() {
         DEBUGGING = false;
 
     if ( true === DEBUGGING )
-        console.log("*** Debugging Mode ***");
+        console.log("%c*** Debugging Mode ***", CSS.mode);
 
     var nLeftSecond = 60;
     var isWinningStreak = (0 !== $("div#gad_wrapper > div > div.padding_b > div.padding > span").length);

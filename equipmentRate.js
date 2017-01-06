@@ -14,7 +14,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170102]
+// @version     [170105]
 // @grant       none
 // ==/UserScript==
 
@@ -108,6 +108,21 @@ Buff[8] = {
         Limit: "140"
     }
 };
+Buff[9] = {
+    LvPerLimit: "9",
+    "104": {
+        part: "Right",
+        Lv: 16,
+        Limit: "160",
+        Opt: "10378"
+    },
+};
+
+var CSS = {
+    mode: "color: crimson; font-weight: bold;",
+    info: "color: blueviolet; font-weight: bold;",
+    err:  "color: red; font-weight: bold;",
+};
 
 $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php
@@ -194,7 +209,7 @@ $(document).ready(function() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found:", strSelector);
+        console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
     else return false;

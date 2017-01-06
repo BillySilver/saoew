@@ -10,18 +10,24 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&div=0
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170102]
+// @version     [170105]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
+
+var CSS = {
+    mode: "color: crimson; font-weight: bold;",
+    info: "color: blueviolet; font-weight: bold;",
+    err:  "color: red; font-weight: bold;",
+};
 
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
 
     if ( true === DEBUGGING )
-        console.log("*** Debugging Mode ***");
+        console.log("%c*** Debugging Mode ***", CSS.mode);
 
     if ( isExisted("div#gad_wrapper > div > center > div.ga_list > div.list2 > center.padding.btn01") ) {
         var jBtnUnlock = $("div.ga_list > div.list2 > center.padding.btn01");
@@ -71,7 +77,7 @@ function action_event() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found:", strSelector);
+        console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
     else return false;

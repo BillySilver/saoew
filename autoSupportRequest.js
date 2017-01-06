@@ -11,7 +11,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170102]
+// @version     [170105]
 // @grant       none
 // ==/UserScript==
 
@@ -26,6 +26,12 @@ var mobWhitelist = [
 ];
 //*/
 
+var CSS = {
+    mode: "color: crimson; font-weight: bold;",
+    info: "color: blueviolet; font-weight: bold;",
+    err:  "color: red; font-weight: bold;",
+};
+
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
@@ -34,7 +40,7 @@ $(document).ready(function() {
 
     console.log("Support Request page.");
     if ( true === DEBUGGING )
-        console.log("*** Debugging Mode ***");
+        console.log("%c*** Debugging Mode ***", CSS.mode);
 
     var opensocial_owner_id = (function() {
         var foo = document.body.innerHTML.match(/opensocial_owner_id=\d+/);
@@ -79,13 +85,15 @@ $(document).ready(function() {
             // 因應釣魚而設立白名單功能.
             var isInMobWhitelist = (function() {
                 if ( true === isMobWhitelist ) {
+                    console.log("%cMobWhitelist is active.", CSS.mode);
+
                     var strMobName = $("div.gra_dark_blue td > span > span:first-child").eq(i).text().replace(/\[Lv\d+\]/, "");
                     console.log("Mob Name:", "\n\t", strMobName);
 
                     if ( -1 === mobWhitelist.indexOf(strMobName) ) {
                         return false;
                     } else {
-                        console.log("It is in MobWhitelist.");
+                        console.log("%cIt is in MobWhitelist.", CSS.info);
                         return true;
                     }
                 } else {
@@ -166,7 +174,7 @@ $(document).ready(function() {
     ) {
         action_event();
     } else {
-        console.log("There are no conditions.");
+        console.log("%cThere are no conditions.", CSS.info);
     }
 
     if ( false === DEBUGGING &&
@@ -207,7 +215,7 @@ function action_event() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found:", strSelector);
+        console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
     else return false;

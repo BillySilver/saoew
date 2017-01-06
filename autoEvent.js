@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170102]
+// @version     [170105]
 // @grant       none
 // ==/UserScript==
 
@@ -123,6 +123,12 @@ var Attr = {
     trick: 5
 };
 
+var CSS = {
+    mode: "color: crimson; font-weight: bold;",
+    info: "color: blueviolet; font-weight: bold;",
+    err:  "color: red; font-weight: bold;",
+};
+
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
         DEBUGGING = false;
@@ -134,7 +140,7 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php
     if ("" === location.search) {
         // It will be invalid except that it is in invite page.
-        if ( isExisted("div#gad_wrapper > div > center.clear_black > div.padding > span") && "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span").text() ) {
+        if ( isExisted("div#gad_wrapper > div > center.clear_black > div.padding > span") && "勧誘中" === $("div#gad_wrapper > div > center.clear_black > div.padding > span:eq(0)").text() ) {
             var isInvitePage = true;
         } else if ( "undefined" !== typeof mahoujin_args && null !== mahoujin_args.callbackUrl.match(/home_quest_detail_game/) ) {
             var isBattleSkill = true;
@@ -154,7 +160,7 @@ $(document).ready(function() {
 
     console.log("It is a SAOEW event page.");
     if ( true === DEBUGGING )
-        console.log("*** Debugging Mode ***");
+        console.log("%c*** Debugging Mode ***", CSS.mode);
 
     var opensocial_owner_id = (function() {
         var foo = document.body.innerHTML.match(/opensocial_owner_id=\d+/);
@@ -176,7 +182,7 @@ $(document).ready(function() {
 
     // 若有顯示AP則確認.
     var strAP = (function() {
-        var jSpan = $("table.padding td>span");
+        var jSpan = $("table.padding td > span");
 
         for (var i = 0; i < jSpan.length; i++) {
             if (null !== jSpan.eq(i).text().match(/AP\d+\/\d+/))
@@ -187,7 +193,7 @@ $(document).ready(function() {
     var yourNowAP;
     var yourMaxAP;
     if (null !== strAP) {
-        console.log("It may be the Action_Home_Quest_Index page.");
+        console.log("It may be in Action_Home_Quest_Index page.");
 
         yourNowAP = strAP.match(/\d+/g)[0].toInt();
         yourMaxAP = strAP.match(/\d+/g)[1].toInt();
@@ -196,7 +202,7 @@ $(document).ready(function() {
 
         // AP若太少則去HealPoison頁面掛網或喝HealPoison.
         if ( 10 > yourNowAP ) {
-           // $("div.btn02.padding2>a")[0].click();
+           // $("div.btn02.padding2 > a")[0].click();
            location.href = "sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=" + opensocial_owner_id;
            return;
         }
@@ -237,7 +243,6 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
-    // else if ( isExisted("div.map_back>table.area_select_btn>tbody>tr>td>div.event_btn_base") )
     // 原本只有ﾗﾗｸの実可選, 後來多了ﾃﾞｺｲｴﾋﾞ, ﾀﾞﾝｺﾞ, ﾍﾞｲﾄｶｹﾞ, 且不再分難度(透過其他方式切換).
     else if ( isExisted("div#gad_wrapper > div > div > div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04.padding_r02.padding_l02.font_s") )
         action_home_quest_map8();
@@ -268,7 +273,7 @@ $(document).ready(function() {
         action_home_quest_detail_attack();
     // Retreat Interface.
     // 條件變複雜是因為HealPoison頁面有隱藏的按鈕(和撤退按鈕相同).
-    else if ( isExisted("div#gad_wrapper>div>div>table>tbody>tr>td>span>form>input.icon_base.icon_06.submit_clear") )
+    else if ( isExisted("div#gad_wrapper > div > div > table > tbody > tr > td > span > form > input.icon_base.icon_06.submit_clear") )
         action_home_quest_delete_index();
     // 探索到寶箱 - 探索.
     // 待強化.
@@ -302,7 +307,7 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div > div.error_padding") )
         action_home_quest_detail_result2();
     // If there are no events after retreated, then will back to floor selection.
-    else if ( isExisted("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn") )
+    else if ( isExisted("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn") )
         action_home_quest_delete_ok();
     // 是否在HealPoison頁面. 依條件決定要掛網或是喝HealPoison.
     else if ( isExisted("div#gad_wrapper > div > div.clear > center > table > tbody > tr > td > span > div.item_title > span:even") ) {
@@ -324,7 +329,7 @@ $(document).ready(function() {
                     $("div.clear > center > center.block_bt_r > a.heal")[nHealOffset].click();
                     action_home_quest_delete_index();
                 } else if ( false === isSleepMode ) {
-                    console.log( "Using:", $("div.clear > center > table div.item_title > span:even").eq(nHeal).text() );
+                    console.log( "Using: %c%s", CSS.info, $("div.clear > center > table div.item_title > span:even").eq(nHeal).text() );
 
                     $("div.clear > center > center.block_bt_r > a.heal")[nHeal].click();
                     action_home_quest_delete_index();
@@ -392,7 +397,7 @@ $(document).ready(function() {
     ) ) {
         action_event();
     } else {
-        console.log("There are no conditions.");
+        console.log("%cThere are no conditions.", CSS.info);
 
         // May be in Battle Interface.
         // checkTrueMob.
@@ -408,8 +413,11 @@ $(document).ready(function() {
         // Fighting.
         if ( chkURL(/action(_|=)home_quest_detail_game/) )
             setTimeout(hAfterWaiting, 6*60*1000);
-        // in HealPoison Page.
-        else if ( isExisted("div#gad_wrapper > div > div.clear > center > table > tbody > tr > td > span > div.item_title > span:even") )
+        // in HealPoison Page or the entrance of Dungeon "練武の楼閣".
+        else if (
+            isExisted("div#gad_wrapper > div > div.clear > center > table > tbody > tr > td > span > div.item_title > span:even") ||
+            isExisted("div#gad_wrapper > div > div.bg_img_quest_portal01 > center > div.box_daily_dungeon_info01")
+        )
             setTimeout(hAfterWaiting, 1*60*1000);
         else
             setTimeout(hAfterWaiting, 0.2*60*1000);
@@ -454,7 +462,7 @@ function action_home_quest_map2() {
         // 因應釣魚而設立白名單功能.
         var isInMobWhitelist = (function() {
             if ( true === isMobWhitelist ) {
-                console.log("MobWhitelist is active.");
+                console.log("%cMobWhitelist is active.", CSS.mode);
 
                 var strMobName = $("div.layer_base.quest_wait > div.boss_st > table > tbody > tr > td > span").text().match(/[^\s][^\[]+/)[0].replace(/\s+$/, "");
                 console.log("Mob Name:", "\n\t", strMobName);
@@ -464,7 +472,7 @@ function action_home_quest_map2() {
                     $("p.btn04 > a")[0].click();
                     return false;
                 } else {
-                    console.log("It is in MobWhitelist.");
+                    console.log("%cIt is in MobWhitelist.", CSS.info);
                     return true;
                 }
             } else {
@@ -483,7 +491,11 @@ function action_home_quest_map2() {
                 digit = digit * 10 + $("span.pos_abs.pos_now > img").eq(i).attr("src").match(/\d+(?=.png)/)[0].toInt();
             return digit;
         })();
-        var nBurstSkillBC = $("select#battleSkill > option:eq(1)").text().match(/\d+/)[0].toInt();
+        var nBurstSkillBC = (function() {
+            if ( false === isExisted("select#battleSkill") )
+                return 1e10;
+            return $("select#battleSkill > option:eq(1)").text().match(/\d+/)[0].toInt();
+        })();
         if ( nBurstSkillBC <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
             $("div#flgUseSkill")[0].click();
             $("select#battleSkill > option:eq(1)").prop("selected", true);
@@ -601,7 +613,7 @@ function action_home_quest_map3() {
     // 4: Very Hard.
     // 5: Collect.
     var difficulty = 3;
-    $("div.btn_img_event0" + difficulty + ">a")[0].click();
+    $("div.btn_img_event0" + difficulty + " > a")[0].click();
 }
 
 // Event Entrance - 攻略.
@@ -675,10 +687,12 @@ function action_home_quest_map6() {
     var difficulty = 3;
 
     if ( false !== isUsingItem ) {
-        if ( isExisted("div.event_bonus_btn:not([class~=off])") )
+        if ( isExisted("div.event_bonus_btn:not([class~=off])") ) {
             $("div.event_bonus_btn:not([class~=off]) > a")[0].click();
-        else
+        } else {
+            console.log("isUsingItem:", isUsingItem, "but there are no items.");
             audioAlert();
+        }
     } else {
         $("div.btn_sprite_event_map08 > a")[difficulty - 1].click();
     }
@@ -914,8 +928,9 @@ function action_event_extra_index(yourNowAP) {
     if ( null !== $("div.box_daily_dungeon_info01 > img").attr("src").match(/bn_daily_[45].png/) )
         difficulty = 2;
 
-    if ( 100 > yourNowAP ) {
-        console.log("Your current AP is not enough to clear entire Dungeon!");
+    var necessaryAP = 100;
+    if ( necessaryAP > yourNowAP ) {
+        console.log("Your current AP is not enough (", necessaryAP, ") to clear entire Dungeon!");
         return;
     }
 
@@ -939,7 +954,7 @@ function action_home_quest_detail_result2() {
 }
 
 function action_home_quest_delete_ok() {
-    $("div#gad_wrapper>div>div.footer_padding>center>p.footer_btn>a")[0].click();
+    $("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a")[0].click();
 }
 
 /**
@@ -948,7 +963,7 @@ function action_home_quest_delete_ok() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found:", strSelector);
+        console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
     else return false;
@@ -976,6 +991,7 @@ function round(num, place) {
 function audioAlert() {
     var audio = new Audio("http://www.sunnyneo.com/attictimer/ghostly.ogg");
     audio.play();
+    console.log("%cAlert! Something is wrong...", CSS.err);
 }
 
 function chkHealPoison(strSelector) {

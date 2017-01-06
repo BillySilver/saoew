@@ -13,13 +13,19 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170102]
+// @version     [170105]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 // var isItemGain  = true;
 // var isEquipment = true;
+
+var CSS = {
+    mode: "color: crimson; font-weight: bold;",
+    info: "color: blueviolet; font-weight: bold;",
+    err:  "color: red; font-weight: bold;",
+};
 
 $(document).ready(function() {
     if ("undefined" === typeof DEBUGGING)
@@ -32,7 +38,7 @@ $(document).ready(function() {
         isEquipment = false;
 
     if ( true === DEBUGGING )
-        console.log("*** Debugging Mode ***");
+        console.log("%c*** Debugging Mode ***", CSS.mode);
 
     // 交換頁面: 選擇欲交換的Partner/Equipment.
     if ( isExisted("div#gad_wrapper > div > div.box_trade01 > center.padding_t2 > form > div#formsort > div.sort_area.clear_white > select") ) {
@@ -177,7 +183,7 @@ $(document).ready(function() {
 
 function isExisted(strSelector) {
     if (0 !== $(strSelector).length) {
-        console.log("Selector Found:", strSelector);
+        console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
     else return false;
