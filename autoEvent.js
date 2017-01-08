@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170105]
+// @version     [170108]
 // @grant       none
 // ==/UserScript==
 
@@ -88,7 +88,7 @@ var isHiddenArea = false;
  * @type {Integer}
  */
 var isRareConquest = false;
-var isUsingItem    = true;
+var isUsingItem    = false;
 
 /*
 var isMobWhitelist = true;
@@ -1013,6 +1013,15 @@ String.prototype.toInt = function() {
 
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
+    (function(self) {
+        if ( 0 !== $(self).children("img").length )
+            return $(self).children("img:eq(0)");
+
+        return $(self);
+    })(this).css({
+        "border": "6px dashed yellow",
+        "margin": "-6px"
+    });
     console.log("Click:", this);
     if ( false === DEBUGGING )
         this.CLICK();
