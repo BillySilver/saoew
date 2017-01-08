@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170108]
+// @version     [170108-2]
 // @grant       none
 // ==/UserScript==
 
@@ -105,6 +105,7 @@ var mobWhitelist = [
     "ｻﾞ･ﾐｭｰﾃｨﾚｲﾄ･ｶﾞｰﾃﾞｨｱﾝ"
 ];
 //*/
+var isNeverRetreating = true;
 
 /**
  * Here is the attr of your right-hand weapon.
@@ -161,6 +162,8 @@ $(document).ready(function() {
     console.log("It is a SAOEW event page.");
     if ( true === DEBUGGING )
         console.log("%c*** Debugging Mode ***", CSS.mode);
+    if ( true === isNeverRetreating )
+        console.log("%cYou will NEVER RETREAT.", CSS.mode);
 
     var opensocial_owner_id = (function() {
         var foo = document.body.innerHTML.match(/opensocial_owner_id=\d+/);
@@ -372,8 +375,7 @@ $(document).ready(function() {
             "undefined" !== typeof Loading &&
             // 後者為階層攻略成功的CG.
             ("undefined" !== typeof releaseWait || null !== mahoujin_args.callbackUrl.match(/action_home_quest_detail_result=true&guid=ON&th=\w{7}&step=5&qid=\d{9}/) )
-        ) ||
-        (
+        ) || (
             // Guild Event, Partners LV UP!!
             "undefined" !== typeof mahoujin_args.partnerLevelBefore1 && "undefined" !== typeof mahoujin_args.partnerLevelAfter1 &&
             parseInt(mahoujin_args.partnerLevelBefore1) !== parseInt(mahoujin_args.partnerLevelAfter1) && undefined === console.log("Partners LV UP!!")
@@ -385,8 +387,7 @@ $(document).ready(function() {
             // URL: action=event_242_preview&step=4
             // talkCode, talkTitle, talkConfirm, talkData.
             "undefined" !== typeof mahoujin_args.talkCode
-        ) ||
-        (
+        ) || (
             // Conquest Event: Useitem.
             // URL: action_event_242_useitem=true&guid=ON&step=2
             "undefined" !== typeof Loading && "undefined" !== mahoujin_args.callbackUrl &&
@@ -410,17 +411,20 @@ $(document).ready(function() {
 
     // Waiting in 0.2 ~ 6 min.
     if ( false === DEBUGGING ) {
+        var nLeftSecond = 12;
         // Fighting.
-        if ( chkURL(/action(_|=)home_quest_detail_game/) )
-            setTimeout(hAfterWaiting, 6*60*1000);
+        if ( chkURL(/action(_|=)home_quest_detail_game/) ) {
+            nLeftSecond = 6*60;
         // in HealPoison Page or the entrance of Dungeon "練武の楼閣".
-        else if (
+        } else if (
             isExisted("div#gad_wrapper > div > div.clear > center > table > tbody > tr > td > span > div.item_title > span:even") ||
             isExisted("div#gad_wrapper > div > div.bg_img_quest_portal01 > center > div.box_daily_dungeon_info01")
-        )
-            setTimeout(hAfterWaiting, 1*60*1000);
-        else
-            setTimeout(hAfterWaiting, 0.2*60*1000);
+        ) {
+            nLeftSecond = 60;
+        }
+
+        console.log("%cIt will be time out in %d seconds...", CSS.info, nLeftSecond);
+        setTimeout(hAfterWaiting, nLeftSecond*1000);
     }
 
     function hAfterWaiting() {
@@ -468,8 +472,6 @@ function action_home_quest_map2() {
                 console.log("Mob Name:", "\n\t", strMobName);
 
                 if ( -1 === mobWhitelist.indexOf(strMobName) ) {
-                    // retrete.
-                    $("p.btn04 > a")[0].click();
                     return false;
                 } else {
                     console.log("%cIt is in MobWhitelist.", CSS.info);
@@ -501,8 +503,16 @@ function action_home_quest_map2() {
             $("select#battleSkill > option:eq(1)").prop("selected", true);
         }
 
-        if ( false === isInMobWhitelist && nEnemyHPUnder < nEnemyNowHP ) {
-            // retrete.
+        if ( false === isInMobWhitelist &&
+            (true === isMobWhitelist || nEnemyHPUnder < nEnemyNowHP) &&
+            false === isNeverRetreating
+        ) {
+            /**
+             * Retreat: isNeverRetreating = false, but
+             * 1. isMobWhitelist = false => isInMobWhitelist = false,
+             *   and the Max HP of Enemy is too high.
+             * 2. isMobWhitelist = true, isInMobWhitelist = false.
+             */
             $("p.btn04 > a")[0].click();
         // If a "powerful" enemy is in Whitelist, but you cannot output damage more than 15% of its MaxHP at first attack.
         } else if ( true === isInMobWhitelist && isExisted("td.help_me") && nEnemyHPUnder < nEnemyMaxHP ) {
@@ -527,8 +537,8 @@ function action_home_quest_map2() {
             } else if ( false === isSleepMode ) {
                 if ( chkWeaponAndPartner() )
                     useHealPoison(nHeal);
-            } else {
-                // retrete.
+            } else if ( false === isNeverRetreating ) {
+                // Retreat.
                 $("p.btn04 > a")[0].click();
             }
         } else {
@@ -871,7 +881,7 @@ function action_home_quest_select() {
     }
 }
 
-// retreat. (and confirm in HealPoison page)
+// Retreat (and confirm in HealPoison page).
 function action_home_quest_delete_index() {
     $("input.icon_06.submit_clear")[0].click();
 }
