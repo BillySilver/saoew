@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170112]
+// @version     [170112-2]
 // @grant       none
 // ==/UserScript==
 
@@ -948,6 +948,7 @@ function action_event_extra_index(yourNowAP) {
     }
 
     var strHref = $("div.btn_sprite_difficulty01").eq(difficulty - 1).attr("data-href");
+    $("div.btn_sprite_difficulty01").eq(difficulty - 1)[0].click();
     $("a#dungeonUrl").attr("href", strHref)[0].click();
 }
 
@@ -1026,16 +1027,19 @@ String.prototype.toInt = function() {
 
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
+    console.log("Click:", this);
     (function(self) {
         if ( 0 !== $(self).children("img").length )
             return $(self).children("img:eq(0)");
+        if ( "input" === self.tagName.toLowerCase() )
+            return $(self).wrap("<div>").parent();
 
         return $(self);
     })(this).css({
         "border": "6px dashed yellow",
-        "margin": "-6px"
+        "margin": "-6px",
+        "z-index": "999"
     });
-    console.log("Click:", this);
     if ( false === DEBUGGING )
         this.CLICK();
 };

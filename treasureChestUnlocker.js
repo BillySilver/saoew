@@ -12,7 +12,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&div=2&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170108]
+// @version     [170112-2]
 // @grant       none
 // ==/UserScript==
 
@@ -100,16 +100,19 @@ function rand(inf, sup) {
 
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
+    console.log("Click:", this);
     (function(self) {
         if ( 0 !== $(self).children("img").length )
             return $(self).children("img:eq(0)");
+        if ( "input" === self.tagName.toLowerCase() )
+            return $(self).wrap("<div>").parent();
 
         return $(self);
     })(this).css({
         "border": "6px dashed yellow",
-        "margin": "-6px"
+        "margin": "-6px",
+        "z-index": "999"
     });
-    console.log("Click:", this);
     if ( false === DEBUGGING )
         this.CLICK();
 };
