@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170108-2]
+// @version     [170112]
 // @grant       none
 // ==/UserScript==
 
@@ -694,7 +694,7 @@ function action_home_quest_map6() {
     // 4: Very Hard.
     // 5: Expert.
     // 6: Collect.
-    var difficulty = 3;
+    var difficulty = 4;
 
     if ( false !== isUsingItem ) {
         if ( isExisted("div.event_bonus_btn:not([class~=off])") ) {
@@ -774,7 +774,10 @@ function action_home_quest_map10() {
     // 3: Hard.
     // 4: Very Hard.
     var difficulty = 3;
-    $("div#gad_wrapper > div > div > div.padding_t05 > table > tbody > tr > td > div.btn_sprite_event_duel01.btn_img_event_duel0" + difficulty + " > a")[0].click();
+    if ( false === isExisted("div.btn_img_event_duel0" + difficulty + " > a.off") )
+        $("div.btn_img_event_duel0" + difficulty + " > a")[0].click();
+    else
+        audioAlert();
 }
 
 // Event Entrance - 公會.
