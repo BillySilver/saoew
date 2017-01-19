@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        SAOEW : Partner (star 6) Exchanger
+// @name        SAOEW : Partner Exchanger
 // @namespace   saoew
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_list=true&guid=ON&process=1&tic=192&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_check=true&guid=ON&process=2&tic=192&opensocial_owner_id=*
@@ -7,18 +7,25 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_list=true&guid=ON&process=1&tic=193&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_check=true&guid=ON&process=2&tic=193&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_end=true&guid=ON&tic=193&key=*-trade-*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_list=true&guid=ON&process=1&tic=512&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_check=true&guid=ON&process=2&tic=512&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_end=true&guid=ON&tic=512&key=*-trade-*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_list=true&guid=ON&process=1&tic=254&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_check=true&guid=ON&process=2&tic=254&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_end=true&guid=ON&tic=254&key=*-trade-*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_present_index=true&guid=ON&type=2&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_present_index=true&guid=ON&type=2&sortType=2&rareKey=60&isEllis=0&isAlgo=0&isPremium=0&isLimitStone=*&start=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_present_index=true&guid=ON&type=2&sortType=3&rareKey=60&isEllis=*&isAlgo=*&isPremium=*&isLimitStone=0&start=*&opensocial_owner_id=*
+
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170112-2]
+// @version     [170119]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
-// var isItemGain  = true;
+var isItemGain  = true;
 // var isEquipment = true;
 
 var CSS = {
@@ -39,6 +46,7 @@ $(document).ready(function() {
 
     if ( true === DEBUGGING )
         console.log("%c*** Debugging Mode ***", CSS.mode);
+    init_mutex();
 
     // 交換頁面: 選擇欲交換的Partner/Equipment.
     if ( isExisted("div#gad_wrapper > div > div.box_trade01 > center.padding_t2 > form > div#formsort > div.sort_area.clear_white > select") ) {
@@ -47,14 +55,17 @@ $(document).ready(function() {
             $("div#formsort > div.sort_area.clear_white > select > option[value=getdate_des]").prop("selected", true);
             $("div#formsort > div.sort_area.clear_white > div.btn02 > input")[0].click();
         } else {
+            var nNeeded   = $("div.detale_frame").text().match(/x\d+/)[0].replace("x", "").toInt();
             var nSelected = 0;
             var nCount    = 0;
 
             if ( isExisted("div#gad_wrapper > div > center.padding2") ) {
                 nCount = nSelected = $("center.padding2 > div").text().match(/\d+/g)[0].toInt();
 
-                if ( 5 === nCount )
+                if ( nNeeded === nCount ) {
                     $("center.padding2 > div.btn01.margin_t2 > a")[0].click();
+                    return;
+                }
             }
 
             var jPartner12 = $("div.box_trade01 > center.padding_t2 > form[name=item_select] > ul.thumb_check_box01 > li.thumb_check_list01 > center");
@@ -62,7 +73,7 @@ $(document).ready(function() {
             var jStatus12  = jPartner12.find("div > span > div.partnerStatus1");
 
             for (var i = 0; i < jPartner12.length; i++) {
-                var nNowLv = jStatus12.eq(i).text().match(/\d{1,3}(?=\/\d{1,3})/).toInt();
+                var nNowLv = jStatus12.eq(i).text().match(/\d{1,3}(?=\/\d{1,3})/)[0].toInt();
                 // 只選擇1等未練的Partner/Equipment.
                 if ( 1 !== nNowLv )
                     continue;
@@ -73,13 +84,15 @@ $(document).ready(function() {
 
                 jInput12.eq(i).children("input")[0].click();
                 nCount++;
-                if ( 5 === nCount )
+                if ( nNeeded === nCount )
                     break;
             }
 
             // 當這回合選擇了一個以上的Partner/Equipment, 就按決定鈕.
-            if ( nSelected !== nCount )
+            if ( nSelected < nCount )
                 $("div.box_trade01 > center.padding_t2 > form[name=item_select] > div.btn01.margin > input")[0].click();
+            else
+                audioAlert();
         }
     // 交換頁面: 確認交換Partner/Equipment.
     } else if ( isExisted("div#gad_wrapper > div > div.gra_dark_blue > div.padding2.padding_all > table.trade_table01") ) {
@@ -147,10 +160,12 @@ $(document).ready(function() {
 
             // 當有一個以上符合的Partner/Equipment, 且可以選取(未達Partner/Equipment上限), 就領出來.
             if ( 0 !== jPartner5.find("input.checkbox:checked").length ) {
-                $("div > center.padding2.btn01 > input")[0].click();
+                $("center.clear_black > div.btn01 > input")[0].click();
             // 沒有符合的Partner/Equipment(而非達到Partner/Equipment上限), 則到下一頁.
-            } else if ( 0 === nCount ) {
+            } else if ( 0 === nCount && isExisted("section.pager4 > div.next > a") ) {
                 $("section.pager4 > div.next > a")[0].click();
+            } else {
+                audioAlert();
             }
         // 領取Item模式.
         } else {
@@ -172,7 +187,7 @@ $(document).ready(function() {
             }
 
             // 沒有需要檢查的, 直接領出來.
-            $("div > center.padding2.btn01 > input")[0].click();
+            $("center.clear_black > div.btn01 > input")[0].click();
         }
     }
 });
@@ -197,18 +212,29 @@ function chkURL(regexURL) {
     else return false;
 }
 
+function audioAlert() {
+    var audio = new Audio("http://www.sunnyneo.com/attictimer/ghostly.ogg");
+    audio.play();
+    console.log("%cAlert! Something is wrong...", CSS.err);
+}
+
 String.prototype.toInt = function() {
     return parseInt(this);
 };
 
+function init_mutex() {
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
     console.log("Click:", this);
     (function(self) {
         if ( 0 !== $(self).children("img").length )
             return $(self).children("img:eq(0)");
-        if ( "input" === self.tagName.toLowerCase() )
-            return $(self).wrap("<div>").parent();
+        if ( "input" === self.tagName.toLowerCase() ) {
+            var jParent = $(self).parent();
+            if ( 0 < jParent.outerHeight(true) - jParent.outerHeight() ||
+                 0 < jParent.outerWidth(true) - jParent.outerWidth() )
+                return $(self).wrap("<div>").parent();
+        }
 
         return $(self);
     })(this).css({
@@ -219,3 +245,4 @@ HTMLElement.prototype.click = function() {
     if ( false === DEBUGGING )
         this.CLICK();
 };
+}

@@ -12,7 +12,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&div=2&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170112-2]
+// @version     [170119]
 // @grant       none
 // ==/UserScript==
 
@@ -30,6 +30,7 @@ $(document).ready(function() {
 
     if ( true === DEBUGGING )
         console.log("%c*** Debugging Mode ***", CSS.mode);
+    init_mutex();
 
     if ( isExisted("div#gad_wrapper > div > center > div.ga_list > div.list2 > center.padding.btn01") ) {
         var jBtnUnlock = $("div.ga_list > div.list2 > center.padding.btn01");
@@ -98,14 +99,19 @@ function rand(inf, sup) {
     return Math.floor((Math.random() * interval) + inf);
 }
 
+function init_mutex() {
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
     console.log("Click:", this);
     (function(self) {
         if ( 0 !== $(self).children("img").length )
             return $(self).children("img:eq(0)");
-        if ( "input" === self.tagName.toLowerCase() )
-            return $(self).wrap("<div>").parent();
+        if ( "input" === self.tagName.toLowerCase() ) {
+            var jParent = $(self).parent();
+            if ( 0 < jParent.outerHeight(true) - jParent.outerHeight() ||
+                 0 < jParent.outerWidth(true) - jParent.outerWidth() )
+                return $(self).wrap("<div>").parent();
+        }
 
         return $(self);
     })(this).css({
@@ -116,3 +122,4 @@ HTMLElement.prototype.click = function() {
     if ( false === DEBUGGING )
         this.CLICK();
 };
+}

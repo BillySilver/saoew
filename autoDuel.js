@@ -9,7 +9,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170112-2]
+// @version     [170119]
 // @grant       none
 // ==/UserScript==
 
@@ -47,6 +47,7 @@ $(document).ready(function() {
 
     if ( true === DEBUGGING )
         console.log("%c*** Debugging Mode ***", CSS.mode);
+    init_mutex();
 
     var nLeftSecond = 60;
     var isWinningStreak = (0 !== $("div#gad_wrapper > div > div.padding_b > div.padding > span").length);
@@ -215,14 +216,19 @@ String.prototype.toInt = function() {
     return parseInt(this);
 };
 
+function init_mutex() {
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
     console.log("Click:", this);
     (function(self) {
         if ( 0 !== $(self).children("img").length )
             return $(self).children("img:eq(0)");
-        if ( "input" === self.tagName.toLowerCase() )
-            return $(self).wrap("<div>").parent();
+        if ( "input" === self.tagName.toLowerCase() ) {
+            var jParent = $(self).parent();
+            if ( 0 < jParent.outerHeight(true) - jParent.outerHeight() ||
+                 0 < jParent.outerWidth(true) - jParent.outerWidth() )
+                return $(self).wrap("<div>").parent();
+        }
 
         return $(self);
     })(this).css({
@@ -233,3 +239,4 @@ HTMLElement.prototype.click = function() {
     if ( false === DEBUGGING )
         this.CLICK();
 };
+}

@@ -63,7 +63,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170112-2]
+// @version     [170119]
 // @grant       none
 // ==/UserScript==
 
@@ -164,6 +164,7 @@ $(document).ready(function() {
         console.log("%c*** Debugging Mode ***", CSS.mode);
     if ( true === isNeverRetreating )
         console.log("%cYou will NEVER RETREAT.", CSS.mode);
+    init_mutex();
 
     var opensocial_owner_id = (function() {
         var foo = document.body.innerHTML.match(/opensocial_owner_id=\d+/);
@@ -239,10 +240,10 @@ $(document).ready(function() {
     // Event Entrance - 決鬥(一般探索 -> 申請畫面).
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > div.btn06") && true === isDuelEvent )
         action_home_quest_map9();
-    // Event Entrance - 收集, 決鬥(一般探索).
+    // Event Entrance - 收集, 決鬥(一般探索), 育成.
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map08") )
         action_home_quest_map6();
-    // Event Entrance - 育成*, 討伐.
+    // Event Entrance - 討伐.
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map07.btn_img_event_map04") )
         action_home_quest_map7();
     // Event Entrance - 釣魚.
@@ -686,7 +687,7 @@ function action_home_quest_map5() {
     }
 }
 
-// Event Entrance - 收集, 決鬥(一般探索).
+// Event Entrance - 收集, 決鬥(一般探索), 育成.
 function action_home_quest_map6() {
     // 1: Easy.
     // 2: Normal.
@@ -694,7 +695,7 @@ function action_home_quest_map6() {
     // 4: Very Hard.
     // 5: Expert.
     // 6: Collect.
-    var difficulty = 4;
+    var difficulty = 5;
 
     if ( false !== isUsingItem ) {
         if ( isExisted("div.event_bonus_btn:not([class~=off])") ) {
@@ -708,7 +709,7 @@ function action_home_quest_map6() {
     }
 }
 
-// Event Entrance - 育成*, 討伐.
+// Event Entrance - 討伐.
 function action_home_quest_map7() {
     // 1: Easy.
     // 2: Normal.
@@ -937,8 +938,8 @@ function action_event_extra_index(yourNowAP) {
     // 3: Hard.
     // 4: Very Hard.
     var difficulty = 3;
-    // Black / White Shrine on Thursday or Friday: Power / Trick.
-    if ( null !== $("div.box_daily_dungeon_info01 > img").attr("src").match(/bn_daily_[45].png/) )
+    // Black Shrine on Thursday: Power.
+    if ( null !== $("div.box_daily_dungeon_info01 > img").attr("src").match(/bn_daily_4.png/) )
         difficulty = 2;
 
     var necessaryAP = 100;
@@ -1025,14 +1026,19 @@ String.prototype.toInt = function() {
     return parseInt(this);
 };
 
+function init_mutex() {
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
     console.log("Click:", this);
     (function(self) {
         if ( 0 !== $(self).children("img").length )
             return $(self).children("img:eq(0)");
-        if ( "input" === self.tagName.toLowerCase() )
-            return $(self).wrap("<div>").parent();
+        if ( "input" === self.tagName.toLowerCase() ) {
+            var jParent = $(self).parent();
+            if ( 0 < jParent.outerHeight(true) - jParent.outerHeight() ||
+                 0 < jParent.outerWidth(true) - jParent.outerWidth() )
+                return $(self).wrap("<div>").parent();
+        }
 
         return $(self);
     })(this).css({
@@ -1043,3 +1049,4 @@ HTMLElement.prototype.click = function() {
     if ( false === DEBUGGING )
         this.CLICK();
 };
+}
