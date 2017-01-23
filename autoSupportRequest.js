@@ -11,7 +11,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_detail_result=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170105]
+// @version     [170120]
 // @grant       none
 // ==/UserScript==
 
@@ -213,12 +213,18 @@ function action_event() {
  * For general use.
  */
 
-function isExisted(strSelector) {
-    if (0 !== $(strSelector).length) {
+function isExisted(strSelector, strSelectorChildren) {
+    if (undefined !== strSelectorChildren) {
+        if (0 !== $(strSelector).children(strSelectorChildren).length) {
+            console.log("Selector Found: %c%s%c -> %c%s", CSS.info, strSelector, null, CSS.info, strSelectorChildren);
+            return true;
+        }
+    } else if (0 !== $(strSelector).length) {
         console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
-    else return false;
+
+    return false;
 }
 
 function chkURL(regexURL) {

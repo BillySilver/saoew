@@ -28,8 +28,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action=event_*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_item_use=true&guid=ON&questFlg=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_info_item_use&guid=ON
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_160_getbox&*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_168_getbox&*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_getbox&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_autorecoveryitem=true&guid=ON&*
@@ -63,7 +62,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170119]
+// @version     [170120]
 // @grant       none
 // ==/UserScript==
 
@@ -216,7 +215,7 @@ $(document).ready(function() {
     // Event Entrance - 探索.
     // 探索至Endless Area時按鈕會換成兩個.
     // 聖誕節探索(角色陪同): event_btn01 -> chara_btn01~04.
-    if ( isExisted("div#gad_wrapper > div > div > div.padding_t2 > div[class*=chara_btn0]") || isExisted("div#gad_wrapper > div > div > div.padding_t2 > table > tbody > tr > td > div.btn_sprite_event03") )
+    if ( isExisted("div#gad_wrapper > div > div > div.padding_t2", "div.event_btn01, div[class*=chara_btn0]") || isExisted("div#gad_wrapper > div > div > div.padding_t2 > table > tbody > tr > td > div.btn_sprite_event03") )
         action_home_quest_map();
     // Fighting.
     else if ( isExisted("div#gad_wrapper > div > table > tbody > tr > td.attack") )
@@ -280,8 +279,8 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div > table > tbody > tr > td > span > form > input.icon_base.icon_06.submit_clear") )
         action_home_quest_delete_index();
     // 探索到寶箱 - 探索.
-    // 待強化.
-    else if ( isExisted("span.event_btn_next") )
+    // 似乎若在CG中遇到寶箱會直接返回主畫面, 因此已不再觸發這個條件.
+    else if ( isExisted("div#gad_wrapper > div > div > center > div.footer_padding > center > a > span.event_btn_next") )
         action_event_160_getbox();
     // 釣到普通魚或道具 - 釣魚.
     else if ( isExisted("div#gad_wrapper>div>div>div.btn01.padding2") )
@@ -453,6 +452,9 @@ function action_home_quest_map() {
     // 探索する(in Endless Area).
     else if ( isExisted("div.btn_sprite_event03") )
         $("div.btn_sprite_event03 > a")[difficulty - 1].click();
+    else if ( isExisted("div.event_btn01") )
+        $("div.event_btn01 > a")[0].click();
+    // 聖誕節探索(角色陪同).
     else if ( isExisted("div[class*=chara_btn0]") )
         $("div[class*=chara_btn0] > a")[0].click();
 }
@@ -544,7 +546,7 @@ function action_home_quest_map2() {
             }
         } else {
             if ( chkWeaponAndPartner() )
-                $("td.attack > div > form > div.margin_t2 > input.quest_heal_btn")[0].click();
+                $("td.attack form > div.margin_t2 > input.quest_heal_btn")[0].click();
         }
 
         /**
@@ -554,7 +556,7 @@ function action_home_quest_map2() {
         function useHealPoison(nHeal) {
             $("input[name=isConfirmedUseItem]").prop("checked", true);
             $("select[name=itemCdOffset] > option").eq(nHeal).prop("selected", true);
-            $("td.attack > div > form > div.margin_t2 > input.quest_heal_btn")[0].click();
+            $("td.attack form > div.margin_t2 > input.quest_heal_btn")[0].click();
         }
 
         /**
@@ -976,12 +978,18 @@ function action_home_quest_delete_ok() {
  * For general use.
  */
 
-function isExisted(strSelector) {
-    if (0 !== $(strSelector).length) {
+function isExisted(strSelector, strSelectorChildren) {
+    if (undefined !== strSelectorChildren) {
+        if (0 !== $(strSelector).children(strSelectorChildren).length) {
+            console.log("Selector Found: %c%s%c -> %c%s", CSS.info, strSelector, null, CSS.info, strSelectorChildren);
+            return true;
+        }
+    } else if (0 !== $(strSelector).length) {
         console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
-    else return false;
+
+    return false;
 }
 
 function chkURL(regexURL) {
@@ -1030,20 +1038,8 @@ function init_mutex() {
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
     console.log("Click:", this);
-    (function(self) {
-        if ( 0 !== $(self).children("img").length )
-            return $(self).children("img:eq(0)");
-        if ( "input" === self.tagName.toLowerCase() ) {
-            var jParent = $(self).parent();
-            if ( 0 < jParent.outerHeight(true) - jParent.outerHeight() ||
-                 0 < jParent.outerWidth(true) - jParent.outerWidth() )
-                return $(self).wrap("<div>").parent();
-        }
-
-        return $(self);
-    })(this).css({
-        "border": "6px dashed yellow",
-        "margin": "-6px",
+    $(this).css({
+        "outline": "6px dashed yellow",
         "z-index": "999"
     });
     if ( false === DEBUGGING )

@@ -9,7 +9,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_duel_detail&guid=ON&step=3*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170119]
+// @version     [170120]
 // @grant       none
 // ==/UserScript==
 
@@ -220,20 +220,8 @@ function init_mutex() {
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
     console.log("Click:", this);
-    (function(self) {
-        if ( 0 !== $(self).children("img").length )
-            return $(self).children("img:eq(0)");
-        if ( "input" === self.tagName.toLowerCase() ) {
-            var jParent = $(self).parent();
-            if ( 0 < jParent.outerHeight(true) - jParent.outerHeight() ||
-                 0 < jParent.outerWidth(true) - jParent.outerWidth() )
-                return $(self).wrap("<div>").parent();
-        }
-
-        return $(self);
-    })(this).css({
-        "border": "6px dashed yellow",
-        "margin": "-6px",
+    $(this).css({
+        "outline": "6px dashed yellow",
         "z-index": "999"
     });
     if ( false === DEBUGGING )

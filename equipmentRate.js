@@ -14,7 +14,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170105]
+// @version     [170120]
 // @grant       none
 // ==/UserScript==
 
@@ -93,8 +93,8 @@ Buff[8] = {
     "103": {
         part: "Lower",
         Lv: 9,
-        Limit: "180",
-        Opt: 5228
+        Limit: 180,
+        Opt: 5243
     },
     "106": {
         part: "Foot",
@@ -105,7 +105,8 @@ Buff[8] = {
     "107": {
         part: "Accessory",
         Lv: 8,
-        Limit: "140"
+        Limit: "140",
+        Opt: 3742
     }
 };
 Buff[9] = {
@@ -207,12 +208,18 @@ $(document).ready(function() {
  * For general use.
  */
 
-function isExisted(strSelector) {
-    if (0 !== $(strSelector).length) {
+function isExisted(strSelector, strSelectorChildren) {
+    if (undefined !== strSelectorChildren) {
+        if (0 !== $(strSelector).children(strSelectorChildren).length) {
+            console.log("Selector Found: %c%s%c -> %c%s", CSS.info, strSelector, null, CSS.info, strSelectorChildren);
+            return true;
+        }
+    } else if (0 !== $(strSelector).length) {
         console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
-    else return false;
+
+    return false;
 }
 
 function chkURL(regexURL) {

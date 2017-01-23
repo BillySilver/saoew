@@ -12,7 +12,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&div=2&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170119]
+// @version     [170120]
 // @grant       none
 // ==/UserScript==
 
@@ -78,12 +78,18 @@ function action_event() {
  * For general use.
  */
 
-function isExisted(strSelector) {
-    if (0 !== $(strSelector).length) {
+function isExisted(strSelector, strSelectorChildren) {
+    if (undefined !== strSelectorChildren) {
+        if (0 !== $(strSelector).children(strSelectorChildren).length) {
+            console.log("Selector Found: %c%s%c -> %c%s", CSS.info, strSelector, null, CSS.info, strSelectorChildren);
+            return true;
+        }
+    } else if (0 !== $(strSelector).length) {
         console.log("Selector Found: %c%s", CSS.info, strSelector);
         return true;
     }
-    else return false;
+
+    return false;
 }
 
 function chkURL(regexURL) {
@@ -103,20 +109,8 @@ function init_mutex() {
 HTMLElement.prototype.CLICK = HTMLElement.prototype.click;
 HTMLElement.prototype.click = function() {
     console.log("Click:", this);
-    (function(self) {
-        if ( 0 !== $(self).children("img").length )
-            return $(self).children("img:eq(0)");
-        if ( "input" === self.tagName.toLowerCase() ) {
-            var jParent = $(self).parent();
-            if ( 0 < jParent.outerHeight(true) - jParent.outerHeight() ||
-                 0 < jParent.outerWidth(true) - jParent.outerWidth() )
-                return $(self).wrap("<div>").parent();
-        }
-
-        return $(self);
-    })(this).css({
-        "border": "6px dashed yellow",
-        "margin": "-6px",
+    $(this).css({
+        "outline": "6px dashed yellow",
         "z-index": "999"
     });
     if ( false === DEBUGGING )
