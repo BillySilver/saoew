@@ -12,13 +12,13 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&div=2&step=1&guid=ON&gc=*&gacha_hs=*&opensocial_owner_id=*
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170120]
+// @version     [170123]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 
-var CSS = {
+const CSS = {
     mode: "color: crimson; font-weight: bold;",
     info: "color: blueviolet; font-weight: bold;",
     err:  "color: red; font-weight: bold;",

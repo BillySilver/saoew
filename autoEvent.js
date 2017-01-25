@@ -62,13 +62,13 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170120]
+// @version     [170123]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 
-var sHealPoison   = { p100: 1, p30: 2, p50: 3, p70: 4 };
+const sHealPoison = { p100: 1, p30: 2, p50: 3, p70: 4 };
 var sHeal         = sHealPoison.p30;
 var isSleepMode   = true;
 var isLimitHeal   = true;
@@ -89,9 +89,9 @@ var isHiddenArea = false;
 var isRareConquest = false;
 var isUsingItem    = false;
 
-/*
+//*
 var isMobWhitelist = true;
-var mobFishing = [
+const mobFishing = [
     "ﾌﾗｯｼｭ･ｲｰﾀｰ",
     "ｳﾞｧﾝﾄｩｰｸﾗｰｹ",
     "ﾂｲﾝｼｰﾎｰｽ",
@@ -100,8 +100,7 @@ var mobFishing = [
 ];
 
 var mobWhitelist = [
-    "ｻﾞ･ｷﾞﾙﾃｨﾘﾍﾞﾘｵﾝ",
-    "ｻﾞ･ﾐｭｰﾃｨﾚｲﾄ･ｶﾞｰﾃﾞｨｱﾝ"
+    "ｻﾞ･ﾌﾟﾗﾃｨｰﾇ･ｼﾒｰﾙ"
 ];
 //*/
 var isNeverRetreating = true;
@@ -115,7 +114,7 @@ var isNeverRetreating = true;
  * 5: trick
  * @type {Integer}
  */
-var Attr = {
+const Attr = {
     speed: 1,
     slash: 2,
     hit:   3,
@@ -123,7 +122,7 @@ var Attr = {
     trick: 5
 };
 
-var CSS = {
+const CSS = {
     mode: "color: crimson; font-weight: bold;",
     info: "color: blueviolet; font-weight: bold;",
     err:  "color: red; font-weight: bold;",
@@ -462,7 +461,7 @@ function action_home_quest_map() {
 // Fighting.
 function action_home_quest_map2() {
     // Since "HP" is loaded slowly.
-    var nDelaySecond = 3;
+    var nDelaySecond = 0;
     console.log("Just waiting for", nDelaySecond, "seconds...");
 
     setTimeout(function() {
@@ -471,7 +470,7 @@ function action_home_quest_map2() {
             if ( true === isMobWhitelist ) {
                 console.log("%cMobWhitelist is active.", CSS.mode);
 
-                var strMobName = $("div.layer_base.quest_wait > div.boss_st > table > tbody > tr > td > span").text().match(/[^\s][^\[]+/)[0].replace(/\s+$/, "");
+                var strMobName = decodeURI(mahoujin_args.enemyLv);
                 console.log("Mob Name:", "\n\t", strMobName);
 
                 if ( -1 === mobWhitelist.indexOf(strMobName) ) {
@@ -485,9 +484,8 @@ function action_home_quest_map2() {
             }
         })();
 
-        var strArrHP    = $("div#hp_text").text().match(/\d+/g);
-        var nEnemyNowHP = strArrHP[0].toInt();
-        var nEnemyMaxHP = strArrHP[1].toInt();
+        var nEnemyNowHP = mahoujin_args.nowEnemyHP.toInt();
+        var nEnemyMaxHP = mahoujin_args.maxEnemyHP.toInt();
         console.log("HP of the enemy is:", nEnemyNowHP, "/", nEnemyMaxHP, "->", round(nEnemyNowHP / nEnemyMaxHP * 100, 1), "%.");
 
         var nNowBC = (function() {

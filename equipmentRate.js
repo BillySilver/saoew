@@ -14,7 +14,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170120]
+// @version     [170123]
 // @grant       none
 // ==/UserScript==
 
@@ -119,7 +119,7 @@ Buff[9] = {
     },
 };
 
-var CSS = {
+const CSS = {
     mode: "color: crimson; font-weight: bold;",
     info: "color: blueviolet; font-weight: bold;",
     err:  "color: red; font-weight: bold;",
