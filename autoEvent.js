@@ -62,7 +62,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170123]
+// @version     [170127]
 // @grant       none
 // ==/UserScript==
 
@@ -219,11 +219,6 @@ $(document).ready(function() {
     // Fighting.
     else if ( isExisted("div#gad_wrapper > div > table > tbody > tr > td.attack") )
         action_home_quest_map2();
-    // Event Entrance - 討伐.
-    // 待強化.
-    // 貌似已無用 (161110).
-    else if ( isExisted(".btn_sprite_event06") )
-        action_home_quest_map3();
     // Event Entrance - 攻略.
     else if ( isExisted("div#gad_wrapper > div > div[class*='back_step'] > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
         action_home_quest_map4();
@@ -238,12 +233,9 @@ $(document).ready(function() {
     // Event Entrance - 決鬥(一般探索 -> 申請畫面).
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > div.btn06") && true === isDuelEvent )
         action_home_quest_map9();
-    // Event Entrance - 收集, 決鬥(一般探索), 育成.
+    // Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐.
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map08") )
         action_home_quest_map6();
-    // Event Entrance - 討伐.
-    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map07.btn_img_event_map04") )
-        action_home_quest_map7();
     // Event Entrance - 釣魚.
     // 原本只有ﾗﾗｸの実可選, 後來多了ﾃﾞｺｲｴﾋﾞ, ﾀﾞﾝｺﾞ, ﾍﾞｲﾄｶｹﾞ, 且不再分難度(透過其他方式切換).
     else if ( isExisted("div#gad_wrapper > div > div > div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04.padding_r02.padding_l02.font_s") )
@@ -616,17 +608,6 @@ function action_home_quest_map2() {
     }, nDelaySecond*1000);
 }
 
-// Event Entrance - 討伐.
-function action_home_quest_map3() {
-    // 1: Easy.
-    // 2: Normal.
-    // 3: Hard.
-    // 4: Very Hard.
-    // 5: Collect.
-    var difficulty = 3;
-    $("div.btn_img_event0" + difficulty + " > a")[0].click();
-}
-
 // Event Entrance - 攻略.
 function action_home_quest_map4() {
     // "ﾚｱｴﾘｱﾎﾞｽと戦う". You can decide whether to do it.
@@ -687,7 +668,7 @@ function action_home_quest_map5() {
     }
 }
 
-// Event Entrance - 收集, 決鬥(一般探索), 育成.
+// Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐.
 function action_home_quest_map6() {
     // 1: Easy.
     // 2: Normal.
@@ -705,19 +686,12 @@ function action_home_quest_map6() {
             audioAlert();
         }
     } else {
-        $("div.btn_sprite_event_map08 > a")[difficulty - 1].click();
+        if ( isExisted("div.btn_sprite_event_map08.btn_img_event_map0" + difficulty) )
+            $("div.btn_sprite_event_map08.btn_img_event_map0" + difficulty + " > a")[0].click();
+        else
+            // ボーナスエリアへ進む.
+            $("div.btn_sprite_event_map08.btn_img_event_bonus > a")[0].click();
     }
-}
-
-// Event Entrance - 討伐.
-function action_home_quest_map7() {
-    // 1: Easy.
-    // 2: Normal.
-    // 3: Hard.
-    // 4: Very Hard.
-    // 5: Collect.
-    var difficulty = 3;
-    $("div.btn_sprite_event_map07.btn_img_event_map0" + difficulty + " > a")[0].click();
 }
 
 // Event Entrance - 釣魚.
