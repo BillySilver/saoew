@@ -62,7 +62,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170127]
+// @version     [170206]
 // @grant       none
 // ==/UserScript==
 
@@ -222,9 +222,9 @@ $(document).ready(function() {
     // Event Entrance - 攻略.
     else if ( isExisted("div#gad_wrapper > div > div[class*='back_step'] > center > table > tbody > tr > td > a > img[src*='bt_event'][src*='_monster_0']") )
         action_home_quest_map4();
-    // Event Entrance - 攻略.
+    // Event Entrance - 攻略(Area Boss出現中).
     else if ( isExisted("div#gad_wrapper > div > div[class*='back_step'] > center > table.phase_select01") )
-        action_home_quest_map5();
+        action_home_quest_map4();
     // Event Entrance - 攻略(已進入稀有Boss畫面).
     // Rare Boss - http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
     // Guardian  - http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=5&opensocial_owner_id=*
@@ -610,29 +610,38 @@ function action_home_quest_map2() {
 
 // Event Entrance - 攻略.
 function action_home_quest_map4() {
+    // 1: Easy.
+    // 2: Normal.
+    // 3: Hard.
+    // 4: Very Hard.
+    // 5: Expert.
+    var difficulty = 4;
+
     // "ﾚｱｴﾘｱﾎﾞｽと戦う". You can decide whether to do it.
     if ( false !== isRareConquest )
         // the first is "ﾋｰｽｸﾘﾌ" at the 100th floor.
         // the first is "ｶﾞｰﾃﾞｨｱﾝと戦う" at 守護者討伐戦.
         // the second is "ﾚｱｴﾘｱﾎﾞｽと戦う".
         $("div[class*='back_step'] > center > div > div.footer_btn02 > a")[isRareConquest].click();
+    // Area Boss is Appearing now.
+    else if ( isExisted("table.phase_select01") ) {
+        // Beat easier bosses to Unlock the next level.
+        if ( $("table.phase_select01 td > a").length < difficulty )
+            $("table.phase_select01 td > a:last")[0].click();
+        else
+            $("table.phase_select01 td > a")[difficulty - 1].click();
     // 確認是否有 Sproβ Eid (ｼｭﾌﾟﾛｽｱｲﾄ) 可使用.
     // If there are some ones, then use one of them.
-    else if ( isExisted("div[class*='back_step'] > center > div > a > img") )
+    } else if ( isExisted("div[class*='back_step'] > center > div > a > img") )
         $("div[class*='back_step'] > center > div > a > img").parent()[0].click();
-    // Kill some monsters for boss appearance.
+    // Kill some monsters for Area Boss appearance.
     else
         $("img[src*='bt_event'][src*='_monster_0']").parent()[0].click();
 }
 
-// Event Entrance - 攻略.
+// Event Entrance - 攻略(已進入稀有Boss畫面).
 function action_home_quest_map5() {
-    // 1: Easy.
-    // 2: Normal.
-    // 3: Hard.
-    // 4: Very Hard.
-    // 5: Expert.
-    var difficulty = 3;
+    var difficulty = null;
 
     // in Rare Boss / Guardian Area.
     if ( false !== isRareConquest && isExisted("div[class*='back_step']") ) {
@@ -660,11 +669,6 @@ function action_home_quest_map5() {
             $("table td > a")[difficulty - 1].click();
         else
             audioAlert();
-    // Beat easier bosses to Unlock the next level.
-    } else if ( $("table.phase_select01 td > a").length < difficulty ) {
-        $("table.phase_select01 td > a:last")[0].click();
-    } else {
-        $("table.phase_select01 td > a")[difficulty - 1].click();
     }
 }
 
