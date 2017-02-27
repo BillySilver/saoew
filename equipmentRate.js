@@ -14,7 +14,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170123]
+// @version     [170222]
 // @grant       none
 // ==/UserScript==
 
@@ -25,7 +25,7 @@ Buff[7] = {
         part: "Right",
         Lv: 13,
         Limit: 120,
-        Opt: 3988
+        Opt: 4062
     },
     "105": {
         part: "Left",
@@ -88,7 +88,7 @@ Buff[8] = {
         part: "Upper",
         Lv: 10,
         Limit: 160,
-        Opt: 5696
+        Opt: 5713
     },
     "103": {
         part: "Lower",
@@ -105,8 +105,8 @@ Buff[8] = {
     "107": {
         part: "Accessory",
         Lv: 8,
-        Limit: "140",
-        Opt: 3742
+        Limit: 150,
+        Opt: 4436
     }
 };
 Buff[9] = {
