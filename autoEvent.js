@@ -62,7 +62,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170206]
+// @version     [170227]
 // @grant       none
 // ==/UserScript==
 
@@ -144,7 +144,7 @@ $(document).ready(function() {
         } else if ( "undefined" !== typeof mahoujin_args && null !== mahoujin_args.callbackUrl.match(/home_quest_detail_game/) ) {
             var isBattleSkill = true;
         // 今、受けている 協力ﾊﾞﾄﾙがありません。
-        } else if ( isExisted("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a") && "階層一覧 へ" === $("p.footer_btn > a").text() ) {
+        } else if ( isExisted("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a") && "階層一覧 へ" === $("p.footer_btn > a:eq(0)").text() ) {
             audioAlert();
             $("div#gad_wrapper > div > div.footer_padding > center > p.footer_btn > a")[0].click();
             return;
