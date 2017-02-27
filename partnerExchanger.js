@@ -13,6 +13,9 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_list=true&guid=ON&process=1&tic=254&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_check=true&guid=ON&process=2&tic=254&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_end=true&guid=ON&tic=254&key=*-trade-*&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_list=true&guid=ON&process=1&tic=256&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_check=true&guid=ON&process=2&tic=256&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_tradeshop_end=true&guid=ON&tic=256&key=*-trade-*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_present_index=true&guid=ON&type=2&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_present_index=true&guid=ON&type=2&sortType=2&rareKey=60&isEllis=0&isAlgo=0&isPremium=0&isLimitStone=*&start=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_info_present_index=true&guid=ON&type=2&sortType=3&rareKey=60&isEllis=*&isAlgo=*&isPremium=*&isLimitStone=0&start=*&opensocial_owner_id=*
@@ -20,7 +23,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170123]
+// @version     [170216]
 // @grant       none
 // ==/UserScript==
 
