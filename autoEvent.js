@@ -62,7 +62,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170308]
+// @version     [170310]
 // @grant       none
 // ==/UserScript==
 
@@ -236,7 +236,7 @@ $(document).ready(function() {
     // Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐.
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map08") )
         action_home_quest_map6();
-    // Event Entrance - 釣魚.
+    // Event Entrance - 釣魚, 討伐(170310 ~ 170316, White Day).
     // 原本只有ﾗﾗｸの実可選, 後來多了ﾃﾞｺｲｴﾋﾞ, ﾀﾞﾝｺﾞ, ﾍﾞｲﾄｶｹﾞ, 且不再分難度(透過其他方式切換).
     else if ( isExisted("div#gad_wrapper > div > div > div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04.padding_r02.padding_l02.font_s") )
         action_home_quest_map8();
@@ -698,7 +698,7 @@ function action_home_quest_map6() {
     }
 }
 
-// Event Entrance - 釣魚.
+// Event Entrance - 釣魚, 討伐(170310 ~ 170316, White Day).
 function action_home_quest_map8() {
     var isBigNushi = (function () {
         var jStamp = $("div.next_reward_item > table.box_table_stampSheet01 > tbody > tr > td > div.box_stamp01");
@@ -716,6 +716,13 @@ function action_home_quest_map8() {
     // Change to HARD difficulty if it is EASY now.
     if ( "EASY" === $("div.map_back > div.pos_abs > span").text() ) {
         $("div.map_back > div.pos_abs > div.btn_sprite_difficultychange01 > a")[0].click();
+    // White Day Crusade (170310 ~ 170316).
+    } else if ( isExisted("div.map_back > table.area_select_btn01") ) {
+        // 0: ﾋﾞﾋﾞｯﾄﾞﾊﾆｰ.
+        // 1: ﾉｰﾌﾞﾙﾐﾙｸ.
+        // 2: ｸﾞﾘｭｯｸの実.
+        // 3: ｸﾞﾗｰﾃｽﾊﾟｳﾀﾞｰ.
+        $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04 > a")[rand(0, 3)].click();
     // 檢查魚群是否到來(紫色湖のﾇｼ).
     // 若未到來, a之class為off, 否則無class.
     } else if ( false === isExisted("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a.off") ) {
