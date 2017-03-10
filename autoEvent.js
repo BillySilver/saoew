@@ -62,7 +62,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170227]
+// @version     [170308]
 // @grant       none
 // ==/UserScript==
 
@@ -1004,6 +1004,14 @@ function chkHealPoison(strSelector) {
     var nHeal      = nHealOffset + nLimitHeal + (sHeal - 1);
 
     return [nHealOffset, nLimitHeal, nHeal];
+}
+
+function trueUntil(strDate) {
+    return (new Date()).getTime() < Date.parse(strDate);
+}
+
+function falseUntil(strDate) {
+    return ! trueUntil(strDate);
 }
 
 String.prototype.toInt = function() {
