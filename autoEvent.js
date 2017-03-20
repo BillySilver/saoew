@@ -62,7 +62,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170310]
+// @version     [170315]
 // @grant       none
 // ==/UserScript==
 
@@ -690,8 +690,8 @@ function action_home_quest_map6() {
             audioAlert();
         }
     } else {
-        if ( isExisted("div.btn_sprite_event_map08.btn_img_event_map0" + difficulty) )
-            $("div.btn_sprite_event_map08.btn_img_event_map0" + difficulty + " > a")[0].click();
+        if ( isExisted("div.btn_sprite_event_map08:eq(" + (difficulty - 1) + ")") )
+            $("div.btn_sprite_event_map08 > a")[difficulty - 1].click();
         else
             // ボーナスエリアへ進む.
             $("div.btn_sprite_event_map08.btn_img_event_bonus > a")[0].click();
@@ -722,7 +722,20 @@ function action_home_quest_map8() {
         // 1: ﾉｰﾌﾞﾙﾐﾙｸ.
         // 2: ｸﾞﾘｭｯｸの実.
         // 3: ｸﾞﾗｰﾃｽﾊﾟｳﾀﾞｰ.
-        $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04 > a")[rand(0, 3)].click();
+
+        // Choose the area which has material that you have least.
+        var jArea = $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04");
+        var nSelection = null;
+        var nMinMaterial  = 1e10;
+        for (var i = 0; i < jArea.length; i++) {
+            var nMaterial = jArea.eq(i).text().match(/\d+/)[0].toInt();
+            if ( nMinMaterial < nMaterial )
+                continue;
+
+            nSelection   = i;
+            nMinMaterial = nMaterial;
+        }
+        $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04 > a")[nSelection].click();
     // 檢查魚群是否到來(紫色湖のﾇｼ).
     // 若未到來, a之class為off, 否則無class.
     } else if ( false === isExisted("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a.off") ) {
@@ -759,7 +772,7 @@ function action_home_quest_map10() {
     // 2: Normal.
     // 3: Hard.
     // 4: Very Hard.
-    var difficulty = 3;
+    var difficulty = 4;
     if ( false === isExisted("div.btn_img_event_duel0" + difficulty + " > a.off") )
         $("div.btn_img_event_duel0" + difficulty + " > a")[0].click();
     else
