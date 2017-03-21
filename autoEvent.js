@@ -62,14 +62,14 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170315]
+// @version     [170321]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 
 const sHealPoison = { p100: 1, p30: 2, p50: 3, p70: 4 };
-var sHeal         = sHealPoison.p30;
+var sHeal         = rand(1, 3);
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 50000000;
@@ -100,7 +100,9 @@ const mobFishing = [
 ];
 
 var mobWhitelist = [
-    "ｻﾞ･ﾌﾟﾗﾃｨｰﾇ･ｼﾒｰﾙ"
+    "ｹﾙﾋﾞﾑ･ｳｫﾘｱｰ",
+    "ﾃﾞｽﾄﾛｲﾔｰ･ｻﾌﾞﾅｯｸ",
+    "ﾋﾞﾍﾃﾞｨﾝｸﾞ･ﾜｰﾙｳｨﾝﾄﾞ"
 ];
 //*/
 var isNeverRetreating = true;
@@ -435,8 +437,8 @@ function action_home_quest_map() {
     var nExArea = 0;
 
     // 隠しｴﾘｱを探索する.
-    if ( isHiddenArea && isExisted("div.event_btn02") )
-        $("div.event_btn02 > a")[0].click();
+    if ( isHiddenArea && isExisted("div.event_btn03") )
+        $("div.event_btn03 > a")[0].click();
     // ドレスアップ/武器進化アイテムを集める(in Endless Area).
     else if ( isExisted("div.btn_sprite_event04:not([class~='off'])") )
         $("div.btn_sprite_event04 > a")[nExArea].click();
@@ -480,6 +482,17 @@ function action_home_quest_map2() {
         var nEnemyMaxHP = mahoujin_args.maxEnemyHP.toInt();
         console.log("HP of the enemy is:", nEnemyNowHP, "/", nEnemyMaxHP, "->", round(nEnemyNowHP / nEnemyMaxHP * 100, 1), "%.");
 
+        var nQuestTime  = mahoujin_args.questTime.toInt();
+        var nMaxTime    = (function() {
+            if (nQuestTime > 20*60+5)
+                return 30*60;
+            else if (nQuestTime > 6*60+5)
+                return 20*60;
+            else
+                return 6*60;
+        })();
+        var isWinningPrediction = ((nEnemyNowHP / nEnemyMaxHP) < ((nQuestTime+30) / nMaxTime));
+
         var nNowBC = (function() {
             var digit = 0;
             for (var i = 0; i < $("span.pos_abs.pos_now > img").length; i++)
@@ -496,26 +509,34 @@ function action_home_quest_map2() {
             $("select#battleSkill > option:eq(1)").prop("selected", true);
         }
 
+       // isMobWhitelist      xxxxoooooooo
+       // isInMobWhitelist    xxxxxxxxoooo
+       // isWinningPrediction xxooxxooxxoo
+       // isNeverRetreating   xoxoxoxoxoxo
+       //                     AB--ABA-BB--
         if ( false === isInMobWhitelist &&
-            (true === isMobWhitelist || nEnemyHPUnder < nEnemyNowHP) &&
+            (true === isMobWhitelist || false === isWinningPrediction) &&
             false === isNeverRetreating
         ) {
             /**
              * Retreat: isNeverRetreating = false, but
              * 1. isMobWhitelist = false => isInMobWhitelist = false,
-             *   and the Max HP of Enemy is too high.
+             *   and the Enemy is so powerful that you may not win.
              * 2. isMobWhitelist = true, isInMobWhitelist = false.
              */
             $("p.btn04 > a")[0].click();
-        // If a "powerful" enemy is in Whitelist, but you cannot output damage more than 15% of its MaxHP at first attack.
-        } else if ( true === isInMobWhitelist && isExisted("td.help_me") && nEnemyHPUnder < nEnemyMaxHP ) {
+        // It is a "powerful" enemy is whom you insist on fighting (in Whitelist/never retreating),
+        // but you cannot output enough damage before time's up.
+        } else if ( (true === isInMobWhitelist || true === isNeverRetreating) &&
+                   isExisted("td.help_me") &&
+                   false === isWinningPrediction ) {
             // Joined members are more than 1.
             // After seeking help, you just need to wait to it been beated.
             if ( 1 < $("div#gad_wrapper > div > div.gra_dark_blue.padding_t3 > div.padding").text().match(/\d+/)[0].toInt() ) {
                 // Do nothing.
                 console.log("After seeking help, just waiting...");
             // Seek help from someone.
-            } else if ( nEnemyNowHP / nEnemyMaxHP > 0.85 ) {
+            } else {
                 $("td.friend > a")[0].click();
             }
         // Check if AP is enough.
