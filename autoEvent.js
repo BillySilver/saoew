@@ -62,18 +62,18 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170321]
+// @version     [170506]
 // @grant       none
 // ==/UserScript==
 
 // var DEBUGGING = true;
 
 const sHealPoison = { p100: 1, p30: 2, p50: 3, p70: 4 };
-var sHeal         = rand(1, 3);
+var sHeal         = rand(1, 4);
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 50000000;
-var nFavorSets    = [5, 2,
+var nFavorSets    = [2, 5, 4,
                      1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
@@ -87,6 +87,7 @@ var isHiddenArea = false;
  * @type {Integer}
  */
 var isRareConquest = false;
+var isGoldenBoss   = true;
 var isUsingItem    = false;
 
 //*
@@ -100,9 +101,6 @@ const mobFishing = [
 ];
 
 var mobWhitelist = [
-    "ｹﾙﾋﾞﾑ･ｳｫﾘｱｰ",
-    "ﾃﾞｽﾄﾛｲﾔｰ･ｻﾌﾞﾅｯｸ",
-    "ﾋﾞﾍﾃﾞｨﾝｸﾞ･ﾜｰﾙｳｨﾝﾄﾞ"
 ];
 //*/
 var isNeverRetreating = true;
@@ -668,7 +666,8 @@ function action_home_quest_map5() {
     if ( false !== isRareConquest && isExisted("div[class*='back_step']") ) {
         // The amount of "瘴気の小瓶" in Rare Boss Area.
         // The amount of "ﾃﾞｨｳﾞﾝｼｭの女神" in Guardian Area.
-        var nMiasmaVial = $("div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g)[0].toInt();
+//         var nMiasmaVial = $("div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g)[0].toInt();
+        var nMiasmaVial = $("div#gad_wrapper > div > div > div > div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g)[0].toInt();
 
         // in Rare Boss Area.
         // 1: Extreme.
@@ -676,8 +675,15 @@ function action_home_quest_map5() {
         // 3: Deep Chaos.
         // 4: Unlimited.
         // 5: Inferno.
-        if ( 1 === isRareConquest )
+        if ( 1 === isRareConquest ) {
             difficulty = 2;
+            // Here is for Golden Week Boss.
+            var nGoldenMiasmaVial = $("div#gad_wrapper > div > div > div.padding_t05.back_step0 > div > div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g)[0].toInt();
+            if ( isGoldenBoss && 0 < nGoldenMiasmaVial ) {
+                $("div.padding_t05.back_step0 > center > a")[0].click();
+                return;
+            }
+        }
 
         // in Guardian Area.
         // 1: EX.Hard.
@@ -793,7 +799,7 @@ function action_home_quest_map10() {
     // 2: Normal.
     // 3: Hard.
     // 4: Very Hard.
-    var difficulty = 4;
+    var difficulty = 3;
     if ( false === isExisted("div.btn_img_event_duel0" + difficulty + " > a.off") )
         $("div.btn_img_event_duel0" + difficulty + " > a")[0].click();
     else
@@ -957,9 +963,9 @@ function action_event_extra_index(yourNowAP) {
     // 3: Hard.
     // 4: Very Hard.
     var difficulty = 3;
-    // Black Shrine on Thursday: Power.
-    if ( null !== $("div.box_daily_dungeon_info01 > img").attr("src").match(/bn_daily_4.png/) )
-        difficulty = 2;
+    // Not necessary to reduce difficulty.
+    if ( null !== $("div.box_daily_dungeon_info01 > img").attr("src").match(/bn_daily_[245].png/) )
+        difficulty = 4;
 
     var necessaryAP = 100;
     if ( necessaryAP > yourNowAP ) {
