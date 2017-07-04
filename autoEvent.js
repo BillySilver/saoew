@@ -62,8 +62,9 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170524]
+// @version     [170609]
 // @grant       none
 // ==/UserScript==
 
@@ -78,7 +79,7 @@ var nFavorSets    = [2, 5, 4,
                      1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
-var isErukaFruit = true;
+var isErukaFruit = false;
 var isHiddenArea = false;
 /**
  * Choose one of rare bosses you want to beat.
@@ -90,6 +91,7 @@ var isHiddenArea = false;
 var isRareConquest = false;
 var isGoldenBoss   = false;
 var isUsingItem    = false;
+var isUsingBSkill  = false;
 
 //*
 var isMobWhitelist = true;
@@ -504,7 +506,7 @@ function action_home_quest_map2() {
                 return 1e10;
             return $("select#battleSkill > option:eq(1)").text().match(/\d+/)[0].toInt();
         })();
-        if ( nBurstSkillBC <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
+        if ( isUsingBSkill && nBurstSkillBC <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
             $("div#flgUseSkill")[0].click();
             $("select#battleSkill > option:eq(1)").prop("selected", true);
         }
@@ -631,12 +633,11 @@ function action_home_quest_map2() {
 
 // Event Entrance - 攻略.
 function action_home_quest_map4() {
-    // 1: Easy.
-    // 2: Normal.
-    // 3: Hard.
-    // 4: Very Hard.
-    // 5: Expert.
-    var difficulty = 4;
+    // 1: Normal.
+    // 2: Hard.
+    // 3: Very Hard.
+    // 4: Expert.
+    var difficulty = 3;
 
     // "ﾚｱｴﾘｱﾎﾞｽと戦う". You can decide whether to do it.
     if ( false !== isRareConquest )
@@ -680,7 +681,9 @@ function action_home_quest_map5() {
         if ( 1 === isRareConquest ) {
             difficulty = 2;
             // Here is for Golden Week Boss.
-            var nGoldenMiasmaVial = $("div#gad_wrapper > div > div > div.padding_t05.back_step0 > div > div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g)[0].toInt();
+            var nGoldenMiasmaVial = 0
+            if ( null !== $("div#gad_wrapper > div > div > div.padding_t05.back_step0 > div > div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g) )
+                var nGoldenMiasmaVial = $("div#gad_wrapper > div > div > div.padding_t05.back_step0 > div > div.font_s.padding_t03.padding_b03").text().match(/\s\d+/g)[0].toInt();
             if ( isGoldenBoss && 0 < nGoldenMiasmaVial ) {
                 $("div.padding_t05.back_step0 > center > a")[0].click();
                 return;
@@ -709,7 +712,7 @@ function action_home_quest_map6() {
     // 4: Very Hard.
     // 5: Expert.
     // 6: Collect.
-    var difficulty = 5;
+    var difficulty = 4;
 
     if ( false !== isUsingItem ) {
         if ( isExisted("div.event_bonus_btn:not([class~=off])") ) {
