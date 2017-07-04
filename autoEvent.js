@@ -61,8 +61,9 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_map=1&map_code=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170506]
+// @version     [170524]
 // @grant       none
 // ==/UserScript==
 
@@ -77,7 +78,7 @@ var nFavorSets    = [2, 5, 4,
                      1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
-var isErukaFruit = false;
+var isErukaFruit = true;
 var isHiddenArea = false;
 /**
  * Choose one of rare bosses you want to beat.
@@ -87,7 +88,7 @@ var isHiddenArea = false;
  * @type {Integer}
  */
 var isRareConquest = false;
-var isGoldenBoss   = true;
+var isGoldenBoss   = false;
 var isUsingItem    = false;
 
 //*
@@ -177,8 +178,8 @@ $(document).ready(function() {
     console.log("opensocial_owner_id:", opensocial_owner_id);
 
     // ｴﾙｰｶの実を探してきますね！ - 釣魚.
-    if ( isExisted("div#gad_wrapper>div>div>div.navi_area.clear>a") ) {
-        $("div#gad_wrapper>div>div>div.navi_area.clear>a")[0].click();
+    if ( isExisted("div#gad_wrapper > div > div > div.navi_area.clear > a") ) {
+        $("div.navi_area.clear > a")[0].click();
         return;
     }
 
@@ -238,6 +239,7 @@ $(document).ready(function() {
         action_home_quest_map6();
     // Event Entrance - 釣魚, 討伐(170310 ~ 170316, White Day).
     // 原本只有ﾗﾗｸの実可選, 後來多了ﾃﾞｺｲｴﾋﾞ, ﾀﾞﾝｺﾞ, ﾍﾞｲﾄｶｹﾞ, 且不再分難度(透過其他方式切換).
+    // 不同的魚餌變成了和白色情人節討伐活動一樣, 成為了蒐集食材. (170524 ~)
     else if ( isExisted("div#gad_wrapper > div > div > div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04.padding_r02.padding_l02.font_s") )
         action_home_quest_map8();
     // Event Entrance - 決鬥(已進入申請畫面).
@@ -274,7 +276,7 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div > center > div.footer_padding > center > a > span.event_btn_next") )
         action_event_160_getbox();
     // 釣到普通魚或道具 - 釣魚.
-    else if ( isExisted("div#gad_wrapper>div>div>div.btn01.padding2") )
+    else if ( isExisted("div#gad_wrapper > div > center.footer_padding > table.padding2 div.btn01") )
         action_event_169_user_index();
     // 使用道具 - 攻略.
     else if ( isExisted("div#gad_wrapper > div > div > div.padding > center.padding.btn01") )
@@ -727,33 +729,34 @@ function action_home_quest_map6() {
 
 // Event Entrance - 釣魚, 討伐(170310 ~ 170316, White Day).
 function action_home_quest_map8() {
-    var isBigNushi = (function () {
-        var jStamp = $("div.next_reward_item > table.box_table_stampSheet01 > tbody > tr > td > div.box_stamp01");
-        // 檢查湖のｵｵﾇｼ.
-        for (var i = 0; i < jStamp.length; i++) {
-            if ( null !== jStamp.eq(i).children("img").attr("src").match(/ic_06\.jpg/) ) {
-                // 若有湖のｵｵﾇｼ, 而未收集到Sheet, 則需要用ｴﾙｰｶの実提高釣到它的機會.
-                if ( 0 === jStamp.eq(i).children("div.deco_msk_clear").length )
-                    return true;
-            }
-        }
-        return false;
-    })();
-
     // Change to HARD difficulty if it is EASY now.
     if ( "EASY" === $("div.map_back > div.pos_abs > span").text() ) {
         $("div.map_back > div.pos_abs > div.btn_sprite_difficultychange01 > a")[0].click();
-    // White Day Crusade (170310 ~ 170316).
+    // Fishing (170524 ~), White Day Crusade (170310 ~ 170316).
     } else if ( isExisted("div.map_back > table.area_select_btn01") ) {
+        // ｴﾙｰｶの実.
+        var nErukaFruit = $("div.map_back > table > tbody > tr > td > div.btn_sprite_event04.btn_img_event05").text().match(/\d+/)[0].toInt();
+        if ( true === isErukaFruit && 0 < nErukaFruit ) {
+            $("div.map_back > table > tbody > tr > td > div.btn_sprite_event04.btn_img_event05 > a")[0].click();
+            return;
+        }
+
+        // For White Day Crusade:
         // 0: ﾋﾞﾋﾞｯﾄﾞﾊﾆｰ.
         // 1: ﾉｰﾌﾞﾙﾐﾙｸ.
         // 2: ｸﾞﾘｭｯｸの実.
         // 3: ｸﾞﾗｰﾃｽﾊﾟｳﾀﾞｰ.
 
+        // For Fishing:
+        // 0: ﾘｰﾌﾟﾛﾌﾞｽﾀｰ.
+        // 1: ｽﾀｳﾄﾂﾅ.
+        // 2: ﾀｲﾆｰｸﾗｰｹﾝ.
+        // 3: ﾋﾞﾋﾞｯﾄﾞﾌﾞﾘｰﾑ.
+
         // Choose the area which has material that you have least.
-        var jArea = $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04");
-        var nSelection = null;
-        var nMinMaterial  = 1e10;
+        var jArea        = $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04");
+        var nSelection   = null;
+        var nMinMaterial = 1e10;
         for (var i = 0; i < jArea.length; i++) {
             var nMaterial = jArea.eq(i).text().match(/\d+/)[0].toInt();
             if ( nMinMaterial < nMaterial )
@@ -763,28 +766,6 @@ function action_home_quest_map8() {
             nMinMaterial = nMaterial;
         }
         $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04 > a")[nSelection].click();
-    // 檢查魚群是否到來(紫色湖のﾇｼ).
-    // 若未到來, a之class為off, 否則無class.
-    } else if ( false === isExisted("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a.off") ) {
-        $("div.map_back > table.area_select_btn02 > tbody > tr > td > div > a")[1].click();
-    } else {
-        // ｴﾙｰｶの実.
-        // .reverse().match(/\d+(?=;psbn&)/)[0].reverse() = .match(/(?<=&nbsp;)\d+/)[0]
-        String.prototype.reverse = function () {
-            return this.split('').reverse().join('');
-        };
-        var nErukaFruit = $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05").text().reverse().match(/\d+(?=;psbn&)/)[0].reverse().toInt();
-        // Todo:
-        nErukaFruit -= $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05 > span:eq(2)").length;
-
-        if ( (true === isErukaFruit || true === isBigNushi) && 0 < nErukaFruit )
-            $("div.map_back > table.area_select_btn02 > tbody > tr > td > div.btn_sprite_event04.btn_img_event05 > a")[0].click();
-        else
-            // 0: ﾗﾗｸの実.
-            // 1: ﾃﾞｺｲｴﾋﾞ.
-            // 2: ﾀﾞﾝｺﾞ.
-            // 3: ﾍﾞｲﾄｶｹﾞ.
-            $("div.map_back > table.area_select_btn01 > tbody > tr > td > div.btn_sprite_event04 > a")[rand(0, 3)].click();
     }
 }
 
@@ -922,7 +903,8 @@ function action_event_160_getbox() {
 
 // 釣到普通魚或道具 - 釣魚.
 function action_event_169_user_index() {
-    $("div#gad_wrapper>div>div>div.btn01.padding2>a")[0].click();
+    // ｲﾍﾞﾝﾄﾏｯﾌﾟへ.
+    $("div.btn01 > a")[0].click();
 }
 
 // 使用道具 - 攻略.
