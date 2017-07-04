@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SAOEW : Auto Event
 // @namespace   saoew
-// @description Exploring, Simulation, Crusade, Conquest, Collect, Fishing, Duel, Guild
+// @description Exploring, Simulation, Crusade, Conquest, Collect, Fishing, Duel, Guild, Invasion
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_quest_map&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=100*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_do=true&guid=ON&mc=100*
@@ -63,8 +63,9 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_event_extra_index=true&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_278_dailyreward_index=1&div=606&guid=ON
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170609]
+// @version     [170615]
 // @grant       none
 // ==/UserScript==
 
@@ -91,10 +92,15 @@ var isHiddenArea = false;
 var isRareConquest = false;
 var isGoldenBoss   = false;
 var isUsingItem    = false;
-var isUsingBSkill  = false;
+/**
+ * Choose one of Burst Skills (1 is represented by "ﾊﾞｲﾀﾙﾌｫｰｽ (BC：10)", and so on).
+ * others: disabled
+ * @type {Integer}
+ */
+var isUsingBSkill = 2;
 
 //*
-var isMobWhitelist = true;
+// var isMobWhitelist = true;
 const mobFishing = [
     "ﾌﾗｯｼｭ･ｲｰﾀｰ",
     "ｳﾞｧﾝﾄｩｰｸﾗｰｹ",
@@ -158,6 +164,11 @@ $(document).ready(function() {
         } else {
             return;
         }
+    // 襲来ｲﾍﾞﾝﾄ: Daily Reward at 6:00 pm. We need to click the "攻略" button to go back to Event Page.
+    // http://a57528.app.gree-pf.net/sp_web.php?action_event_278_dailyreward_index=1&div=606&guid=ON
+    } else if ("?action_event_278_dailyreward_index=1&div=606&guid=ON" === location.search) {
+        $("li.search.btn > a")[0].click();
+        return;
     }
 
     console.log("It is a SAOEW event page.");
@@ -236,8 +247,8 @@ $(document).ready(function() {
     // Event Entrance - 決鬥(一般探索 -> 申請畫面).
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > div.btn06") && true === isDuelEvent )
         action_home_quest_map9();
-    // Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐.
-    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div.btn_sprite_event_map08") )
+    // Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐, 襲來.
+    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div[class^='btn_sprite_event_map0']") )
         action_home_quest_map6();
     // Event Entrance - 釣魚, 討伐(170310 ~ 170316, White Day).
     // 原本只有ﾗﾗｸの実可選, 後來多了ﾃﾞｺｲｴﾋﾞ, ﾀﾞﾝｺﾞ, ﾍﾞｲﾄｶｹﾞ, 且不再分難度(透過其他方式切換).
@@ -495,6 +506,13 @@ function action_home_quest_map2() {
         })();
         var isWinningPrediction = ((nEnemyNowHP / nEnemyMaxHP) < ((nQuestTime+30) / nMaxTime));
 
+        isUsingBSkill = (function() {
+            if ( Number.isInteger(isUsingBSkill) &&
+                   0 < isUsingBSkill &&
+                   isUsingBSkill < $("select#battleSkill > option").length )
+                return isUsingBSkill;
+            return false;
+        })();
         var nNowBC = (function() {
             var digit = 0;
             for (var i = 0; i < $("span.pos_abs.pos_now > img").length; i++)
@@ -502,13 +520,13 @@ function action_home_quest_map2() {
             return digit;
         })();
         var nBurstSkillBC = (function() {
-            if ( false === isExisted("select#battleSkill") )
+            if ( false === isExisted("select#battleSkill") || false === isUsingBSkill )
                 return 1e10;
-            return $("select#battleSkill > option:eq(1)").text().match(/\d+/)[0].toInt();
+            return $("select#battleSkill > option").eq(isUsingBSkill).text().match(/\d+/)[0].toInt();
         })();
-        if ( isUsingBSkill && nBurstSkillBC <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
+        if ( false !== isUsingBSkill && nBurstSkillBC <= nNowBC && nEnemyHPUnder/2 <= nEnemyNowHP ) {
             $("div#flgUseSkill")[0].click();
-            $("select#battleSkill > option:eq(1)").prop("selected", true);
+            $("select#battleSkill > option").eq(isUsingBSkill).prop("selected", true);
         }
 
        // isMobWhitelist      xxxxoooooooo
@@ -704,15 +722,15 @@ function action_home_quest_map5() {
     }
 }
 
-// Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐.
+// Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐, 襲來.
 function action_home_quest_map6() {
     // 1: Easy.
     // 2: Normal.
     // 3: Hard.
     // 4: Very Hard.
     // 5: Expert.
-    // 6: Collect.
-    var difficulty = 4;
+    // 6: Collect or Nightmare.
+    var difficulty = 5;
 
     if ( false !== isUsingItem ) {
         if ( isExisted("div.event_bonus_btn:not([class~=off])") ) {
@@ -722,8 +740,8 @@ function action_home_quest_map6() {
             audioAlert();
         }
     } else {
-        if ( isExisted("div.btn_sprite_event_map08:eq(" + (difficulty - 1) + ")") )
-            $("div.btn_sprite_event_map08 > a")[difficulty - 1].click();
+        if ( isExisted("div[class^='btn_sprite_event_map0']:eq(" + (difficulty - 1) + ")") )
+            $("div[class^='btn_sprite_event_map0'] > a")[difficulty - 1].click();
         else
             // ボーナスエリアへ進む.
             $("div.btn_sprite_event_map08.btn_img_event_bonus > a")[0].click();
