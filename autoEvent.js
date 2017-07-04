@@ -64,8 +64,10 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_accept_index=1&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_278_dailyreward_index=1&div=606&guid=ON
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_279_minigame&guid=ON
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_279_minigame&step=6&guid=ON
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170615]
+// @version     [170621]
 // @grant       none
 // ==/UserScript==
 
@@ -76,7 +78,7 @@ var sHeal         = rand(1, 4);
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 50000000;
-var nFavorSets    = [2, 5, 4,
+var nFavorSets    = [2, 3, 5, 4,
                      1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
@@ -97,7 +99,7 @@ var isUsingItem    = false;
  * others: disabled
  * @type {Integer}
  */
-var isUsingBSkill = 2;
+var isUsingBSkill = 1;
 
 //*
 // var isMobWhitelist = true;
@@ -168,6 +170,11 @@ $(document).ready(function() {
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_278_dailyreward_index=1&div=606&guid=ON
     } else if ("?action_event_278_dailyreward_index=1&div=606&guid=ON" === location.search) {
         $("li.search.btn > a")[0].click();
+        return;
+    } else if ("?action=event_279_minigame&guid=ON" === location.search ||
+               "?action=event_279_minigame&step=6&guid=ON" === location.search
+              ) {
+        $("div.footer_btn > a")[0].click()
         return;
     }
 
@@ -655,7 +662,7 @@ function action_home_quest_map4() {
     // 2: Hard.
     // 3: Very Hard.
     // 4: Expert.
-    var difficulty = 3;
+    var difficulty = 4;
 
     // "ﾚｱｴﾘｱﾎﾞｽと戦う". You can decide whether to do it.
     if ( false !== isRareConquest )
@@ -730,7 +737,7 @@ function action_home_quest_map6() {
     // 4: Very Hard.
     // 5: Expert.
     // 6: Collect or Nightmare.
-    var difficulty = 5;
+    var difficulty = 4;
 
     if ( false !== isUsingItem ) {
         if ( isExisted("div.event_bonus_btn:not([class~=off])") ) {
