@@ -14,7 +14,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170302]
+// @version     [170707]
 // @grant       none
 // ==/UserScript==
 
@@ -82,7 +82,7 @@ Buff[8] = {
         part: "Hat",
         Lv: 9,
         Limit: 180,
-        Opt: 5099
+        Opt: 5161
     },
     "102": {
         part: "Upper",
