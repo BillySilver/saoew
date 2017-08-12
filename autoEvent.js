@@ -33,8 +33,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_*_user_index&step=2&guid=ON&gc=*&gacha_hs=*&p_div=*&skip=0_sp
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_autorecoveryitem=true&guid=ON&*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=4&opensocial_owner_id=*
-// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=5&opensocial_owner_id=*
+// @include     http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&div=*&opensocial_owner_id=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_map=1&map_code=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action_home_quest_select=1&guid=ON&pt=*
 // @include     http://a57528.app.gree-pf.net/sp_web.php?guid=ON&action_home_quest_index=true&opensocial_owner_id=*
@@ -67,7 +66,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_279_minigame&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=event_279_minigame&step=6&guid=ON
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170621]
+// @version     [170716]
 // @grant       none
 // ==/UserScript==
 
@@ -78,7 +77,7 @@ var sHeal         = rand(1, 4);
 var isSleepMode   = true;
 var isLimitHeal   = true;
 var nEnemyHPUnder = 50000000;
-var nFavorSets    = [2, 3, 5, 4,
+var nFavorSets    = [2, 1, 3, 5, 4,
                      1, 2, 3, 4, 5];
 
 var isDuelEvent  = false;
@@ -99,7 +98,7 @@ var isUsingItem    = false;
  * others: disabled
  * @type {Integer}
  */
-var isUsingBSkill = 1;
+var isUsingBSkill = false;
 
 //*
 // var isMobWhitelist = true;
@@ -255,7 +254,7 @@ $(document).ready(function() {
     else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > div.btn06") && true === isDuelEvent )
         action_home_quest_map9();
     // Event Entrance - 收集, 決鬥(一般探索), 育成, 討伐, 襲來.
-    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div[class^='btn_sprite_event_map0']") )
+    else if ( isExisted("div#gad_wrapper > div > div > div.bg_event_map01 > center > div > div[class^='btn_sprite_event_map']") )
         action_home_quest_map6();
     // Event Entrance - 釣魚, 討伐(170310 ~ 170316, White Day).
     // 原本只有ﾗﾗｸの実可選, 後來多了ﾃﾞｺｲｴﾋﾞ, ﾀﾞﾝｺﾞ, ﾍﾞｲﾄｶｹﾞ, 且不再分難度(透過其他方式切換).
@@ -264,7 +263,9 @@ $(document).ready(function() {
         action_home_quest_map8();
     // Event Entrance - 決鬥(已進入申請畫面).
     // http://a57528.app.gree-pf.net/sp_web.php?action_event_*_user_index=true&guid=ON&opensocial_owner_id=*
-    else if ( isExisted("div#gad_wrapper > div > div > div.padding_t05 > table > tbody > tr > td > div.btn_sprite_event_duel01") )
+    // 攻略ｲﾍﾞﾝﾄ -最終章- 世界樹頂上戦 - (覚醒)ﾊﾟﾝﾄﾞﾗに挑む.
+    else if ( isExisted("div#gad_wrapper > div > div > div.padding_t05 > table > tbody > tr > td > div.btn_sprite_event_duel01") ||
+              isExisted("div#gad_wrapper > div > div > div.padding_t05 a > img[src*='bt_pandora_']") )
         action_home_quest_map10();
     // Event Entrance - 公會.
     else if ( chkURL(/action(_|=)event_\d+_ready/) && isExisted("div#gad_wrapper > div > div > table > tbody > tr > td > a > div[class^='attack_btn0']") )
@@ -368,7 +369,7 @@ $(document).ready(function() {
                         return this.nodeType === 3 && null !== this.nodeValue.match(/\d+/);
                     })[0].nodeValue.toInt();
 
-                    if ( 130 > nLv ) {
+                    if ( 140 > nLv ) {
                         $("div.gra_dark_blue > div > input").eq(i).prop("checked", null);
                     } else {
                         $("div.gra_dark_blue > div > input").eq(i).prop("checked", true);
@@ -737,7 +738,7 @@ function action_home_quest_map6() {
     // 4: Very Hard.
     // 5: Expert.
     // 6: Collect or Nightmare.
-    var difficulty = 4;
+    var difficulty = 5;
 
     if ( false !== isUsingItem ) {
         if ( isExisted("div.event_bonus_btn:not([class~=off])") ) {
@@ -747,8 +748,8 @@ function action_home_quest_map6() {
             audioAlert();
         }
     } else {
-        if ( isExisted("div[class^='btn_sprite_event_map0']:eq(" + (difficulty - 1) + ")") )
-            $("div[class^='btn_sprite_event_map0'] > a")[difficulty - 1].click();
+        if ( isExisted("div[class^='btn_sprite_event_map']:eq(" + (difficulty - 1) + ")") )
+            $("div[class^='btn_sprite_event_map'] > a")[difficulty - 1].click();
         else
             // ボーナスエリアへ進む.
             $("div.btn_sprite_event_map08.btn_img_event_bonus > a")[0].click();
@@ -804,6 +805,10 @@ function action_home_quest_map9() {
 
 // Event Entrance - 決鬥(已進入申請畫面).
 function action_home_quest_map10() {
+    // 攻略ｲﾍﾞﾝﾄ -最終章- 世界樹頂上戦 - (覚醒)ﾊﾟﾝﾄﾞﾗに挑む.
+    if ( isExisted("img[src*='bt_pandora_']") )
+        $("img[src*='bt_pandora_']").parent()[0].click();
+
     // 1: Easy.
     // 2: Normal.
     // 3: Hard.
