@@ -6,7 +6,7 @@
 // @include     http://a57528.app.gree-pf.net/sp_web.php?action=home_info_formation_setlist2&guid=ON
 // @include     http://a57528.app.gree-pf.net/sp_web.php
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js
-// @version     [170123]
+// @version     [170715]
 // @grant       none
 // ==/UserScript==
 
@@ -33,10 +33,10 @@ $(document).ready(function() {
         setTimeout(function() {
             $("select[name=deckCode] > option").eq(nTrainingSet - 1).prop("selected", true);
             $("select[name=deckCode]").next("div.btn02").children("input")[0].click();
-        }, 5*1000);
+        }, 10*1.2*1000);
+    } else {
+        setTimeout(hAfterWaiting, 10*1000);
     }
-
-    setTimeout(hAfterWaiting, 60*1000);
 
     function hAfterWaiting() {
         console.log("Time Out!");
